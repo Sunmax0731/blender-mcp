@@ -49,6 +49,117 @@ $stderrPath = Join-Path $OutputDir "server.stderr.log"
 $baseBlend = Join-Path $repoRoot "tmp\ui_smoke_base.blend"
 $automationStdout = Join-Path $OutputDir "automation.stdout.log"
 $automationStderr = Join-Path $OutputDir "automation.stderr.log"
+$modeReportPath = Join-Path $OutputDir "smoke-mode.json"
+
+Add-Type -AssemblyName System.Drawing
+Add-Type -TypeDefinition @"
+using System;
+using System.Runtime.InteropServices;
+
+public static class CodexWindowInterop
+{
+    [StructLayout(LayoutKind.Sequential)]
+    public struct RECT
+    {
+        public int Left;
+        public int Top;
+        public int Right;
+        public int Bottom;
+    }
+
+    [DllImport("user32.dll")]
+    public static extern IntPtr GetForegroundWindow();
+
+    [DllImport("user32.dll")]
+    public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
+
+    [DllImport("user32.dll")]
+    public static extern bool GetWindowRect(IntPtr hWnd, out RECT rect);
+}
+"@
+
+function Get-VisibleBlenderProcess {
+    $candidates = Get-Process -Name "blender" -ErrorAction SilentlyContinue |
+        Where-Object { $_.MainWindowHandle -ne 0 }
+    if (-not $candidates) {
+        return $null
+    }
+    return $candidates | Sort-Object StartTime -Descending | Select-Object -First 1
+}
+
+function Get-ForegroundProcessId {
+    $hwnd = [CodexWindowInterop]::GetForegroundWindow()
+    if ($hwnd -eq [IntPtr]::Zero) {
+        return 0
+    }
+
+    [uint32]$processId = 0
+    [void][CodexWindowInterop]::GetWindowThreadProcessId($hwnd, [ref]$processId)
+    return [int]$processId
+}
+
+function Save-WindowScreenshot {
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.Diagnostics.Process]$Process,
+        [Parameter(Mandatory = $true)]
+        [string]$Path
+    )
+
+    $handle = [IntPtr]$Process.MainWindowHandle
+    if ($handle -eq [IntPtr]::Zero) {
+        throw "MainWindowHandle could not be resolved for Blender process $($Process.Id)."
+    }
+
+    $rect = New-Object CodexWindowInterop+RECT
+    if (-not [CodexWindowInterop]::GetWindowRect($handle, [ref]$rect)) {
+        throw "GetWindowRect failed for Blender process $($Process.Id)."
+    }
+
+    $width = $rect.Right - $rect.Left
+    $height = $rect.Bottom - $rect.Top
+    if ($width -le 0 -or $height -le 0) {
+        throw "Resolved Blender window size is invalid: ${width}x${height}"
+    }
+
+    $bitmap = New-Object System.Drawing.Bitmap($width, $height)
+    $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
+    try {
+        $graphics.CopyFromScreen($rect.Left, $rect.Top, 0, 0, $bitmap.Size)
+        $bitmap.Save($Path, [System.Drawing.Imaging.ImageFormat]::Png)
+    }
+    finally {
+        $graphics.Dispose()
+        $bitmap.Dispose()
+    }
+}
+
+function Write-SmokeModeReport {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path,
+        [Parameter(Mandatory = $true)]
+        [string]$Mode,
+        [Parameter(Mandatory = $true)]
+        [int]$ProcessId,
+        [Parameter(Mandatory = $true)]
+        [string]$ServerUrl,
+        [Parameter(Mandatory = $true)]
+        [string]$ScreenshotPath,
+        [Parameter(Mandatory = $true)]
+        [double]$CaptureDelaySeconds
+    )
+
+    $payload = [ordered]@{
+        mode = $Mode
+        processId = $ProcessId
+        serverUrl = $ServerUrl
+        screenshotPath = $ScreenshotPath
+        captureDelaySeconds = $CaptureDelaySeconds
+        capturedAt = (Get-Date).ToString("o")
+    }
+    $payload | ConvertTo-Json -Depth 3 | Set-Content -Path $Path -Encoding UTF8
+}
 
 & $PythonExe (Join-Path $repoRoot "scripts\build_blender_addon.py")
 & $PythonExe (Join-Path $repoRoot "scripts\sync_blender_addon.py")
@@ -113,24 +224,63 @@ if (-not $SkipServer) {
 
 $captureScript = Join-Path $repoRoot "scripts\blender_ui_capture.py"
 $automationScript = Join-Path $repoRoot "scripts\prepare_blender_window.py"
-$blenderArgs = "`"$baseBlend`" --python-exit-code 1 --python `"$captureScript`" -- --output-dir `"$OutputDir`" --server-url `"$ServerUrl`" --prompt `"$Prompt`" --wait-seconds $CaptureDelaySeconds"
-$blenderProcess = Start-Process `
-    -FilePath $BlenderExe `
-    -ArgumentList $blenderArgs `
-    -WorkingDirectory $repoRoot `
-    -PassThru
+$screenshotPath = Join-Path $OutputDir "blender-mcp-ui.png"
+$reportPath = Join-Path $OutputDir "blender-mcp-ui-report.json"
+$existingBlender = Get-VisibleBlenderProcess
+$blenderExitCode = 0
+$captureMode = ""
 
-$automationProcess = Start-Process `
-    -FilePath $PythonExe `
-    -ArgumentList $automationScript, "--pid", "$($blenderProcess.Id)", "--delay-seconds", "$AutomationDelaySeconds" `
-    -WorkingDirectory $repoRoot `
-    -WindowStyle Hidden `
-    -RedirectStandardOutput $automationStdout `
-    -RedirectStandardError $automationStderr `
-    -PassThru
+if ($existingBlender) {
+    $foregroundProcessId = Get-ForegroundProcessId
+    if ($foregroundProcessId -ne $existingBlender.Id) {
+        Write-Host "Existing Blender process found. Bringing it to the foreground: PID=$($existingBlender.Id)"
+        $automationProcess = Start-Process `
+            -FilePath $PythonExe `
+            -ArgumentList $automationScript, "--pid", "$($existingBlender.Id)", "--delay-seconds", "$AutomationDelaySeconds", "--skip-click" `
+            -WorkingDirectory $repoRoot `
+            -WindowStyle Hidden `
+            -RedirectStandardOutput $automationStdout `
+            -RedirectStandardError $automationStderr `
+            -PassThru
+        Wait-Process -Id $automationProcess.Id
+    }
+    else {
+        Write-Host "Existing Blender process is already the active window: PID=$($existingBlender.Id)"
+    }
 
-Wait-Process -Id $blenderProcess.Id
-$blenderExitCode = $blenderProcess.ExitCode
+    Start-Sleep -Seconds ([Math]::Max(0, $CaptureDelaySeconds))
+    Save-WindowScreenshot -Process $existingBlender -Path $screenshotPath
+    Write-SmokeModeReport `
+        -Path $modeReportPath `
+        -Mode "existing_process" `
+        -ProcessId $existingBlender.Id `
+        -ServerUrl $ServerUrl `
+        -ScreenshotPath $screenshotPath `
+        -CaptureDelaySeconds $CaptureDelaySeconds
+    $captureMode = "existing_process"
+}
+else {
+    Write-Host "No visible Blender process found. Launching a controlled Blender instance."
+    $blenderArgs = "`"$baseBlend`" --python-exit-code 1 --python `"$captureScript`" -- --output-dir `"$OutputDir`" --server-url `"$ServerUrl`" --prompt `"$Prompt`" --wait-seconds $CaptureDelaySeconds"
+    $blenderProcess = Start-Process `
+        -FilePath $BlenderExe `
+        -ArgumentList $blenderArgs `
+        -WorkingDirectory $repoRoot `
+        -PassThru
+
+    $automationProcess = Start-Process `
+        -FilePath $PythonExe `
+        -ArgumentList $automationScript, "--pid", "$($blenderProcess.Id)", "--delay-seconds", "$AutomationDelaySeconds", "--send-n" `
+        -WorkingDirectory $repoRoot `
+        -WindowStyle Hidden `
+        -RedirectStandardOutput $automationStdout `
+        -RedirectStandardError $automationStderr `
+        -PassThru
+
+    Wait-Process -Id $blenderProcess.Id
+    $blenderExitCode = $blenderProcess.ExitCode
+    $captureMode = "controlled_launch"
+}
 
 if ($serverWasStarted -and -not $KeepServer -and $serverProcess -and -not $serverProcess.HasExited) {
     Stop-Process -Id $serverProcess.Id -Force
@@ -140,17 +290,20 @@ if ($blenderExitCode -ne 0) {
     throw "Blender exited with code $blenderExitCode"
 }
 
-$screenshotPath = Join-Path $OutputDir "blender-mcp-ui.png"
-$reportPath = Join-Path $OutputDir "blender-mcp-ui-report.json"
-
 if (-not (Test-Path $screenshotPath)) {
     throw "Screenshot was not generated: $screenshotPath"
 }
 
-if (-not (Test-Path $reportPath)) {
+if ($captureMode -eq "controlled_launch" -and -not (Test-Path $reportPath)) {
     throw "Report was not generated: $reportPath"
 }
 
 Write-Host "UI smoke completed."
+Write-Host "Mode: $captureMode"
 Write-Host "Screenshot: $screenshotPath"
-Write-Host "Report: $reportPath"
+if (Test-Path $reportPath) {
+    Write-Host "Report: $reportPath"
+}
+if (Test-Path $modeReportPath) {
+    Write-Host "Mode report: $modeReportPath"
+}

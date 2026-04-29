@@ -28,6 +28,8 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Blender window automation helper.")
     parser.add_argument("--pid", type=int, required=True)
     parser.add_argument("--delay-seconds", type=float, default=2.0)
+    parser.add_argument("--send-n", action="store_true")
+    parser.add_argument("--skip-click", action="store_true")
     return parser.parse_args()
 
 
@@ -88,12 +90,14 @@ def main() -> int:
     user32.BringWindowToTop(hwnd)
     user32.SetForegroundWindow(hwnd)
     print("prepare_blender_window: foreground requested")
-    time.sleep(0.2)
-    click_viewport(hwnd)
-    print("prepare_blender_window: viewport clicked")
-    time.sleep(0.2)
-    send_n_key()
-    print("prepare_blender_window: sent N")
+    if not args.skip_click:
+        time.sleep(0.2)
+        click_viewport(hwnd)
+        print("prepare_blender_window: viewport clicked")
+        time.sleep(0.2)
+    if args.send_n:
+        send_n_key()
+        print("prepare_blender_window: sent N")
     return 0
 
 
