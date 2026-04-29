@@ -36,7 +36,7 @@
 
 ### 3.1.1 Blender 側の前提
 
-- `Edit > Preferences > Add-ons` で `MCP` を有効化する
+- `Edit > Preferences > Get Extensions` で `MCP` を確認し有効化する
 - legacy `blender_mcp` add-on が有効なら無効化する
 - Blender の `Online Access` を有効化する
 - host / port / autostart は add-on 設定に従う

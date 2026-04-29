@@ -54,23 +54,57 @@ $pythonScript = @'
 import addon_utils
 import bpy
 
-before_official = addon_utils.check('mcp')
-before_legacy = addon_utils.check('blender_mcp')
 
-addon_utils.enable('mcp', default_set=True, persistent=True)
-if addon_utils.check('blender_mcp')[1]:
-    addon_utils.disable('blender_mcp', default_set=True)
+def resolve_official_keys():
+    candidate_keys = []
+    for module in addon_utils.modules():
+        module_name = module.__name__
+        if module_name == "mcp" or module_name.endswith(".mcp"):
+            candidate_keys.append(module_name)
+
+    for addon_key in bpy.context.preferences.addons.keys():
+        if addon_key == "mcp" or addon_key.endswith(".mcp"):
+            if addon_key not in candidate_keys:
+                candidate_keys.append(addon_key)
+
+    if not candidate_keys:
+        candidate_keys = ["mcp"]
+
+    return candidate_keys
+
+
+official_keys = resolve_official_keys()
+legacy_key = "blender_mcp"
+
+before_states = {key: addon_utils.check(key) for key in official_keys}
+legacy_before = addon_utils.check(legacy_key)
+
+enabled_key = None
+for key in official_keys:
+    addon_utils.enable(key, default_set=True, persistent=True)
+    if addon_utils.check(key)[1]:
+        enabled_key = key
+        break
+
+if addon_utils.check(legacy_key)[1]:
+    addon_utils.disable(legacy_key, default_set=True)
 
 bpy.ops.wm.save_userpref()
 
-prefs = bpy.context.preferences.addons['mcp'].preferences
-print(f"OFFICIAL_BEFORE={before_official}")
-print(f"LEGACY_BEFORE={before_legacy}")
-print(f"OFFICIAL_AFTER={addon_utils.check('mcp')}")
-print(f"LEGACY_AFTER={addon_utils.check('blender_mcp')}")
-print(f"HOST={prefs.host}")
-print(f"PORT={prefs.port}")
-print(f"AUTOSTART={prefs.use_autostart}")
+after_states = {key: addon_utils.check(key) for key in official_keys}
+
+print(f"OFFICIAL_KEYS={official_keys}")
+print(f"OFFICIAL_BEFORE={before_states}")
+print(f"LEGACY_BEFORE={legacy_before}")
+print(f"ENABLED_KEY={enabled_key}")
+print(f"OFFICIAL_AFTER={after_states}")
+print(f"LEGACY_AFTER={addon_utils.check(legacy_key)}")
+
+if enabled_key is not None:
+    prefs = bpy.context.preferences.addons[enabled_key].preferences
+    print(f"HOST={getattr(prefs, 'host', None)}")
+    print(f"PORT={getattr(prefs, 'port', None)}")
+    print(f"AUTOSTART={getattr(prefs, 'use_autostart', None)}")
 '@
 
 New-Item -ItemType Directory -Force -Path (Split-Path -Parent $tempScriptPath) | Out-Null

@@ -72,12 +72,13 @@ scripts\install_official_blender_mcp.cmd
 
 導入後の Blender 側確認:
 
-1. `Edit > Preferences > Add-ons` を開く
-2. `MCP` を検索して有効化する
+1. `Edit > Preferences > Get Extensions` を開く
+2. `MCP` を検索して表示されることを確認する
 3. Blender の `Online Access` を有効にする
 4. add-on 設定で host / port / autostart を確認する
 
 公式 add-on はローカル TCP bridge server を使うため、`Online Access` が無効だと起動できません。
+このスクリプトは Blender 5.1 の extension 管理経路 `user_default` へ導入します。
 
 有効化を自動化したい場合:
 
@@ -88,6 +89,7 @@ cd D:\Claude\MCP
 
 - 公式 `mcp` add-on を有効化する
 - legacy `blender_mcp` add-on が有効なら無効化する
+- Blender 5.1 extension key `bl_ext.*.mcp` にも対応する
 - `host=localhost` `port=9876` `autostart=True` を確認できる
 
 ### 3. テスト

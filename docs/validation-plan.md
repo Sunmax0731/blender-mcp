@@ -20,8 +20,8 @@
 
 - 公式 `mcp-1.0.0.zip` が取得できる
 - ローカル展開できる
-- Blender add-on 配置先へ同期できる
-- Blender 側で有効化対象として認識できる
+- Blender extension 管理経路へ導入できる
+- Blender の `Get Extensions` で `MCP` が認識される
 - legacy `blender_mcp` ではなく公式 `mcp` が有効化される
 - 公式 MCP server を `.official-mcp-venv` へ導入できる
 - `blender-mcp --help` が実行できる
