@@ -4,11 +4,24 @@ import argparse
 from dataclasses import dataclass
 from pathlib import Path
 import queue
+import sys
 import threading
 import tkinter as tk
 from tkinter import messagebox, scrolledtext
 
-from .runner import InstallerRunner, InstallerStep, default_log_dir, default_steps, repo_root
+if __package__ in (None, ""):
+    package_root = Path(__file__).resolve().parents[1]
+    if str(package_root) not in sys.path:
+        sys.path.insert(0, str(package_root))
+    from blender_mcp_installer.runner import (  # type: ignore[no-redef]
+        InstallerRunner,
+        InstallerStep,
+        default_log_dir,
+        default_steps,
+        repo_root,
+    )
+else:
+    from .runner import InstallerRunner, InstallerStep, default_log_dir, default_steps, repo_root
 
 
 @dataclass

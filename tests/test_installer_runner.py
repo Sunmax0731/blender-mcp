@@ -1,5 +1,7 @@
 from datetime import datetime
 from pathlib import Path
+import subprocess
+import sys
 
 from blender_mcp_installer.main import parse_args
 from blender_mcp_installer.runner import default_log_dir, default_steps, powershell_command
@@ -59,3 +61,19 @@ def test_default_steps_can_skip_launch_blender() -> None:
         "codex-config",
         "enable-addon",
     ]
+
+
+def test_main_py_can_run_as_script_for_plan_mode() -> None:
+    repo_root = Path(__file__).resolve().parents[1]
+    main_py = repo_root / "src" / "blender_mcp_installer" / "main.py"
+
+    result = subprocess.run(
+        [sys.executable, str(main_py), "--plan"],
+        cwd=repo_root,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0
+    assert "official-addon" in result.stdout
