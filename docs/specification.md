@@ -140,6 +140,7 @@ MVP では、Blender 側で受け付ける操作を明示的な allowlist で管
 - `Connect`
 - `Refresh Status`
 - `Send Prompt`
+- `Clear History`
 - `Execute Approved Action`
 - `Reject Action`
 
@@ -448,6 +449,13 @@ MVP UI は少なくとも以下の状態を持つ。
 }
 ```
 
+### 4.13.1 承認待ち操作の UI 保持
+
+- Blender UI は `requestId` と pending command を一時保持する
+- `Execute Approved Action` 実行時は保持中の command に承認済みフラグを付与して Blender 内で再実行する
+- MVP 時点では、承認後の最終結果は Blender UI 上で確認する
+- Codex 側への再通知は別 Issue で拡張する
+
 ### 4.14 `blender_request_ai_suggestion` リクエスト
 
 ```json
@@ -620,3 +628,4 @@ MVP UI は少なくとも以下の状態を持つ。
 - 通信異常系
 - 承認フロー
 - AI 応答の構造化変換
+- 承認待ち request の追跡

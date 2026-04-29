@@ -13,8 +13,10 @@ class BLENDERMCP_PT_session(bpy.types.Panel):
         state = context.scene.blender_mcp_state
 
         layout.prop(state, "prompt_text", text="Prompt")
-        layout.operator("blendermcp.send_prompt", text="Send Prompt")
-        layout.operator("blendermcp.process_next_command", text="Process Next Command")
+        row = layout.row(align=True)
+        row.operator("blendermcp.send_prompt", text="Send Prompt")
+        row.operator("blendermcp.process_next_command", text="Process Next Command")
+        layout.operator("blendermcp.clear_history", text="Clear History")
         layout.separator()
         layout.label(text="History")
         box = layout.box()
@@ -25,3 +27,8 @@ class BLENDERMCP_PT_session(bpy.types.Panel):
         result_box = layout.box()
         for line in state.last_result_text.splitlines() or ["No command processed yet."]:
             result_box.label(text=line)
+        if state.last_error:
+            layout.separator()
+            layout.label(text="Error")
+            error_box = layout.box()
+            error_box.label(text=state.last_error)

@@ -4,6 +4,7 @@ from .operators.connection import BLENDERMCP_OT_connect
 from .operators.connection import BLENDERMCP_OT_refresh_status
 from .operators.session import BLENDERMCP_OT_process_next_command
 from .operators.session import BLENDERMCP_OT_send_prompt
+from .operators.ui import BLENDERMCP_OT_clear_history
 from .panels.approval import BLENDERMCP_PT_approval
 from .panels.connection import BLENDERMCP_PT_connection
 from .panels.session import BLENDERMCP_PT_session
@@ -16,6 +17,7 @@ CLASSES = (
     BLENDERMCP_OT_refresh_status,
     BLENDERMCP_OT_send_prompt,
     BLENDERMCP_OT_process_next_command,
+    BLENDERMCP_OT_clear_history,
     BLENDERMCP_OT_execute_approved_action,
     BLENDERMCP_OT_reject_action,
     BLENDERMCP_PT_connection,
