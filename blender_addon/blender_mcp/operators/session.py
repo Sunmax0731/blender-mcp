@@ -56,7 +56,7 @@ class BLENDERMCP_OT_send_prompt(bpy.types.Operator):
                 selected_objects=_build_selected_objects(bpy),
                 scene_summary=_build_scene_summary(bpy),
                 constraints={
-                    "allowActions": ["transform_object"],
+                    "allowActions": ["create_primitive", "list_objects", "transform_object"],
                     "disallowActions": ["delete_object"],
                 },
             )

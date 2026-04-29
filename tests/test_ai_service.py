@@ -7,6 +7,8 @@ from blender_mcp_server.server import create_starlette_app
 from blender_mcp_server.services.ai_client import OpenAICompatibleError
 from blender_mcp_server.services.ai_client import create_chat_completion
 from blender_mcp_server.services.ai_config import OpenAICompatibleConfig
+from blender_mcp_server.services.suggestion_service import build_ai_suggestion_payload
+from blender_mcp_server.services.suggestion_service import _build_user_prompt
 
 
 def test_create_chat_completion_returns_text_from_mock_transport():
@@ -83,6 +85,54 @@ def test_ai_suggestion_endpoint_returns_configuration_error_when_key_missing(mon
     payload = response.json()
     assert payload["success"] is False
     assert payload["error"]["code"] == "AI_PROVIDER_NOT_CONFIGURED"
+
+
+def test_build_user_prompt_uses_japanese_sections():
+    prompt = _build_user_prompt(
+        prompt="カービィを作ってほしいです",
+        selected_objects=[{"name": "Cube", "type": "MESH"}],
+        scene_summary={"objectCount": 1},
+        constraints={"allowActions": ["create_primitive", "transform_object"]},
+    )
+
+    assert "ユーザーの依頼" in prompt
+    assert "選択中オブジェクト" in prompt
+    assert "シーン概要" in prompt
+    assert "制約" in prompt
+    assert "必ず日本語で回答すること" in prompt
+
+
+def test_build_ai_suggestion_payload_falls_back_to_japanese_when_model_returns_english(monkeypatch):
+    monkeypatch.setattr(
+        "blender_mcp_server.services.suggestion_service.load_openai_compatible_config",
+        lambda: OpenAICompatibleConfig(
+            base_url="https://example.com/v1",
+            api_key="test-key",
+            model="mock-model",
+            timeout_seconds=5.0,
+        ),
+    )
+    monkeypatch.setattr(
+        "blender_mcp_server.services.suggestion_service.create_chat_completion",
+        lambda **_: {
+            "provider": "openai-compatible",
+            "model": "mock-model",
+            "content": "Move the selected object slightly upward.",
+        },
+    )
+
+    result = build_ai_suggestion_payload(
+        prompt="カービィを作ってほしいです",
+        selected_objects=[],
+        scene_summary={"objectCount": 1},
+        constraints={"allowActions": ["create_primitive", "transform_object"]},
+    )
+
+    assert result["success"] is True
+    summary = result["data"]["suggestions"][0]["summary"]
+    assert "カービィ" in summary
+    assert "球体" in summary
+    assert "Move the selected object" not in summary
 
 
 class _FakeSessionManager:
