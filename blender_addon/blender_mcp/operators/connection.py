@@ -23,7 +23,7 @@ class BLENDERMCP_OT_connect(bpy.types.Operator):
         if response.get("success"):
             state.ui_state = "connected_idle"
             state.connection_label = "Connected (idle)"
-            state.history_text = "サーバー接続を確立しました。"
+            state.history_text = "Local MCP server connection established."
             return {"FINISHED"}
 
         error_message = response.get("error", {}).get("message", "Unknown connection error.")

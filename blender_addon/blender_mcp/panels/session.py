@@ -14,7 +14,14 @@ class BLENDERMCP_PT_session(bpy.types.Panel):
 
         layout.prop(state, "prompt_text", text="Prompt")
         layout.operator("blendermcp.send_prompt", text="Send Prompt")
+        layout.operator("blendermcp.process_next_command", text="Process Next Command")
         layout.separator()
         layout.label(text="History")
         box = layout.box()
-        box.label(text=state.history_text)
+        for line in state.history_text.splitlines() or ["No history yet."]:
+            box.label(text=line)
+        layout.separator()
+        layout.label(text="Last Result")
+        result_box = layout.box()
+        for line in state.last_result_text.splitlines() or ["No command processed yet."]:
+            result_box.label(text=line)

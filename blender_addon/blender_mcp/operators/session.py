@@ -1,5 +1,15 @@
 import bpy
 
+from ..services.command_runtime import process_next_command
+
+
+def _append_history(state, line: str) -> None:
+    previous = state.history_text.strip()
+    if not previous or previous == "No history yet.":
+        state.history_text = line
+        return
+    state.history_text = f"{previous}\n{line}"
+
 
 class BLENDERMCP_OT_send_prompt(bpy.types.Operator):
     bl_idname = "blendermcp.send_prompt"
@@ -10,12 +20,71 @@ class BLENDERMCP_OT_send_prompt(bpy.types.Operator):
         state = context.scene.blender_mcp_state
         prompt = state.prompt_text.strip()
         if not prompt:
-            state.last_error = "プロンプトを入力してください。"
+            state.last_error = "Prompt is empty."
             state.ui_state = "request_failed"
             return {"CANCELLED"}
 
-        state.ui_state = "request_running"
-        state.history_text = f"Latest prompt: {prompt}"
-        state.connection_label = "Connected (request running)"
+        _append_history(state, f"Prompt: {prompt}")
+        state.ui_state = "connected_idle"
+        state.connection_label = "Connected (idle)"
+        state.last_result_text = "Prompt logging only. AI dispatch is not implemented yet."
         state.last_error = ""
         return {"FINISHED"}
+
+
+class BLENDERMCP_OT_process_next_command(bpy.types.Operator):
+    bl_idname = "blendermcp.process_next_command"
+    bl_label = "Process Next Command"
+    bl_description = "Fetch the next pending command from the local MCP server"
+
+    def execute(self, context):
+        state = context.scene.blender_mcp_state
+        blender_version = ".".join(str(x) for x in bpy.app.version[:3])
+        state.blender_version = blender_version
+        state.ui_state = "request_running"
+        state.connection_label = "Connected (request running)"
+        state.last_error = ""
+
+        response = process_next_command(
+            addon_version=state.addon_version,
+            blender_version=blender_version,
+            bpy_module=bpy,
+        )
+        if not response.get("success"):
+            state.ui_state = "request_failed"
+            state.connection_label = "Connection error"
+            state.last_error = response.get("error", {}).get("message", "Unknown command error.")
+            return {"CANCELLED"}
+
+        data = response.get("data", {})
+        if not data.get("commandProcessed"):
+            state.ui_state = "connected_idle"
+            state.connection_label = "Connected (idle)"
+            state.last_result_text = "No pending commands."
+            _append_history(state, "System: no pending commands.")
+            return {"FINISHED"}
+
+        command = data.get("command", {})
+        result = data.get("result", {})
+        action = command.get("action", "unknown")
+        state.last_result_text = str(result)
+
+        if result.get("executionMode") == "confirm_required":
+            state.ui_state = "approval_pending"
+            state.pending_action_label = f"Approval required: {action}"
+            state.connection_label = "Approval pending"
+            _append_history(state, f"{action}: confirmation required.")
+            return {"FINISHED"}
+
+        if result.get("success"):
+            state.ui_state = "connected_idle"
+            state.connection_label = "Connected (idle)"
+            state.pending_action_label = "No pending actions."
+            _append_history(state, f"{action}: success")
+            return {"FINISHED"}
+
+        state.ui_state = "request_failed"
+        state.connection_label = "Request failed"
+        state.last_error = result.get("error", {}).get("message", "Unknown command failure.")
+        _append_history(state, f"{action}: failed")
+        return {"CANCELLED"}

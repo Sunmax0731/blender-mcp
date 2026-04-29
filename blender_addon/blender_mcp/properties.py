@@ -33,6 +33,10 @@ class BLENDERMCP_PG_state(bpy.types.PropertyGroup):
         name="History",
         default="No history yet.",
     )
+    last_result_text: bpy.props.StringProperty(
+        name="Last Result",
+        default="No command processed yet.",
+    )
     last_error: bpy.props.StringProperty(
         name="Last Error",
         default="",
