@@ -10,7 +10,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$repoRoot = Split-Path -Parent $scriptDir
+$repoRoot = Split-Path -Parent (Split-Path -Parent $scriptDir)
 $serverStdoutPath = Join-Path $repoRoot "artifacts\server\stdout.log"
 $serverStderrPath = Join-Path $repoRoot "artifacts\server\stderr.log"
 
@@ -121,12 +121,12 @@ function Start-Server {
     throw "Blender MCP server did not become healthy: $Url"
 }
 
-& $PythonExe (Join-Path $repoRoot "scripts\build_blender_addon.py")
+& $PythonExe (Join-Path $scriptDir "build_blender_addon.py")
 if ($LASTEXITCODE -ne 0) {
     throw "Failed to build Blender add-on zip."
 }
 
-& $PythonExe (Join-Path $repoRoot "scripts\sync_blender_addon.py")
+& $PythonExe (Join-Path $scriptDir "sync_blender_addon.py")
 if ($LASTEXITCODE -ne 0) {
     throw "Failed to synchronize Blender add-on directory."
 }

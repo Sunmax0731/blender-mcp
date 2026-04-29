@@ -13,7 +13,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$repoRoot = Split-Path -Parent $scriptDir
+$repoRoot = Split-Path -Parent (Split-Path -Parent $scriptDir)
 
 if (-not $PythonExe) {
     $PythonExe = Join-Path $repoRoot ".venv\Scripts\python.exe"
@@ -161,8 +161,8 @@ function Write-SmokeModeReport {
     $payload | ConvertTo-Json -Depth 3 | Set-Content -Path $Path -Encoding UTF8
 }
 
-& $PythonExe (Join-Path $repoRoot "scripts\build_blender_addon.py")
-& $PythonExe (Join-Path $repoRoot "scripts\sync_blender_addon.py")
+& $PythonExe (Join-Path $scriptDir "build_blender_addon.py")
+& $PythonExe (Join-Path $scriptDir "sync_blender_addon.py")
 
 if (-not (Test-Path $baseBlend)) {
     New-Item -ItemType Directory -Force -Path (Split-Path $baseBlend) | Out-Null

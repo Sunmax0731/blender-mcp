@@ -10,7 +10,7 @@
 $ErrorActionPreference = "Stop"
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$repoRoot = Split-Path -Parent $scriptDir
+$repoRoot = Split-Path -Parent (Split-Path -Parent $scriptDir)
 
 if (-not $PythonExe) {
     $PythonExe = Join-Path $repoRoot ".venv\Scripts\python.exe"
@@ -40,7 +40,7 @@ if (-not (Test-Path $baseBlend)) {
     throw "Base blend file not found: $baseBlend"
 }
 
-$captureScript = Join-Path $scriptDir "blender_ui_capture.py"
+$captureScript = Join-Path $repoRoot "scripts\blender_ui_capture.py"
 $screenshotPath = Join-Path $OutputDir "blender-mcp-prompt.png"
 $reportPath = Join-Path $OutputDir "blender-mcp-prompt-report.json"
 $promptPath = Join-Path $OutputDir "prompt.txt"

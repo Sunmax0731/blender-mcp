@@ -6,7 +6,7 @@ import zipfile
 from pathlib import Path
 
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[2]
 ADDON_SOURCE_DIR = REPO_ROOT / "blender_addon" / "blender_mcp"
 DIST_DIR = REPO_ROOT / "dist"
 DEFAULT_ZIP_PATH = DIST_DIR / "blender_mcp_addon.zip"

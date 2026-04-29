@@ -91,6 +91,7 @@ cd D:\Claude\MCP
 - legacy `blender_mcp` add-on が有効なら無効化する
 - Blender 5.1 extension key `bl_ext.*.mcp` にも対応する
 - `host=localhost` `port=9876` `autostart=True` を確認できる
+- 旧独自 add-on 更新や旧 UI スモークは `scripts/legacy/` 配下へ隔離している
 
 ### 3. テスト
 

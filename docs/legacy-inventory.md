@@ -6,7 +6,7 @@
 
 - `blender_addon/blender_mcp/` は旧独自 add-on 実装
 - `src/blender_mcp_server/` は旧独自 MCP server 実装
-- `scripts/update_blender_addon.*` `scripts/run_blender_ui_smoke.ps1` `scripts/run_blender_prompt_smoke.ps1` は旧独自構成を前提にした自動化
+- `scripts/legacy/` 配下は旧独自構成を前提にした自動化
 
 これらは当面、比較・移行・参考のために保持するが、主経路としては扱わない。
 
@@ -38,3 +38,13 @@
 2. 公式構成でも使える自動化だけ抽出する
 3. 旧独自構成前提のテストと docs を段階的に削除する
 4. 公式構成でのテスト項目へ置き換える
+
+## 4. 現在の隔離先
+
+- `scripts/legacy/blender_automation.py`
+- `scripts/legacy/build_blender_addon.py`
+- `scripts/legacy/sync_blender_addon.py`
+- `scripts/legacy/update_blender_addon.ps1`
+- `scripts/legacy/update_blender_addon.cmd`
+- `scripts/legacy/run_blender_ui_smoke.ps1`
+- `scripts/legacy/run_blender_prompt_smoke.ps1`
