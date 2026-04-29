@@ -21,6 +21,10 @@ class BLENDERMCP_PG_state(bpy.types.PropertyGroup):
         name="Connection Label",
         default="Disconnected",
     )
+    server_url: bpy.props.StringProperty(
+        name="Server URL",
+        default="http://127.0.0.1:8765",
+    )
     prompt_text: bpy.props.StringProperty(
         name="Prompt",
         default="",
@@ -36,4 +40,12 @@ class BLENDERMCP_PG_state(bpy.types.PropertyGroup):
     pending_action_label: bpy.props.StringProperty(
         name="Pending Action",
         default="No pending actions.",
+    )
+    blender_version: bpy.props.StringProperty(
+        name="Blender Version",
+        default="",
+    )
+    addon_version: bpy.props.StringProperty(
+        name="Add-on Version",
+        default="0.1.0",
     )

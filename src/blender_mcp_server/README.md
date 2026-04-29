@@ -9,10 +9,11 @@
 - tool registry
 - `blender_status` の最小経路
 - service / transport 分離
+- `/health`
+- `/api/status`
+- `/api/addon/status`
 
 まだ含めていないもの:
 
-- 公式 MCP Python SDK への実接続
-- ローカル HTTP transport の実装
-- Blender 常時接続の受け口
+- 公式 MCP Python SDK の tool 公開本体
 - ログ、設定、AI アダプタ

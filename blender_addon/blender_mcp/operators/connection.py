@@ -1,5 +1,7 @@
 import bpy
 
+from ..services.http_client import request_connection_status
+
 
 class BLENDERMCP_OT_connect(bpy.types.Operator):
     bl_idname = "blendermcp.connect"
@@ -11,7 +13,24 @@ class BLENDERMCP_OT_connect(bpy.types.Operator):
         state.ui_state = "connecting"
         state.connection_label = "Connecting to local MCP server..."
         state.last_error = ""
-        return {"FINISHED"}
+        blender_version = ".".join(str(x) for x in bpy.app.version[:3])
+        state.blender_version = blender_version
+
+        response = request_connection_status(
+            addon_version=state.addon_version,
+            blender_version=blender_version,
+        )
+        if response.get("success"):
+            state.ui_state = "connected_idle"
+            state.connection_label = "Connected (idle)"
+            state.history_text = "サーバー接続を確立しました。"
+            return {"FINISHED"}
+
+        error_message = response.get("error", {}).get("message", "Unknown connection error.")
+        state.ui_state = "request_failed"
+        state.connection_label = "Connection error"
+        state.last_error = error_message
+        return {"CANCELLED"}
 
 
 class BLENDERMCP_OT_refresh_status(bpy.types.Operator):
@@ -21,16 +40,24 @@ class BLENDERMCP_OT_refresh_status(bpy.types.Operator):
 
     def execute(self, context):
         state = context.scene.blender_mcp_state
-        if state.ui_state == "disconnected":
-            state.connection_label = "Disconnected"
-        elif state.ui_state == "connecting":
-            state.connection_label = "Connecting to local MCP server..."
-        elif state.ui_state == "connected_idle":
-            state.connection_label = "Connected (idle)"
-        elif state.ui_state == "request_running":
-            state.connection_label = "Connected (request running)"
-        elif state.ui_state == "approval_pending":
-            state.connection_label = "Connected (approval pending)"
+        blender_version = ".".join(str(x) for x in bpy.app.version[:3])
+        state.blender_version = blender_version
+        response = request_connection_status(
+            addon_version=state.addon_version,
+            blender_version=blender_version,
+        )
+
+        if response.get("success"):
+            transport_status = response.get("data", {}).get("transportStatus", "disconnected")
+            if transport_status == "connected":
+                state.ui_state = "connected_idle"
+                state.connection_label = "Connected (idle)"
+                state.last_error = ""
+            else:
+                state.ui_state = "disconnected"
+                state.connection_label = "Disconnected"
         else:
+            state.ui_state = "request_failed"
             state.connection_label = "Connection error"
+            state.last_error = response.get("error", {}).get("message", "Unknown connection error.")
         return {"FINISHED"}

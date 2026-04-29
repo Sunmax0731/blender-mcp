@@ -1,8 +1,8 @@
-from ..transport.connection_state import get_connection_state
+from .status_store import get_status_state
 
 
 def build_status_payload() -> dict[str, object]:
-    state = get_connection_state()
+    state = get_status_state()
     return {
         "success": True,
         "data": state,
