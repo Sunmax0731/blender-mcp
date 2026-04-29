@@ -17,6 +17,8 @@ Codex から Blender を操作し、Blender 内 UI と外部 AI サービス連�
 - Issue 駆動で 1 件ずつ進める
 - 要件/設計/仕様は `docs/` を正とする
 - 実装開始前に対象 Issue の受け入れ条件を明確化する
+- 工程の切り替わりごとに `docs/` と関連 Issue を見直し、差分を反映する
+- 人が確認するドキュメント、Issue、コメント、PR 本文は日本語で記載する
 
 ドキュメント:
 
@@ -25,6 +27,8 @@ Codex から Blender を操作し、Blender 内 UI と外部 AI サービス連�
 - [仕様](./docs/specification.md)
 - [ロードマップ](./docs/roadmap.md)
 - [検証計画](./docs/validation-plan.md)
+- [運用ルール](./AGENTS.md)
+- [実行ガイド](./Skill.md)
 
 想定する主要ユースケース:
 
