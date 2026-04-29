@@ -8,6 +8,7 @@ from blender_mcp_server.services.ai_client import OpenAICompatibleError
 from blender_mcp_server.services.ai_client import create_chat_completion
 from blender_mcp_server.services.ai_config import OpenAICompatibleConfig
 from blender_mcp_server.services.suggestion_service import build_ai_suggestion_payload
+from blender_mcp_server.services.suggestion_service import _build_proposed_action
 from blender_mcp_server.services.suggestion_service import _build_user_prompt
 
 
@@ -133,6 +134,19 @@ def test_build_ai_suggestion_payload_falls_back_to_japanese_when_model_returns_e
     assert "カービィ" in summary
     assert "球体" in summary
     assert "Move the selected object" not in summary
+
+
+def test_build_proposed_action_creates_kirby_base():
+    action = _build_proposed_action(
+        prompt="カービィを作ってほしいです",
+        selected_objects=[],
+        constraints={"allowActions": ["create_primitive", "transform_object"]},
+    )
+
+    assert action is not None
+    assert action["action"] == "create_primitive"
+    assert action["params"]["type"] == "UV_SPHERE"
+    assert action["params"]["name"] == "Kirby_Base"
 
 
 class _FakeSessionManager:

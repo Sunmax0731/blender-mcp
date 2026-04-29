@@ -53,7 +53,11 @@ def build_ai_suggestion_payload(
                         content=result["content"],
                         constraints=normalized_constraints,
                     ),
-                    "proposedAction": None,
+                    "proposedAction": _build_proposed_action(
+                        prompt=prompt,
+                        selected_objects=selected_objects or [],
+                        constraints=normalized_constraints,
+                    ),
                 }
             ],
         },
@@ -173,3 +177,111 @@ def _build_japanese_fallback(*, prompt: str, constraints: Mapping[str, object]) 
         f"依頼内容は「{prompt.strip()}」です。まず対象オブジェクトや必要なプリミティブを確認し、"
         "制約内で実行できる小さな形状調整から進めてください。"
     )
+
+
+def _build_proposed_action(
+    *,
+    prompt: str,
+    selected_objects: list[dict[str, object]],
+    constraints: Mapping[str, object],
+) -> dict[str, object] | None:
+    compact = prompt.replace(" ", "")
+    allowed_actions = {str(item) for item in constraints.get("allowActions", [])}
+    selected_name = _first_selected_name(selected_objects)
+
+    if "list_objects" in allowed_actions and any(token in compact for token in ("一覧", "リスト", "表示中")):
+        return {
+            "action": "list_objects",
+            "params": {},
+            "requiresConfirmation": False,
+        }
+
+    if "create_primitive" in allowed_actions:
+        if any(token in compact for token in ("カービィ", "kirby", "Kirby")):
+            return {
+                "action": "create_primitive",
+                "params": {
+                    "type": "UV_SPHERE",
+                    "name": "Kirby_Base",
+                    "location": [0.0, 0.0, 1.0],
+                    "rotationEuler": [0.0, 0.0, 0.0],
+                    "scale": [1.4, 1.4, 1.4],
+                },
+                "requiresConfirmation": False,
+            }
+        if any(token in compact for token in ("球", "sphere", "スフィア")):
+            return {
+                "action": "create_primitive",
+                "params": {
+                    "type": "UV_SPHERE",
+                    "name": "Sphere_A",
+                    "location": [0.0, 0.0, 1.0],
+                    "rotationEuler": [0.0, 0.0, 0.0],
+                    "scale": [1.0, 1.0, 1.0],
+                },
+                "requiresConfirmation": False,
+            }
+        if any(token in compact for token in ("立方体", "キューブ", "cube")):
+            return {
+                "action": "create_primitive",
+                "params": {
+                    "type": "CUBE",
+                    "name": "Cube_A",
+                    "location": [0.0, 0.0, 1.0],
+                    "rotationEuler": [0.0, 0.0, 0.0],
+                    "scale": [1.0, 1.0, 1.0],
+                },
+                "requiresConfirmation": False,
+            }
+
+    if "transform_object" not in allowed_actions or not selected_name:
+        return None
+
+    if any(token in compact for token in ("大き", "拡大", "scale")):
+        return {
+            "action": "transform_object",
+            "params": {
+                "targetObjectName": selected_name,
+                "location": [0.0, 0.0, 0.0],
+                "rotationEuler": [0.0, 0.0, 0.0],
+                "scale": [1.2, 1.2, 1.2],
+                "mode": "delta",
+            },
+            "requiresConfirmation": False,
+        }
+
+    if any(token in compact for token in ("小さ", "縮小")):
+        return {
+            "action": "transform_object",
+            "params": {
+                "targetObjectName": selected_name,
+                "location": [0.0, 0.0, 0.0],
+                "rotationEuler": [0.0, 0.0, 0.0],
+                "scale": [0.8, 0.8, 0.8],
+                "mode": "delta",
+            },
+            "requiresConfirmation": False,
+        }
+
+    if any(token in compact for token in ("上", "持ち上げ", "移動", "move")):
+        return {
+            "action": "transform_object",
+            "params": {
+                "targetObjectName": selected_name,
+                "location": [0.0, 0.0, 1.0],
+                "rotationEuler": [0.0, 0.0, 0.0],
+                "scale": [1.0, 1.0, 1.0],
+                "mode": "delta",
+            },
+            "requiresConfirmation": False,
+        }
+
+    return None
+
+
+def _first_selected_name(selected_objects: list[dict[str, object]]) -> str | None:
+    for item in selected_objects:
+        name = item.get("name")
+        if isinstance(name, str) and name.strip():
+            return name.strip()
+    return None
