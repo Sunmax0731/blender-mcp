@@ -74,6 +74,17 @@ scripts\install_official_blender_mcp.cmd
 
 公式 add-on はローカル TCP bridge server を使うため、`Online Access` が無効だと起動できません。
 
+有効化を自動化したい場合:
+
+```powershell
+cd D:\Claude\MCP
+.\scripts\enable_official_blender_mcp_addon.ps1
+```
+
+- 公式 `mcp` add-on を有効化する
+- legacy `blender_mcp` add-on が有効なら無効化する
+- `host=localhost` `port=9876` `autostart=True` を確認できる
+
 ### 3. テスト
 
 ```powershell
@@ -112,6 +123,7 @@ cd D:\Claude\MCP
 - `C:\Users\gkkjh\.codex\config.toml` に `mcp_servers.blender-official` を追記する
 - 実行前にバックアップを作成する
 - 反映には Codex App の再起動が必要
+- 起動スクリプト側で `BLENDER_PATH` を自動解決するため、Steam 配置や通常配置でも使いやすい
 
 設定例:
 
