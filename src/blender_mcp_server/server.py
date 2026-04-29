@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import contextlib
 from dataclasses import dataclass
 
@@ -65,13 +66,14 @@ def create_mcp_server():
         )
 
     @mcp_server.tool(name="blender_request_ai_suggestion")
-    def blender_request_ai_suggestion(
+    async def blender_request_ai_suggestion(
         prompt: str,
         selected_objects: list[dict[str, object]] | None = None,
         scene_summary: dict[str, object] | None = None,
         constraints: dict[str, object] | None = None,
     ) -> dict[str, object]:
-        return tool_registry["blender_request_ai_suggestion"](
+        return await asyncio.to_thread(
+            tool_registry["blender_request_ai_suggestion"],
             prompt=prompt,
             selected_objects=selected_objects,
             scene_summary=scene_summary,
@@ -79,14 +81,15 @@ def create_mcp_server():
         )
 
     @mcp_server.tool(name="blender_create_primitive")
-    def blender_create_primitive(
+    async def blender_create_primitive(
         primitive_type: str,
         name: str | None = None,
         location: list[float] | None = None,
         rotation_euler: list[float] | None = None,
         scale: list[float] | None = None,
     ) -> dict[str, object]:
-        return tool_registry["blender_create_primitive"](
+        return await asyncio.to_thread(
+            tool_registry["blender_create_primitive"],
             primitive_type=primitive_type,
             name=name,
             location=location,
@@ -95,26 +98,28 @@ def create_mcp_server():
         )
 
     @mcp_server.tool(name="blender_list_objects")
-    def blender_list_objects(
+    async def blender_list_objects(
         name_prefix: str | None = None,
         selected_only: bool = False,
         type_filter: list[str] | None = None,
     ) -> dict[str, object]:
-        return tool_registry["blender_list_objects"](
+        return await asyncio.to_thread(
+            tool_registry["blender_list_objects"],
             name_prefix=name_prefix,
             selected_only=selected_only,
             type_filter=type_filter,
         )
 
     @mcp_server.tool(name="blender_transform_object")
-    def blender_transform_object(
+    async def blender_transform_object(
         target_object_name: str,
         location: list[float] | None = None,
         rotation_euler: list[float] | None = None,
         scale: list[float] | None = None,
         mode: str = "absolute",
     ) -> dict[str, object]:
-        return tool_registry["blender_transform_object"](
+        return await asyncio.to_thread(
+            tool_registry["blender_transform_object"],
             target_object_name=target_object_name,
             location=location,
             rotation_euler=rotation_euler,
@@ -123,8 +128,9 @@ def create_mcp_server():
         )
 
     @mcp_server.tool(name="blender_delete_object")
-    def blender_delete_object(target_object_name: str) -> dict[str, object]:
-        return tool_registry["blender_delete_object"](
+    async def blender_delete_object(target_object_name: str) -> dict[str, object]:
+        return await asyncio.to_thread(
+            tool_registry["blender_delete_object"],
             target_object_name=target_object_name,
         )
 

@@ -1,86 +1,89 @@
-# 検証計画
+﻿# 検証計画
 
-## 1. 検証方針
-
-- 実装と同時に手動検証と自動検証の両方を整備する
-- Blender 実機確認を必須とする
-- 破壊的操作は専用テストケースで扱う
-- 承認待ち操作は「承認待ち表示」と「承認後実行結果」を分けて確認する
+## 1. 目的
+- 実装内容が仕様どおりに動作することを確認する
+- Blender 実機とローカル MCP サーバーの往復を確認する
+- 承認待ち操作と承認後操作の整合を確認する
+- AI 提案経路の成功系と失敗系を確認する
 
 ## 2. テストレベル
 
 ### 2.1 単体テスト
-
 - リクエスト検証
-- 構造化操作変換
+- ステータス管理
 - コマンドキュー
-- 承認待ち判定
-- 承認済み実行ロジック
+- コマンド実行ロジック
+- 承認結果保持
 - AI プロバイダアダプタ
-- ログ/監査フォーマット
+- ログとエラー整形
 
 ### 2.2 結合テスト
-
-- MCP サーバーと Blender アドオン接続
+- MCP サーバーと Blender add-on 間の HTTP 通信
 - `/mcp` 経由の tool 一覧取得
-- `blender_status` 呼び出し
-- add-on 向け `/api/addon/status` `/api/addon/command/poll` `/api/addon/command-result`
-- Blender UI からの送信
-- MCP ツール経由の実行
+- `blender_status` 応答確認
+- add-on 側 `status` `command/poll` `command-result` `approval-result` の往復
+- Blender UI 状態遷移との整合
+- 承認後結果の後続参照
 
-### 2.3 手動シナリオ
-
-- Blender 起動中/未起動時の状態確認
+### 2.3 実機シナリオ
+- Blender 起動中と未起動時の接続状態確認
 - Cube 作成、移動、一覧取得
-- 承認付き削除の確認
-- 承認待ち表示の確認
-- 承認実行後の Blender シーン更新確認
-- AI 提案の取得と却下/採用
+- 削除要求時の `confirm_required` 応答確認
+- 承認実行後の結果確認
+- 承認拒否時の結果確認
+- Blender シーン反映確認
+- AI 提案取得と画面上の履歴反映確認
 
-## 3. 受け入れテスト
+## 3. フェーズ別テスト
 
 ### Phase 1
-
-- 接続、作成、変形、一覧取得が安定動作
-- `blender_status` が未接続状態を正しく返す
-- `blender_create_primitive` `blender_list_objects` `blender_transform_object` が呼び出せる
+- 接続、状態取得、作成、一覧取得、変形が成功する
+- `blender_status` が接続状態を正しく返す
+- `blender_create_primitive` `blender_list_objects` `blender_transform_object` が往復する
 
 ### Phase 2
-
-- UI から接続状態、履歴、結果、承認待ちを確認できる
-- `Execute Approved Action` と `Reject Action` が UI 上で動作する
-- 承認待ち request id を UI で追跡できる
+- UI から接続確認、履歴表示、承認待ち、承認実行ができる
+- `Execute Approved Action` と `Reject Action` が機能する
+- request id を UI 上で追跡できる
 
 ### Phase 3
+- AI 提案要求を送信できる
+- OpenAI 互換 API 連携で提案本文を取得できる
+- API 未設定、タイムアウト、接続失敗、HTTP エラーを区別できる
 
-- AI 提案を安全に利用できる
-- OpenAI 互換 API 連携で提案取得まで確認できる
+## 4. 現時点の確認結果
 
-## 4. 承認フロー検証観点
+### 4.1 自動テスト
+- `pytest` で 15 件成功
+- `tests/test_mcp_roundtrip.py` で `/mcp` 経由の command round trip を確認
+- `tests/test_request_status.py` で承認後結果の参照を確認
+- `tests/test_ai_service.py` で AI 提案経路の成功系と未設定エラーを確認
 
-### 4.1 現在の MVP 観点
+### 4.2 Blender 実機確認
+- 実行環境: `Blender 5.1.1`
+- add-on の `register()` / `unregister()` を実行確認済み
+- 実機シナリオで以下を確認済み
+  - `Connect`
+  - `Send Prompt`
+  - `blender_create_primitive`
+  - `blender_list_objects`
+  - `blender_delete_object` の `confirm_required`
+  - 承認実行後の `approved_executed`
 
-- delete 要求で `executionMode=confirm_required` が返る
-- Blender UI に pending action と request id が表示される
-- UI から承認実行できる
-- UI から reject できる
-
-### 4.2 別 Issue で追う観点
-
-- 承認後の最終結果を Codex 側で一貫して追跡できること
-- 承認待ち request を跨いだ再通知フロー
-- 監査ログとの突合
+### 4.3 残タスク
+- Blender 画面上でのパネル表示、文言、レイアウト確認
+- 拒否系の実機確認
+- リリース向けの手順書整備
 
 ## 5. 検証環境
+- Windows ローカル環境
+- Blender 実機
+- `uv` 管理の Python 3.11 系
+- ローカル HTTP 接続
+- 必要に応じて OpenAI 互換 stub サーバー
 
-- Windows 開発環境
-- Blender LTS
-- `uv` 管理の Python 3.11 仮想環境
-
-## 6. リリース判定
-
-- P0/P1 不具合が解消済み
-- 主要ユースケースが通る
-- セットアップ手順が再現可能
-- 既知制約が README または docs に明記されている
-- 承認フローの既知制約が Issue と docs に反映されている
+## 6. 完了条件
+- P0/P1 の主要経路が自動または実機で確認済み
+- 人向けドキュメントが最新状態に更新されている
+- 既知の制約と残課題が Issue に記録されている
+- リリース判断に必要な証跡が揃っている

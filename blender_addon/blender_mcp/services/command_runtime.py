@@ -32,11 +32,12 @@ def process_next_command(*, addon_version: str, blender_version: str, bpy_module
                 "result": result,
             },
         }
-    except error.URLError as exc:
+    except (error.URLError, TimeoutError) as exc:
+        reason = getattr(exc, "reason", None)
         return {
             "success": False,
             "error": {
                 "code": "BLENDER_MCP_SERVER_UNREACHABLE",
-                "message": str(exc.reason),
+                "message": str(reason or exc),
             },
         }
