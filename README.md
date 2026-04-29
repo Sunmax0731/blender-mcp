@@ -7,6 +7,11 @@
 - Codex App から公式 MCP server を使って Blender を操作できるようにする
 - Blender UI から Codex CLI に指示し、公式 add-on と干渉しない補助導線を整備する
 
+直近の Release 成果物は、1 クリックで次を進められる Windows 向け導入アプリです。
+- Codex への `blender-official` MCP server 登録
+- Blender への公式 `mcp` add-on 導入
+- 公式 `mcp` の有効化と legacy `blender_mcp` の無効化補助
+
 ## 基本方針
 
 - Blender 側の中核機能は公式 `blender_mcp` を使う
