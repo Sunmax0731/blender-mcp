@@ -38,3 +38,38 @@ Codex から Blender を操作し、Blender 内 UI と外部 AI サービス連�
 - Blender 内 UI から Codex と対話する
 - Blender と外部 AI サービスを接続する
 - 生成結果や操作結果を Blender 上で確認、再編集する
+
+## 開発環境
+
+- OS: Windows
+- Python: 3.11 系
+- 依存管理: `uv`
+- Blender: 5.1.1 で実機確認済み
+
+## ローカルセットアップ
+
+1. 依存を同期する
+
+```powershell
+uv sync --python 3.11 --extra dev
+```
+
+2. 自動テストを実行する
+
+```powershell
+uv run pytest
+```
+
+3. Blender UI スモークを実行する
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\run_blender_ui_smoke.ps1
+```
+
+## 現時点の検証結果
+
+- `uv sync --python 3.11 --extra dev`: 成功
+- `uv run pytest`: `16 passed`
+- UI スモーク:
+  - `controlled_launch`
+  - `existing_process`

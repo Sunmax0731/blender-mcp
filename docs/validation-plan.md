@@ -64,6 +64,8 @@
 ## 4. 現時点の確認結果
 
 ### 4.1 自動テスト
+- `uv sync --python 3.11 --extra dev` で依存同期成功
+- `uv run pytest` で 16 件成功
 - `pytest` で 16 件成功
 - `tests/test_mcp_roundtrip.py` で `/mcp` 経由の command round trip を確認
 - `tests/test_request_status.py` で承認後結果の参照を確認
