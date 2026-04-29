@@ -1,149 +1,144 @@
 # Skill
 
-このファイルは、本リポジトリで Codex が作業する際の実行指針をまとめたものです。
+このファイルは、`blender-mcp` を継続開発するために必要な作業スキルと標準手順を整理したものです。
 
-## 1. この開発で必要なスキル
+## 1. 必要スキル
 
-### 1.1 要件整理スキル
+### 1.1 要件整理
 
-- 要望をユースケース、機能要件、非機能要件、制約に分解する
-- MVP と後続フェーズを切り分ける
-- 受け入れ条件を工程単位、Issue 単位で明確にする
+- ユーザー要求を MVP と後続フェーズに分割する。
+- 公式 Blender MCP の公開情報と、このリポジトリ独自要件を切り分ける。
+- 判断が必要な項目を Issue に落とし込み、候補 3 案で整理する。
 
-### 1.2 Blender スキル
+### 1.2 Blender Add-on 開発
 
-- Blender アドオン構成の理解
-- `bpy` によるオブジェクト操作、UI、オペレーター、プロパティ設計
-- Blender の UI スレッドやタイマー制約への理解
+- `bpy` によるオブジェクト操作
+- `Panel` `Operator` `PropertyGroup` の実装
+- Blender UI の状態表示、承認フロー、エラー表示の整備
+- Blender 再読み込み、add-on 配布、バージョン更新の扱い
 
-### 1.3 MCP / サービス連携スキル
+### 1.3 MCP Server 開発
 
-- MCP サーバー設計
-- Blender と外部プロセス間の通信設計
-- ツール定義、入力検証、応答整形
+- Python による MCP ツール公開
+- Blender Add-on とのローカル通信設計
+- ツール実行、承認待ち、結果返却、状態管理の実装
+- Codex App から使いやすいインターフェース設計
 
-### 1.4 AI 連携スキル
+### 1.4 Codex CLI 連携
 
-- OpenAI 互換 API を含む外部 AI サービス接続
-- 自然言語から構造化操作への変換
-- タイムアウト、失敗時リトライ、エラー設計
+- `codex exec` の非対話実行
+- タイムアウト、失敗時メッセージ、fallback の実装
+- Blender UI からのプロンプト送信を Codex CLI に橋渡しする設計
 
-### 1.5 品質保証スキル
+### 1.5 テストと検証
 
-- 単体テスト、結合テスト、手動検証の設計
+- `pytest` による自動テスト
 - Blender 実機確認
-- 危険操作に対する安全策と監査ログ設計
+- UI スモーク自動化
+- Add-on 更新後の再読み込み確認
 
-### 1.6 ドキュメント運用スキル
+### 1.6 ドキュメント運用
 
-- `docs/` を正本として保守する
-- 工程切り替え時に差分レビューする
-- 判断理由を Issue に残して追跡可能にする
+- `docs/` と Issue コメントの同期
+- 工程切替時の文書見直し
+- 日本語文書の品質維持
 
-## 2. 基本ルール
+## 2. 標準アーキテクチャ理解
 
-- すべての要望は Issue 起点で扱う
-- 実装だけでなく、調査、設計、ドキュメント更新、運用ルール変更も Issue を作成してから着手する
-- 1 回の作業では主対象 Issue を 1 件に絞る
-- 複数工程を同時に進めない
-- 判断が必要な項目は、Issue に提案候補、判断基準、判断材料を残してから進める
+### 2.1 Codex App 経路
 
-## 3. 工程ごとの進め方
+- Codex App は MCP クライアントとして Blender を操作する。
+- `Codex App -> MCP Server -> Blender Add-on -> Blender` を基本経路とする。
 
-### 要件定義
+### 2.2 Blender プロンプト経路
 
-- `docs/requirements.md` を更新する
-- ユースケース、機能要件、非機能要件、対象外、受け入れ条件を明確にする
+- Blender UI からの自然言語入力は `Codex CLI` を使って解釈する。
+- `Blender UI -> MCP Server -> Codex CLI -> 提案生成 -> Blender` を基本経路とする。
 
-### 仕様検討
+### 2.3 公式 Blender MCP との差分理解
 
-- `docs/specification.md` を更新する
-- MCP ツール、Blender UI、データ契約、エラー応答を具体化する
+- 公式 Blender MCP は Add-on と外部 MCP Server を別プロセスで構成する。
+- 公式配布物は運用の参照元とし、このリポジトリでは Codex App / Codex CLI 向けの制御を追加する。
+- 公式構成を無視して独自化しすぎないことを優先する。
 
-### 設計
+## 3. 日常運用の標準手順
 
-- `docs/design.md` を更新する
-- コンポーネント責務、通信方式、安全設計、ログ方針を固める
+1. 要求を Issue 化する
+2. 関連 Issue と `docs/` を確認する
+3. 公式公開情報が関係するなら先に確認する
+4. 実装する
+5. テストする
+6. Add-on を更新し、必要なら Blender を再読み込みする
+7. Issue コメントへ結果を書く
+8. 完了条件を満たしたら Issue をクローズする
 
-### 実装
+## 4. 公式参照先
 
-- 関連 docs と Issue の前提を確認してから変更する
-- 実装差分が設計や仕様に影響する場合は、同じ作業で docs と Issue コメントを更新する
+- Blender Lab: `https://www.blender.org/lab/mcp-server/`
+- Releases: `https://projects.blender.org/lab/blender_mcp/releases`
 
-### テスト
+参照時の確認ポイント:
 
-- `docs/validation-plan.md` に沿って検証する
-- 手動確認と自動確認の両方を記録する
+- 必要 Blender バージョン
+- Add-on と MCP Server の責務分離
+- 配布物形式 `.zip` `.mcpb`
+- LLM クライアントとの接続方式
 
-### リリース
+## 5. ローカル開発コマンド
 
-- リリース条件、既知制約、セットアップ手順を確認する
-- リリース後に必要な次期課題を Issue 化する
+### 5.1 依存同期
 
-## 4. 工程切り替えルール
+```powershell
+cd D:\Claude\MCP
+uv sync --python 3.11 --extra dev
+```
 
-- 工程が切り替わるたびに `docs/requirements.md` `docs/specification.md` `docs/design.md` `docs/roadmap.md` `docs/validation-plan.md` を見直す
-- 変更点と判断理由を関連 Issue に記録する
-- 見直しが終わるまで次工程へ進まない
+### 5.2 テスト
 
-## 5. Blender MCP 固有の実行方針
+```powershell
+cd D:\Claude\MCP
+uv run pytest
+```
 
-- 初期段階ではローカル環境で完結する構成を優先する
-- 危険操作は `preview -> confirm -> execute` の流れを前提にする
-- 自然言語から直接 Blender API を叩かず、構造化アクションへ変換して扱う
-- 任意 Python コードの無制限実行は初期スコープに入れない
-- 重い推論や外部 API 依存は MCP サーバー側へ寄せる
+### 5.3 Add-on 更新
 
-## 6. 言語ルール
+PowerShell:
 
-- 人が確認するものはすべて日本語で記載する
-- 対象: ドキュメント、Issue、Issue コメント、PR、リリースノート、検証メモ
-- コード識別子、ライブラリ名、API 名は原語のままでよいが、説明は日本語で書く
+```powershell
+cd D:\Claude\MCP
+.\scripts\update_blender_addon.ps1
+```
 
-## 7. 実行手順
+コマンドプロンプト:
 
-1. 要望に対応する既存 Issue があるか確認する
-2. なければ新規 Issue を作成する
-3. 判断が必要なら、候補 3 案、判断基準、判断材料、推奨案を Issue に記録する
-4. 対象工程の docs を確認する
-5. 必要な docs を更新する
-6. 実装または調査を行う
-7. 検証する
-8. GitHub Issue に結果と判断理由を記録する
-9. 完了条件を満たしたら Issue をクローズする
+```bat
+cd /d D:\Claude\MCP
+scripts\update_blender_addon.cmd
+```
 
-## 8. 判断提案フォーマット
+### 5.4 UI スモーク
 
-判断が必要な項目は、原則として以下の形で Issue に残す。
+```powershell
+cd D:\Claude\MCP
+powershell -ExecutionPolicy Bypass -File .\scripts\run_blender_ui_smoke.ps1
+```
 
-### 判断対象
+## 6. 判断基準
 
-- 何を決める必要があるか
+### 6.1 実装方針
 
-### 候補
+- 公式構成に寄せられるなら寄せる
+- ローカル完結で運用できる方を優先する
+- 人手確認を減らせるなら自動化を優先する
 
-- 候補A
-- 候補B
-- 候補C
+### 6.2 AI 経路
 
-### 各候補の記載項目
+- Blender UI からの提案生成は `Codex CLI` 優先
+- 外部 API 依存はできるだけ減らす
+- 返答が不適切ならローカル fallback を使う
 
-- 概要
-- 利点
-- 欠点
-- 想定コストまたは影響範囲
+### 6.3 ドキュメント
 
-### 判断基準
-
-- 何を重視して決めるか
-
-### 判断材料
-
-- 仕様制約
-- 技術制約
-- 運用制約
-- 検証結果または公式情報
-
-### 推奨案
-
-- 現時点で最も妥当な案
+- 人が見るものは日本語
+- Issue だけでなく `docs/` にも残す
+- 文字化けした文書は放置せず修正する
