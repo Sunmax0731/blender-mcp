@@ -22,6 +22,8 @@ def execute_command(command: Mapping[str, object], bpy_module) -> dict[str, obje
 
     if action == "create_primitive":
         return _create_primitive(request_id=request_id, params=params, bpy_module=bpy_module)
+    if action == "transform_object":
+        return _transform_object(request_id=request_id, params=params, bpy_module=bpy_module)
     if action == "list_objects":
         return _list_objects(request_id=request_id, params=params, bpy_module=bpy_module)
     if action == "delete_object":
@@ -85,6 +87,50 @@ def _create_primitive(*, request_id: str, params: Mapping[str, object], bpy_modu
                 "objectName": active_object.name,
                 "objectType": getattr(active_object, "type", "UNKNOWN"),
                 "createdPrimitiveType": primitive_type,
+            },
+        }
+    except Exception as exc:  # noqa: BLE001
+        return _internal_error(request_id=request_id, message=str(exc))
+
+
+def _transform_object(*, request_id: str, params: Mapping[str, object], bpy_module) -> dict[str, object]:
+    target_name = params.get("targetObjectName")
+    if not isinstance(target_name, str) or not target_name.strip():
+        return _invalid_argument(request_id=request_id, message="targetObjectName is required.")
+
+    obj = _find_object_by_name(bpy_module.data.objects, target_name.strip())
+    if obj is None:
+        return _invalid_argument(request_id=request_id, message=f"Object not found: {target_name}")
+
+    location = _vector3(params.get("location"), default=tuple(getattr(obj, "location", (0.0, 0.0, 0.0))))
+    rotation = _vector3(
+        params.get("rotationEuler"),
+        default=tuple(getattr(obj, "rotation_euler", (0.0, 0.0, 0.0))),
+    )
+    scale = _vector3(params.get("scale"), default=tuple(getattr(obj, "scale", (1.0, 1.0, 1.0))))
+    mode = str(params.get("mode", "absolute")).lower()
+    if mode not in {"absolute", "delta"}:
+        return _invalid_argument(request_id=request_id, message=f"Unsupported mode: {mode}")
+
+    try:
+        if mode == "absolute":
+            obj.location = location
+            obj.rotation_euler = rotation
+            obj.scale = scale
+        else:
+            obj.location = _add_vector(getattr(obj, "location", (0.0, 0.0, 0.0)), location)
+            obj.rotation_euler = _add_vector(getattr(obj, "rotation_euler", (0.0, 0.0, 0.0)), rotation)
+            obj.scale = _mul_vector(getattr(obj, "scale", (1.0, 1.0, 1.0)), scale)
+
+        return {
+            "success": True,
+            "requestId": request_id,
+            "message": "Object transformed.",
+            "data": {
+                "objectName": obj.name,
+                "location": list(_vector3(obj.location, default=(0.0, 0.0, 0.0))),
+                "rotationEuler": list(_vector3(obj.rotation_euler, default=(0.0, 0.0, 0.0))),
+                "scale": list(_vector3(obj.scale, default=(1.0, 1.0, 1.0))),
             },
         }
     except Exception as exc:  # noqa: BLE001
@@ -174,6 +220,18 @@ def _vector3(value: object, *, default: tuple[float, float, float]) -> tuple[flo
         return (float(items[0]), float(items[1]), float(items[2]))
     except (TypeError, ValueError):
         return default
+
+
+def _add_vector(left: Iterable[float], right: Iterable[float]) -> tuple[float, float, float]:
+    left_v = _vector3(left, default=(0.0, 0.0, 0.0))
+    right_v = _vector3(right, default=(0.0, 0.0, 0.0))
+    return tuple(a + b for a, b in zip(left_v, right_v))
+
+
+def _mul_vector(left: Iterable[float], right: Iterable[float]) -> tuple[float, float, float]:
+    left_v = _vector3(left, default=(1.0, 1.0, 1.0))
+    right_v = _vector3(right, default=(1.0, 1.0, 1.0))
+    return tuple(a * b for a, b in zip(left_v, right_v))
 
 
 def _object_visible(obj) -> bool:

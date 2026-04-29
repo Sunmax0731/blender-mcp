@@ -15,4 +15,8 @@ class BLENDERMCP_PT_approval(bpy.types.Panel):
         layout.label(text="Pending Action")
         box = layout.box()
         box.label(text=state.pending_action_label)
-        layout.operator("blendermcp.reject_action", text="Reject Action")
+        if state.pending_request_id:
+            box.label(text=f"Request ID: {state.pending_request_id}")
+        row = layout.row(align=True)
+        row.operator("blendermcp.execute_approved_action", text="Execute Approved Action")
+        row.operator("blendermcp.reject_action", text="Reject Action")

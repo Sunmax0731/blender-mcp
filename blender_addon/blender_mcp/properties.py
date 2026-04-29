@@ -45,6 +45,14 @@ class BLENDERMCP_PG_state(bpy.types.PropertyGroup):
         name="Pending Action",
         default="No pending actions.",
     )
+    pending_request_id: bpy.props.StringProperty(
+        name="Pending Request ID",
+        default="",
+    )
+    pending_command_json: bpy.props.StringProperty(
+        name="Pending Command JSON",
+        default="",
+    )
     blender_version: bpy.props.StringProperty(
         name="Blender Version",
         default="",

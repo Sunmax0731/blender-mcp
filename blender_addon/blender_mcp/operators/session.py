@@ -1,3 +1,5 @@
+import json
+
 import bpy
 
 from ..services.command_runtime import process_next_command
@@ -72,9 +74,14 @@ class BLENDERMCP_OT_process_next_command(bpy.types.Operator):
         if result.get("executionMode") == "confirm_required":
             state.ui_state = "approval_pending"
             state.pending_action_label = f"Approval required: {action}"
+            state.pending_request_id = str(command.get("requestId", ""))
+            state.pending_command_json = json.dumps(command)
             state.connection_label = "Approval pending"
             _append_history(state, f"{action}: confirmation required.")
             return {"FINISHED"}
+
+        state.pending_request_id = ""
+        state.pending_command_json = ""
 
         if result.get("success"):
             state.ui_state = "connected_idle"

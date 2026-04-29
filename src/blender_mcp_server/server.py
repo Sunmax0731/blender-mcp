@@ -83,6 +83,22 @@ def create_mcp_server():
             type_filter=type_filter,
         )
 
+    @mcp_server.tool(name="blender_transform_object")
+    def blender_transform_object(
+        target_object_name: str,
+        location: list[float] | None = None,
+        rotation_euler: list[float] | None = None,
+        scale: list[float] | None = None,
+        mode: str = "absolute",
+    ) -> dict[str, object]:
+        return tool_registry["blender_transform_object"](
+            target_object_name=target_object_name,
+            location=location,
+            rotation_euler=rotation_euler,
+            scale=scale,
+            mode=mode,
+        )
+
     @mcp_server.tool(name="blender_delete_object")
     def blender_delete_object(target_object_name: str) -> dict[str, object]:
         return tool_registry["blender_delete_object"](
