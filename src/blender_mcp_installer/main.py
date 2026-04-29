@@ -27,10 +27,10 @@ class InstallerApp:
         self.output_dir: Path | None = None
 
         self.confirm_var = tk.BooleanVar(value=False)
-        self.status_var = tk.StringVar(value="実行前です。")
-        self.log_path_var = tk.StringVar(value="ログ未作成")
+        self.status_var = tk.StringVar(value="Ready.")
+        self.log_path_var = tk.StringVar(value="Log not created")
 
-        self.root_window.title("Blender MCP 1クリック導入")
+        self.root_window.title("Blender MCP One-Click Installer")
         self.root_window.geometry("900x700")
 
         self._build_ui()
@@ -42,26 +42,26 @@ class InstallerApp:
         container.pack(fill=tk.BOTH, expand=True)
 
         intro = (
-            "このアプリは次を順に実行します。\n"
-            "1. 公式 Blender MCP add-on を導入\n"
-            "2. 公式 Blender MCP server を導入\n"
-            "3. Codex 設定へ blender-official を登録\n"
-            "4. 公式 mcp を有効化し legacy blender_mcp を無効化"
+            "This app runs the following steps:\n"
+            "1. Install the official Blender MCP add-on\n"
+            "2. Install the official Blender MCP server\n"
+            "3. Register blender-official in Codex config\n"
+            "4. Enable official mcp and disable legacy blender_mcp"
         )
         tk.Label(container, text=intro, justify=tk.LEFT, anchor="w").pack(fill=tk.X)
 
         preview = (
-            "変更対象:\n"
-            "- Blender add-on 配置先\n"
+            "Targets to be changed:\n"
+            "- Blender add-on directory\n"
             "- D:\\Claude\\MCP\\.official-mcp-venv\n"
-            "- C:\\Users\\gkkjh\\.codex\\config.toml とそのバックアップ\n"
-            "- Blender ユーザー設定"
+            "- C:\\Users\\gkkjh\\.codex\\config.toml and its backup\n"
+            "- Blender user preferences"
         )
         tk.Label(container, text=preview, justify=tk.LEFT, anchor="w", pady=8).pack(fill=tk.X)
 
         check = tk.Checkbutton(
             container,
-            text="変更対象を確認しました。設定変更を伴うことを理解しています。",
+            text="I reviewed the changes above and understand that local settings will be updated.",
             variable=self.confirm_var,
             command=self._update_start_button,
         )
@@ -69,12 +69,12 @@ class InstallerApp:
 
         controls = tk.Frame(container)
         controls.pack(fill=tk.X, pady=(0, 12))
-        self.start_button = tk.Button(controls, text="導入を開始", command=self._start_install)
+        self.start_button = tk.Button(controls, text="Start Install", command=self._start_install)
         self.start_button.pack(side=tk.LEFT)
 
         tk.Label(controls, textvariable=self.status_var, anchor="w").pack(side=tk.LEFT, padx=(12, 0))
 
-        tk.Label(container, text="ログ").pack(anchor="w")
+        tk.Label(container, text="Log").pack(anchor="w")
         self.log_text = scrolledtext.ScrolledText(container, height=24, state=tk.DISABLED)
         self.log_text.pack(fill=tk.BOTH, expand=True)
 
@@ -89,8 +89,8 @@ class InstallerApp:
         self.log_text.delete("1.0", tk.END)
         self.log_text.configure(state=tk.DISABLED)
         self.output_dir = default_log_dir(self.repo_root)
-        self.log_path_var.set(f"ログ保存先: {self.output_dir}")
-        self.status_var.set("導入を開始します。")
+        self.log_path_var.set(f"Log path: {self.output_dir}")
+        self.status_var.set("Starting install...")
 
         worker = threading.Thread(target=self._run_install, daemon=True)
         worker.start()
@@ -123,21 +123,21 @@ class InstallerApp:
                 self._append_log(str(event.payload))
             elif event.kind == "progress":
                 index, total, description = event.payload  # type: ignore[misc]
-                self.status_var.set(f"実行中 {index}/{total}: {description}")
+                self.status_var.set(f"Running {index}/{total}: {description}")
             elif event.kind == "done":
                 success, log_path = event.payload  # type: ignore[misc]
-                self.log_path_var.set(f"ログ保存先: {log_path}")
+                self.log_path_var.set(f"Log path: {log_path}")
                 if success:
-                    self.status_var.set("導入が完了しました。Codex App 再起動後に接続確認を行ってください。")
+                    self.status_var.set("Install completed. Restart Codex App before live validation.")
                     messagebox.showinfo(
-                        "完了",
-                        "導入が完了しました。\nCodex App を再起動し、Blender を起動した状態で接続確認してください。",
+                        "Completed",
+                        "Install completed.\nRestart Codex App and validate while Blender is running.",
                     )
                 else:
-                    self.status_var.set("導入に失敗しました。ログを確認してください。")
+                    self.status_var.set("Install failed. Check the log and try again.")
                     messagebox.showerror(
-                        "失敗",
-                        "導入中に失敗しました。ログを確認して再実行してください。",
+                        "Failed",
+                        "Install failed.\nCheck the log output and retry.",
                     )
                 self._update_start_button()
 
@@ -155,9 +155,43 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--plan",
         action="store_true",
-        help="GUI を起動せず、実行予定ステップを表示します。",
+        help="Print the planned steps without starting the GUI.",
+    )
+    parser.add_argument(
+        "--headless",
+        action="store_true",
+        help="Run the installer steps without starting the GUI.",
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        help="Optional log directory for headless mode.",
     )
     return parser.parse_args()
+
+
+def run_headless(output_dir: Path | None = None) -> int:
+    root = repo_root()
+    steps = default_steps(root)
+    runner = InstallerRunner(root)
+    resolved_output_dir = output_dir or default_log_dir(root)
+
+    print(f"OUTPUT_DIR: {resolved_output_dir}")
+
+    def on_log(message: str) -> None:
+        print(message)
+
+    def on_progress(index: int, total: int, step: InstallerStep) -> None:
+        print(f"PROGRESS {index}/{total}: {step.description}")
+
+    success, log_path = runner.run(
+        steps,
+        resolved_output_dir,
+        log_callback=on_log,
+        progress_callback=on_progress,
+    )
+    print(f"LOG_PATH: {log_path}")
+    return 0 if success else 1
 
 
 def main() -> None:
@@ -166,6 +200,9 @@ def main() -> None:
         for step in default_steps(repo_root()):
             print(f"{step.name}: {step.description}")
         return
+
+    if args.headless:
+        raise SystemExit(run_headless(args.output_dir))
 
     root_window = tk.Tk()
     InstallerApp(root_window)

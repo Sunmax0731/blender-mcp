@@ -36,22 +36,22 @@ def default_steps(root: Path | None = None) -> list[InstallerStep]:
         InstallerStep(
             name="official-addon",
             script_path=scripts_dir / "install_official_blender_mcp.ps1",
-            description="公式 Blender MCP add-on を導入します。",
+            description="Install the official Blender MCP add-on.",
         ),
         InstallerStep(
             name="official-server",
             script_path=scripts_dir / "install_official_blender_mcp_server.ps1",
-            description="公式 Blender MCP server を専用仮想環境へ導入します。",
+            description="Install the official Blender MCP server into the dedicated venv.",
         ),
         InstallerStep(
             name="codex-config",
             script_path=scripts_dir / "register_official_blender_mcp_in_codex.ps1",
-            description="Codex 設定へ blender-official を登録します。",
+            description="Register blender-official in the Codex config.",
         ),
         InstallerStep(
             name="enable-addon",
             script_path=scripts_dir / "enable_official_blender_mcp_addon.ps1",
-            description="Blender 側で公式 mcp を有効化し legacy add-on を無効化します。",
+            description="Enable official mcp and disable the legacy add-on in Blender.",
         ),
     ]
 

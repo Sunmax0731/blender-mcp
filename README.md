@@ -150,9 +150,25 @@ cd D:\Claude\MCP
 uv run blender-mcp-installer --plan
 ```
 
+GUI を使わず導入ログを採取する場合:
+
+```powershell
+cd D:\Claude\MCP
+uv run blender-mcp-installer --headless
+```
+
+`exe` を生成する場合:
+
+```powershell
+cd D:\Claude\MCP
+uv sync --python 3.11 --extra dev
+.\scripts\build_installer_exe.ps1
+```
+
 - GUI から導入開始、進捗確認、ログ確認ができる
 - 内部では既存 PowerShell スクリプトを順番に実行する
-- `exe` 配布と Release 検証は後続の Release 準備工程で扱う
+- headless 実行では `artifacts/one-click-installer/` 配下へログを残せる
+- `exe` は `dist/one-click-installer/` 配下へ生成する
 
 ## ドキュメント
 
