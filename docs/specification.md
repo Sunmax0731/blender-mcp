@@ -179,6 +179,258 @@ MVP では、Blender 側で受け付ける操作を明示的な allowlist で管
 - `confirm_required`
 - `rejected`
 
+### 4.4 共通メタデータ
+
+すべての主要レスポンスは、少なくとも以下のメタデータを持つ。
+
+```json
+{
+  "requestId": "req-001",
+  "timestamp": "2026-04-29T18:00:00+09:00",
+  "success": true
+}
+```
+
+### 4.5 `blender_status` レスポンス
+
+```json
+{
+  "requestId": "req-001",
+  "timestamp": "2026-04-29T18:00:00+09:00",
+  "success": true,
+  "data": {
+    "blenderRunning": true,
+    "addonLoaded": true,
+    "addonVersion": "0.1.0",
+    "blenderVersion": "4.2.0",
+    "transportStatus": "connected"
+  }
+}
+```
+
+`transportStatus` の候補:
+
+- `connected`
+- `disconnected`
+- `timeout`
+
+### 4.6 `blender_create_primitive` リクエスト
+
+```json
+{
+  "action": "create_primitive",
+  "params": {
+    "type": "CUBE",
+    "name": "Block_A",
+    "location": [0, 0, 0],
+    "rotationEuler": [0, 0, 0],
+    "scale": [1, 1, 1]
+  },
+  "requiresConfirmation": false
+}
+```
+
+制約:
+
+- `type` は allowlist 内のみ
+- `name` は任意
+- `location` `rotationEuler` `scale` は 3 要素数値配列
+
+### 4.7 `blender_create_primitive` レスポンス
+
+```json
+{
+  "requestId": "req-002",
+  "timestamp": "2026-04-29T18:00:03+09:00",
+  "success": true,
+  "data": {
+    "objectName": "Block_A",
+    "objectType": "MESH",
+    "createdPrimitiveType": "CUBE"
+  }
+}
+```
+
+### 4.8 `blender_transform_object` リクエスト
+
+```json
+{
+  "action": "transform_object",
+  "params": {
+    "targetObjectName": "Block_A",
+    "location": [1, 0, 0],
+    "rotationEuler": [0, 0, 0.785398],
+    "scale": [1, 2, 1],
+    "mode": "absolute"
+  },
+  "requiresConfirmation": false
+}
+```
+
+`mode` の候補:
+
+- `absolute`
+- `delta`
+
+### 4.9 `blender_transform_object` レスポンス
+
+```json
+{
+  "requestId": "req-003",
+  "timestamp": "2026-04-29T18:00:05+09:00",
+  "success": true,
+  "data": {
+    "objectName": "Block_A",
+    "location": [1, 0, 0],
+    "rotationEuler": [0, 0, 0.785398],
+    "scale": [1, 2, 1]
+  }
+}
+```
+
+### 4.10 `blender_list_objects` リクエスト
+
+```json
+{
+  "action": "list_objects",
+  "params": {
+    "namePrefix": "Block_",
+    "selectedOnly": false,
+    "typeFilter": ["MESH", "LIGHT"]
+  }
+}
+```
+
+### 4.11 `blender_list_objects` レスポンス
+
+```json
+{
+  "requestId": "req-004",
+  "timestamp": "2026-04-29T18:00:07+09:00",
+  "success": true,
+  "data": {
+    "objects": [
+      {
+        "name": "Block_A",
+        "type": "MESH",
+        "selected": true,
+        "visible": true
+      }
+    ]
+  }
+}
+```
+
+### 4.12 `blender_request_ai_suggestion` リクエスト
+
+```json
+{
+  "action": "request_ai_suggestion",
+  "params": {
+    "prompt": "選択中オブジェクトを少し横長にしたい",
+    "selectedObjects": [
+      {
+        "name": "Block_A",
+        "type": "MESH"
+      }
+    ],
+    "sceneSummary": {
+      "objectCount": 4,
+      "selectedObjectCount": 1
+    },
+    "constraints": {
+      "allowActions": ["transform_object"],
+      "disallowActions": ["delete_object"]
+    }
+  }
+}
+```
+
+### 4.13 `blender_request_ai_suggestion` レスポンス
+
+```json
+{
+  "requestId": "req-005",
+  "timestamp": "2026-04-29T18:00:10+09:00",
+  "success": true,
+  "data": {
+    "suggestions": [
+      {
+        "summary": "X 方向のスケールを広げる",
+        "proposedAction": {
+          "action": "transform_object",
+          "params": {
+            "targetObjectName": "Block_A",
+            "scale": [1.5, 1, 1],
+            "mode": "delta"
+          },
+          "requiresConfirmation": false
+        }
+      }
+    ]
+  }
+}
+```
+
+### 4.14 共通エラー応答
+
+```json
+{
+  "requestId": "req-006",
+  "timestamp": "2026-04-29T18:00:12+09:00",
+  "success": false,
+  "error": {
+    "code": "BLENDER_NOT_RUNNING",
+    "message": "Blender が起動していません。",
+    "retryable": true,
+    "details": {
+      "transportStatus": "disconnected"
+    }
+  }
+}
+```
+
+`code` の初期候補:
+
+- `BLENDER_NOT_RUNNING`
+- `ADDON_NOT_READY`
+- `ACTION_NOT_ALLOWED`
+- `CONFIRMATION_REQUIRED`
+- `INVALID_ARGUMENT`
+- `AI_PROVIDER_ERROR`
+- `INTERNAL_ERROR`
+
+### 4.15 シーン要約スキーマ
+
+```json
+{
+  "sceneSummary": {
+    "sceneName": "Scene",
+    "objectCount": 12,
+    "selectedObjectCount": 2,
+    "objectTypes": {
+      "MESH": 8,
+      "LIGHT": 2,
+      "CAMERA": 1
+    }
+  }
+}
+```
+
+### 4.16 選択オブジェクトスキーマ
+
+```json
+{
+  "selectedObject": {
+    "name": "Block_A",
+    "type": "MESH",
+    "location": [0, 0, 0],
+    "rotationEuler": [0, 0, 0],
+    "scale": [1, 1, 1]
+  }
+}
+```
+
 ## 5. 技術スタック候補
 
 ### 確定寄り
