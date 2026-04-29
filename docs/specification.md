@@ -117,6 +117,7 @@ MVP では、Blender 側で受け付ける操作を明示的な allowlist で管
 - 実行履歴
 - エラー表示
 - 承認待ち操作一覧
+- 現在の UI 状態表示
 
 ### 3.3 操作
 
@@ -132,6 +133,88 @@ MVP では、Blender 側で受け付ける操作を明示的な allowlist で管
 - 承認待ちの操作
 - 拒否された操作
 - allowlist 外で失敗した操作
+
+### 3.5 UI 状態一覧
+
+MVP UI は少なくとも以下の状態を持つ。
+
+- `disconnected`
+  - Blender 未起動、またはアドオン未接続
+- `connecting`
+  - 接続確認中
+- `connected_idle`
+  - 接続済み、待機中
+- `request_running`
+  - リクエスト送信済み、応答待ち
+- `approval_pending`
+  - 承認待ち操作あり
+- `request_failed`
+  - 直近リクエスト失敗
+
+### 3.6 状態遷移
+
+- `disconnected -> connecting`
+  - `Connect` または `Refresh Status` 実行
+- `connecting -> connected_idle`
+  - 接続成功
+- `connecting -> disconnected`
+  - 接続失敗
+- `connected_idle -> request_running`
+  - `Send Prompt` または自動実行可能ツール送信
+- `request_running -> connected_idle`
+  - 自動実行可能操作が成功
+- `request_running -> approval_pending`
+  - 承認必須操作が返る
+- `request_running -> request_failed`
+  - 実行失敗、通信失敗、allowlist 違反
+- `approval_pending -> connected_idle`
+  - 承認済み操作の実行成功、または却下完了
+- `approval_pending -> request_failed`
+  - 承認後実行に失敗
+- `request_failed -> connecting`
+  - 再接続または再試行開始
+- `request_failed -> connected_idle`
+  - エラー解消済みで待機へ戻る
+
+### 3.7 MVP UI フロー
+
+#### 接続確認フロー
+
+1. ユーザーが `Connect` を押す
+2. UI は `connecting` へ遷移する
+3. 成功時は `connected_idle` を表示する
+4. 失敗時は `disconnected` または `request_failed` を表示する
+
+#### 自動実行フロー
+
+1. ユーザーが入力または Codex 側要求を送る
+2. UI は `request_running` を表示する
+3. allowlist 内かつ自動実行可能であれば実行する
+4. 成功時は履歴へ記録して `connected_idle` へ戻る
+
+#### 承認フロー
+
+1. リクエスト結果が承認必須で返る
+2. UI は `approval_pending` を表示する
+3. ユーザーは `Execute Approved Action` または `Reject Action` を選ぶ
+4. 実行成功または却下完了後は `connected_idle` へ戻る
+5. 実行失敗時は `request_failed` を表示する
+
+### 3.8 MVP で必須とする UI 要素
+
+- 接続状態バッジ
+- 最終エラーメッセージ表示
+- リクエスト入力欄
+- 実行履歴リスト
+- 承認待ち操作リスト
+- 再試行または再接続の導線
+
+### 3.9 後続フェーズへ送る UI 要素
+
+- チャット形式の長文履歴表示
+- 複数タブ UI
+- シーンプレビューと提案差分の視覚表示
+- 高度なフィルタ、検索、並べ替え
 
 ## 4. データ契約
 
