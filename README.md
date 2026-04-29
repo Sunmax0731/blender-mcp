@@ -89,5 +89,6 @@ uv run pytest
 - [ロードマップ](D:/Claude/MCP/docs/roadmap.md)
 - [検証計画](D:/Claude/MCP/docs/validation-plan.md)
 - [リリース計画](D:/Claude/MCP/docs/release-plan.md)
+- [旧独自構成の在庫](D:/Claude/MCP/docs/legacy-inventory.md)
 - [運用ルール](D:/Claude/MCP/AGENTS.md)
 - [必要スキル](D:/Claude/MCP/Skill.md)

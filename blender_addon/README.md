@@ -1,18 +1,11 @@
-# Blender Add-on Scaffold
+﻿# Legacy Blender Add-on Scaffold
 
-`blender_addon/blender_mcp/` は `#4` の Blender アドオン最小スケルトンです。
+`blender_addon/blender_mcp/` は、公式 Blender MCP へ移行する前に作成した旧独自 add-on 実装です。
 
-含めているもの:
+現在は主経路ではありません。
+主経路は公式 `blender_mcp` add-on / server を前提とします。
 
-- `__init__.py` によるアドオン登録情報
-- 多モジュール構成の登録/解除
-- `Connection` `Session` `Approval` パネル
-- 最小 Operator
-- UI 状態を保持する `PropertyGroup`
-
-まだ含めていないもの:
-
-- 実際の MCP 通信
-- 常時接続/再接続ロジック
-- 承認付き削除実装
-- チャット履歴の複数件保持
+このディレクトリは当面、以下の目的で保持します。
+- 旧構成の比較
+- 移行差分の確認
+- 補助 UI や自動化の転用検討
