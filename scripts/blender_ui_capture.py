@@ -17,13 +17,15 @@ def parse_args() -> argparse.Namespace:
     else:
         argv = []
 
-    parser = argparse.ArgumentParser(description="Blender MCP UI ???????????????????")
+    parser = argparse.ArgumentParser(description="Blender MCP UI の自動キャプチャ")
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--server-url", default="http://127.0.0.1:8765")
-    parser.add_argument("--prompt", default="?? UI ??")
+    parser.add_argument("--prompt", default="UI スモーク確認")
+    parser.add_argument("--prompt-file")
     parser.add_argument("--screenshot-name", default="blender-mcp-ui.png")
     parser.add_argument("--report-name", default="blender-mcp-ui-report.json")
     parser.add_argument("--wait-seconds", type=float, default=5.0)
+    parser.add_argument("--send-prompt", action="store_true")
     return parser.parse_args(argv)
 
 
@@ -34,11 +36,15 @@ SCREENSHOT_PATH = OUTPUT_DIR / ARGS.screenshot_name
 REPORT_PATH = OUTPUT_DIR / ARGS.report_name
 CAPTURE_CONTEXT = {}
 
+PROMPT_TEXT = ARGS.prompt
+if ARGS.prompt_file:
+    PROMPT_TEXT = Path(ARGS.prompt_file).read_text(encoding="utf-8-sig")
+
 RUNTIME = {
     "outputDir": str(OUTPUT_DIR),
     "screenshotPath": str(SCREENSHOT_PATH),
     "reportPath": str(REPORT_PATH),
-    "prompt": ARGS.prompt,
+    "prompt": PROMPT_TEXT,
     "serverUrl": ARGS.server_url,
 }
 
@@ -86,16 +92,20 @@ def _prepare_ui_state() -> dict[str, object]:
 
     state = bpy.context.scene.blender_mcp_state
     state.server_url = ARGS.server_url
-    state.prompt_text = ARGS.prompt
+    state.prompt_text = PROMPT_TEXT
     state.last_result_text = "UI smoke capture completed."
 
     with bpy.context.temp_override(window=window, area=area, region=window_region):
         connect_result = bpy.ops.blendermcp.connect()
         bpy.ops.wm.redraw_timer(type="DRAW_WIN_SWAP", iterations=1)
+        send_result = None
+        if ARGS.send_prompt:
+            send_result = bpy.ops.blendermcp.send_prompt()
+            bpy.ops.wm.redraw_timer(type="DRAW_WIN_SWAP", iterations=1)
 
     CAPTURE_CONTEXT.update({"window": window, "area": area, "region": window_region})
 
-    return {
+    report = {
         "connectResult": list(connect_result),
         "uiState": state.ui_state,
         "connectionLabel": state.connection_label,
@@ -104,7 +114,13 @@ def _prepare_ui_state() -> dict[str, object]:
         "lastError": state.last_error,
         "blenderVersion": state.blender_version,
         "addonVersion": state.addon_version,
+        "sendPromptEnabled": bool(ARGS.send_prompt),
+        "sendResult": list(send_result) if send_result is not None else None,
+        "kirbyBaseExists": "Kirby_Base" in bpy.data.objects,
     }
+    if "Kirby_Base" in bpy.data.objects:
+        report["kirbyBaseType"] = getattr(bpy.data.objects["Kirby_Base"], "type", "UNKNOWN")
+    return report
 
 
 def _capture_and_exit() -> None:

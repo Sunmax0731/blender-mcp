@@ -73,12 +73,21 @@ function Stop-ExistingServer {
         return
     }
 
-    Stop-Process -Id $processId -Force
+    try {
+        Stop-Process -Id $processId -Force -ErrorAction Stop
+    }
+    catch {
+        if (Test-ServerHealth -Url $Url) {
+            Write-Warning "Existing MCP server could not be stopped (PID=$processId). Continuing with the healthy running server. $($_.Exception.Message)"
+            return $false
+        }
+        throw
+    }
     $deadline = (Get-Date).AddSeconds(10)
     while ((Get-Date) -lt $deadline) {
         Start-Sleep -Milliseconds 250
         if (-not (Get-ListeningProcessId -Port $port.Port)) {
-            return
+            return $true
         }
     }
 
@@ -123,9 +132,14 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 if (-not $SkipServerRestart) {
-    Stop-ExistingServer -Url $ServerUrl
-    $serverProcess = Start-Server -Url $ServerUrl
-    Write-Host "Blender MCP server restarted: PID=$($serverProcess.Id) URL=$ServerUrl"
+    $stopResult = Stop-ExistingServer -Url $ServerUrl
+    if ($stopResult -eq $false) {
+        Write-Host "Using existing healthy Blender MCP server: URL=$ServerUrl"
+    }
+    else {
+        $serverProcess = Start-Server -Url $ServerUrl
+        Write-Host "Blender MCP server restarted: PID=$($serverProcess.Id) URL=$ServerUrl"
+    }
 }
 else {
     Write-Host "Server restart skipped by request."
