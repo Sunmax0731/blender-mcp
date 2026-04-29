@@ -159,6 +159,13 @@ cd D:\Claude\MCP
 uv run blender-mcp-installer --headless
 ```
 
+GUI を使わず導入し、最後の Blender 起動だけ抑止する場合:
+
+```powershell
+cd D:\Claude\MCP
+uv run blender-mcp-installer --headless --no-launch-blender
+```
+
 `exe` を生成する場合:
 
 ```powershell
@@ -169,6 +176,7 @@ uv sync --python 3.11 --extra dev
 
 - GUI から導入開始、進捗確認、ログ確認ができる
 - 内部では既存 PowerShell スクリプトを順番に実行する
+- 導入完了後は Blender を自動起動して、そのまま手動確認へ移れる
 - headless 実行では `artifacts/one-click-installer/` 配下へログを残せる
 - `exe` は `dist/one-click-installer/` 配下へ生成する
 

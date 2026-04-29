@@ -12,14 +12,15 @@ class InstallerStep:
     name: str
     script_path: Path
     description: str
+    extra_args: tuple[str, ...] = ()
 
 
 def repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
-def powershell_command(script_path: Path) -> list[str]:
-    return [
+def powershell_command(script_path: Path, extra_args: Iterable[str] | None = None) -> list[str]:
+    command = [
         "powershell",
         "-NoProfile",
         "-ExecutionPolicy",
@@ -27,12 +28,15 @@ def powershell_command(script_path: Path) -> list[str]:
         "-File",
         str(script_path),
     ]
+    if extra_args:
+        command.extend(list(extra_args))
+    return command
 
 
-def default_steps(root: Path | None = None) -> list[InstallerStep]:
+def default_steps(root: Path | None = None, include_launch_blender: bool = True) -> list[InstallerStep]:
     base = root or repo_root()
     scripts_dir = base / "scripts"
-    return [
+    steps = [
         InstallerStep(
             name="official-addon",
             script_path=scripts_dir / "install_official_blender_mcp.ps1",
@@ -54,6 +58,15 @@ def default_steps(root: Path | None = None) -> list[InstallerStep]:
             description="Enable official mcp and disable the legacy add-on in Blender.",
         ),
     ]
+    if include_launch_blender:
+        steps.append(
+            InstallerStep(
+                name="launch-blender",
+                script_path=scripts_dir / "launch_blender.ps1",
+                description="Start Blender for manual validation.",
+            )
+        )
+    return steps
 
 
 def default_log_dir(root: Path | None = None, now: datetime | None = None) -> Path:
@@ -81,7 +94,7 @@ class InstallerRunner:
                 if progress_callback:
                     progress_callback(index, len(steps_list), step)
 
-                command = powershell_command(step.script_path)
+                command = powershell_command(step.script_path, step.extra_args)
                 self._write_line(handle, log_callback, f"[STEP {index}/{len(steps_list)}] {step.name}")
                 self._write_line(handle, log_callback, f"[DESC] {step.description}")
                 self._write_line(handle, log_callback, f"[CMD] {' '.join(command)}")

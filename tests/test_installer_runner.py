@@ -13,6 +13,7 @@ def test_default_steps_reference_existing_scripts() -> None:
         "official-server",
         "codex-config",
         "enable-addon",
+        "launch-blender",
     ]
     assert all(step.script_path.suffix == ".ps1" for step in steps)
 
@@ -47,3 +48,14 @@ def test_parse_args_supports_headless_mode(monkeypatch) -> None:
     assert str(args.output_dir).endswith("artifacts\\run1") or str(args.output_dir).endswith(
         "artifacts/run1"
     )
+
+
+def test_default_steps_can_skip_launch_blender() -> None:
+    steps = default_steps(Path("D:/Claude/MCP"), include_launch_blender=False)
+
+    assert [step.name for step in steps] == [
+        "official-addon",
+        "official-server",
+        "codex-config",
+        "enable-addon",
+    ]

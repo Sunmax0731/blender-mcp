@@ -167,12 +167,17 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         help="Optional log directory for headless mode.",
     )
+    parser.add_argument(
+        "--no-launch-blender",
+        action="store_true",
+        help="Skip the final Blender launch step.",
+    )
     return parser.parse_args()
 
 
-def run_headless(output_dir: Path | None = None) -> int:
+def run_headless(output_dir: Path | None = None, include_launch_blender: bool = True) -> int:
     root = repo_root()
-    steps = default_steps(root)
+    steps = default_steps(root, include_launch_blender=include_launch_blender)
     runner = InstallerRunner(root)
     resolved_output_dir = output_dir or default_log_dir(root)
 
@@ -197,12 +202,14 @@ def run_headless(output_dir: Path | None = None) -> int:
 def main() -> None:
     args = parse_args()
     if args.plan:
-        for step in default_steps(repo_root()):
+        for step in default_steps(repo_root(), include_launch_blender=not args.no_launch_blender):
             print(f"{step.name}: {step.description}")
         return
 
     if args.headless:
-        raise SystemExit(run_headless(args.output_dir))
+        raise SystemExit(
+            run_headless(args.output_dir, include_launch_blender=not args.no_launch_blender)
+        )
 
     root_window = tk.Tk()
     InstallerApp(root_window)
