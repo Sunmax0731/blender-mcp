@@ -1,8 +1,10 @@
 import json
+from urllib import error
 
 import bpy
 
 from ..services.command_executor import execute_command
+from ..services.http_client import submit_approval_result
 
 
 def _append_history(state, line: str) -> None:
@@ -17,6 +19,14 @@ def _clear_pending(state) -> None:
     state.pending_action_label = "No pending actions."
     state.pending_request_id = ""
     state.pending_command_json = ""
+
+
+def _try_submit_approval_result(payload: dict[str, object]) -> None:
+    try:
+        submit_approval_result(payload)
+    except error.URLError:
+        # Keep local approval UX working even if the server is temporarily unavailable.
+        return
 
 
 class BLENDERMCP_OT_execute_approved_action(bpy.types.Operator):
@@ -42,17 +52,37 @@ class BLENDERMCP_OT_execute_approved_action(bpy.types.Operator):
         params["_approved"] = True
         command["params"] = params
         result = execute_command(command, bpy)
+        request_id = str(command.get("requestId", ""))
+        action = command.get("action", "unknown")
         state.last_result_text = str(result)
 
         if result.get("success"):
-            _append_history(state, f"{command.get('action', 'unknown')}: approved and executed")
+            _try_submit_approval_result(
+                {
+                    "requestId": request_id,
+                    "action": action,
+                    "success": True,
+                    "finalState": "approved_executed",
+                    "result": result,
+                }
+            )
+            _append_history(state, f"{action}: approved and executed")
             state.ui_state = "connected_idle"
             state.connection_label = "Connected (idle)"
             state.last_error = ""
             _clear_pending(state)
             return {"FINISHED"}
 
-        _append_history(state, f"{command.get('action', 'unknown')}: approval execution failed")
+        _try_submit_approval_result(
+            {
+                "requestId": request_id,
+                "action": action,
+                "success": False,
+                "finalState": "approved_execution_failed",
+                "result": result,
+            }
+        )
+        _append_history(state, f"{action}: approval execution failed")
         state.ui_state = "request_failed"
         state.connection_label = "Request failed"
         state.last_error = result.get("error", {}).get("message", "Unknown approval execution failure.")
@@ -66,6 +96,15 @@ class BLENDERMCP_OT_reject_action(bpy.types.Operator):
 
     def execute(self, context):
         state = context.scene.blender_mcp_state
+        if state.pending_request_id:
+            _try_submit_approval_result(
+                {
+                    "requestId": state.pending_request_id,
+                    "action": state.pending_action_label,
+                    "success": False,
+                    "finalState": "rejected",
+                }
+            )
         _append_history(state, "pending action: rejected")
         _clear_pending(state)
         state.ui_state = "connected_idle"

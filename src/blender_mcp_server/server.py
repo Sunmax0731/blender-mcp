@@ -9,8 +9,11 @@ from starlette.routing import Route
 
 from .transport.http_app import addon_command_poll_endpoint
 from .transport.http_app import addon_command_result_endpoint
+from .transport.http_app import addon_approval_result_endpoint
 from .transport.http_app import addon_status_endpoint
+from .transport.http_app import ai_suggestion_endpoint
 from .transport.http_app import health_endpoint
+from .transport.http_app import request_status_endpoint
 from .transport.http_app import status_endpoint
 from .transport.http_app import tools_endpoint
 
@@ -54,6 +57,26 @@ def create_mcp_server():
     @mcp_server.tool(name="blender_status")
     def blender_status() -> dict[str, object]:
         return tool_registry["blender_status"]()
+
+    @mcp_server.tool(name="blender_get_request_status")
+    def blender_get_request_status(request_id: str) -> dict[str, object]:
+        return tool_registry["blender_get_request_status"](
+            request_id=request_id,
+        )
+
+    @mcp_server.tool(name="blender_request_ai_suggestion")
+    def blender_request_ai_suggestion(
+        prompt: str,
+        selected_objects: list[dict[str, object]] | None = None,
+        scene_summary: dict[str, object] | None = None,
+        constraints: dict[str, object] | None = None,
+    ) -> dict[str, object]:
+        return tool_registry["blender_request_ai_suggestion"](
+            prompt=prompt,
+            selected_objects=selected_objects,
+            scene_summary=scene_summary,
+            constraints=constraints,
+        )
 
     @mcp_server.tool(name="blender_create_primitive")
     def blender_create_primitive(
@@ -117,13 +140,20 @@ def create_starlette_app(mcp_server) -> Starlette:
     return Starlette(
         routes=[
             Route("/health", endpoint=health_endpoint, methods=["GET"]),
+            Route("/api/ai/suggest", endpoint=ai_suggestion_endpoint, methods=["POST"]),
             Route("/api/status", endpoint=status_endpoint, methods=["GET"]),
+            Route("/api/requests/{request_id:str}", endpoint=request_status_endpoint, methods=["GET"]),
             Route("/api/tools", endpoint=tools_endpoint, methods=["GET"]),
             Route("/api/addon/status", endpoint=addon_status_endpoint, methods=["POST"]),
             Route("/api/addon/command/poll", endpoint=addon_command_poll_endpoint, methods=["POST"]),
             Route(
                 "/api/addon/command-result",
                 endpoint=addon_command_result_endpoint,
+                methods=["POST"],
+            ),
+            Route(
+                "/api/addon/approval-result",
+                endpoint=addon_approval_result_endpoint,
                 methods=["POST"],
             ),
             Mount("/mcp", app=mcp_server.streamable_http_app()),

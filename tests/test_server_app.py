@@ -23,7 +23,9 @@ def test_tools_endpoint_returns_registered_tool_names():
 
     payload = response.json()
     assert payload["success"] is True
+    assert "blender_get_request_status" in payload["data"]["tools"]
     assert "blender_status" in payload["data"]["tools"]
+    assert "blender_request_ai_suggestion" in payload["data"]["tools"]
     assert "blender_create_primitive" in payload["data"]["tools"]
     assert "blender_transform_object" in payload["data"]["tools"]
 

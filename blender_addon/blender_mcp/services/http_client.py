@@ -53,6 +53,28 @@ def submit_command_result(result: dict[str, object]) -> dict[str, object]:
     return _post_json("/api/addon/command-result", result)
 
 
+def submit_approval_result(result: dict[str, object]) -> dict[str, object]:
+    return _post_json("/api/addon/approval-result", result)
+
+
+def request_ai_suggestion(
+    *,
+    prompt: str,
+    selected_objects: list[dict[str, object]] | None = None,
+    scene_summary: dict[str, object] | None = None,
+    constraints: dict[str, object] | None = None,
+) -> dict[str, object]:
+    return _post_json(
+        "/api/ai/suggest",
+        {
+            "prompt": prompt,
+            "selectedObjects": selected_objects or [],
+            "sceneSummary": scene_summary or {},
+            "constraints": constraints or {},
+        },
+    )
+
+
 def request_connection_status(addon_version: str, blender_version: str) -> dict[str, object]:
     try:
         post_addon_status(addon_version=addon_version, blender_version=blender_version)
