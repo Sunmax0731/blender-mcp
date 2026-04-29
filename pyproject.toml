@@ -18,6 +18,7 @@ dev = [
 
 [project.scripts]
 blender-mcp-server = "blender_mcp_server.main:main"
+blender-mcp-installer = "blender_mcp_installer.main:main"
 
 [build-system]
 requires = ["setuptools>=68"]

@@ -134,6 +134,26 @@ cd D:\Claude\MCP
 
 - [Codex MCP 設定例](D:/Claude/MCP/docs/codex-mcp-config-example.toml)
 
+### 6. 1クリック導入アプリ
+
+開発版アプリを起動する場合:
+
+```powershell
+cd D:\Claude\MCP
+uv run blender-mcp-installer
+```
+
+実行予定ステップだけ確認する場合:
+
+```powershell
+cd D:\Claude\MCP
+uv run blender-mcp-installer --plan
+```
+
+- GUI から導入開始、進捗確認、ログ確認ができる
+- 内部では既存 PowerShell スクリプトを順番に実行する
+- `exe` 配布と Release 検証は後続の Release 準備工程で扱う
+
 ## ドキュメント
 
 - [要件定義](D:/Claude/MCP/docs/requirements.md)
