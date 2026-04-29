@@ -4,6 +4,8 @@ import json
 from urllib import error
 from urllib import request
 
+from ..config import AI_SUGGESTION_TIMEOUT_SECONDS
+from ..config import DEFAULT_HTTP_TIMEOUT_SECONDS
 from ..config import SERVER_URL
 
 
@@ -11,14 +13,19 @@ def _decode_response(response) -> dict[str, object]:
     return json.loads(response.read().decode("utf-8"))
 
 
-def _post_json(path: str, payload: dict[str, object]) -> dict[str, object]:
+def _post_json(
+    path: str,
+    payload: dict[str, object],
+    *,
+    timeout_seconds: float = DEFAULT_HTTP_TIMEOUT_SECONDS,
+) -> dict[str, object]:
     req = request.Request(
         f"{SERVER_URL}{path}",
         data=json.dumps(payload).encode("utf-8"),
         headers={"Content-Type": "application/json; charset=utf-8"},
         method="POST",
     )
-    with request.urlopen(req, timeout=2.0) as response:
+    with request.urlopen(req, timeout=timeout_seconds) as response:
         return _decode_response(response)
 
 
@@ -72,6 +79,7 @@ def request_ai_suggestion(
             "sceneSummary": scene_summary or {},
             "constraints": constraints or {},
         },
+        timeout_seconds=AI_SUGGESTION_TIMEOUT_SECONDS,
     )
 
 
