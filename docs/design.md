@@ -12,8 +12,8 @@
 ```text
 Codex
   -> MCP Server (Python)
-      -> Transport Layer (HTTP local / WebSocket candidate)
-          -> Blender Add-on
+      -> Transport Layer (HTTP local)
+          <- Blender Add-on (long-lived local reverse connection)
               -> Blender Python API
       -> AI Provider Adapter
           -> OpenAI compatible API / other providers
@@ -35,7 +35,8 @@ Codex
 候補実装:
 
 - Python 3.11+
-- FastMCP もしくは MCP Python SDK
+- 公式 MCP Python SDK v1.x
+- `uv`
 
 ### 3.2 Blender Add-on
 
@@ -46,11 +47,14 @@ Codex
 - Blender API 実行ラッパー
 - 結果整形
 - 例外捕捉
+- 常時接続状態の維持
+- 再接続制御
 
 候補実装:
 
 - Blender Python API
 - `bpy.types.Panel`, `bpy.types.Operator`, `bpy.app.timers`
+- 多モジュール構成
 
 ### 3.3 AI Provider Adapter
 
@@ -63,34 +67,26 @@ Codex
 
 ## 4. 通信方式比較
 
-### 案A: ローカル HTTP
+### 採用案: ローカル HTTP + Blender 主導の常時接続
 
 利点:
 
-- 実装容易
-- デバッグ容易
+- 公式 MCP Python SDK と整合しやすい
+- ローカル常駐アドオンとの相性がよい
+- UI 側の接続状態管理と再接続制御を持たせやすい
 - ログや検証がしやすい
 
 欠点:
 
-- 疑似リアルタイムのためポーリング設計が必要
-
-### 案B: WebSocket
-
-利点:
-
-- 双方向性が高い
-- 状態同期に向く
-
-欠点:
-
-- Blender 側実装複雑度が上がる
-- 安定化コストが高い
+- Blender 側の接続維持責務が増える
+- 単純な問い合わせより構成が少し重い
 
 初期判断:
 
-- MVP はローカル HTTP を採用
-- 双方向イベントが不足した時点で WebSocket を再評価
+- MVP はローカル HTTP を採用する
+- 接続の主導権は Blender アドオン側が持つ
+- Blender アドオンは MCP サーバーへローカル接続し、常時接続または再接続制御を持つ
+- WebSocket は現時点では採用しない
 
 ## 4.1 ローカル接続ポリシー
 
@@ -99,6 +95,7 @@ Codex
 - 外部ネットワークインターフェースへの bind は既定で禁止する
 - Blender アドオンから接続する相手先は明示設定されたローカルアドレスのみ許可する
 - 将来的に外部公開を検討する場合も、別フェーズ Issue を起点に再設計する
+- Blender 側の常時接続先もローカルホストに限定する
 
 ## 4.2 設定保持方針
 
@@ -124,6 +121,7 @@ Codex
   - 単一プリミティブ生成
   - 単一オブジェクトの基本変形
 - 承認必須操作
+  - 単一オブジェクト削除
   - オブジェクト削除
   - モディファイア適用
   - 既存データ上書き
@@ -140,6 +138,7 @@ Codex
 - UI で承認されるまでは Blender 本体へ破壊的変更を適用しない
 - 却下時は実行せず履歴と監査ログのみに残す
 - 承認後実行が失敗した場合は再承認不要でエラー状態へ戻す
+- Phase 1 では単一オブジェクト削除を承認必須操作として含める
 
 ### 5.3 引数検証ポリシー
 
@@ -180,6 +179,7 @@ Codex
 - AI 応答の曖昧さによる不正操作
 - バージョン差異による `bpy` API 挙動差
 - 依存ライブラリが Blender 同梱 Python と衝突する可能性
+- MVP 前倒しで UI 構造を広げることによる初期工数増
 
 ## 8. リスク緩和
 
@@ -187,3 +187,4 @@ Codex
 - 自然言語を直接実行せず構造化コマンドへ変換する
 - Blender 側の通信依存を最小限に抑える
 - 外部依存が重い処理は MCP サーバー側へ寄せる
+- UI は多モジュール化するが、各モジュールは最小責務に保つ

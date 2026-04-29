@@ -7,11 +7,14 @@
 - Blender との接続確認
 - プリミティブ生成
 - 基本変形
+- 承認付きオブジェクト削除
 - オブジェクト一覧取得
 - Blender UI からのメッセージ送信
 - OpenAI 互換 API への最小問い合わせ
 - 許可操作の制御
 - 承認待ち操作の表示
+- チャット形式履歴
+- 複数タブ UI
 
 ### 1.2 対象外
 
@@ -94,6 +97,17 @@ MVP では、Blender 側で受け付ける操作を明示的な allowlist で管
 - 出力: オブジェクト配列
 - 実行区分: 自動実行可
 
+### `blender_delete_object`
+
+- 目的: 既存オブジェクト削除
+- 入力: 対象名
+- 出力: 成否、削除対象名
+- 実行区分: 承認必須
+- 制約:
+  - 対象は単一オブジェクトに限定する
+  - 対象名未指定は受け付けない
+  - `executionMode=confirm_required` で返し、承認後のみ実行する
+
 ### `blender_request_ai_suggestion`
 
 - 目的: 選択中オブジェクトや要件に対する提案を取得
@@ -109,6 +123,7 @@ MVP では、Blender 側で受け付ける操作を明示的な allowlist で管
 ### 3.1 初期配置
 
 - `View3D > Sidebar` に専用タブを追加
+- MVP では少なくとも `Connection` `Session` `Approval` のタブを持つ
 
 ### 3.2 表示項目
 
@@ -118,6 +133,7 @@ MVP では、Blender 側で受け付ける操作を明示的な allowlist で管
 - エラー表示
 - 承認待ち操作一覧
 - 現在の UI 状態表示
+- チャット形式の会話履歴
 
 ### 3.3 操作
 
@@ -211,8 +227,6 @@ MVP UI は少なくとも以下の状態を持つ。
 
 ### 3.9 後続フェーズへ送る UI 要素
 
-- チャット形式の長文履歴表示
-- 複数タブ UI
 - シーンプレビューと提案差分の視覚表示
 - 高度なフィルタ、検索、並べ替え
 
@@ -404,7 +418,37 @@ MVP UI は少なくとも以下の状態を持つ。
 }
 ```
 
-### 4.12 `blender_request_ai_suggestion` リクエスト
+### 4.12 `blender_delete_object` リクエスト
+
+```json
+{
+  "action": "delete_object",
+  "params": {
+    "targetObjectName": "Block_A"
+  },
+  "requiresConfirmation": true
+}
+```
+
+### 4.13 `blender_delete_object` 承認待ちレスポンス
+
+```json
+{
+  "requestId": "req-004a",
+  "timestamp": "2026-04-29T18:00:08+09:00",
+  "success": false,
+  "executionMode": "confirm_required",
+  "error": {
+    "code": "CONFIRMATION_REQUIRED",
+    "message": "オブジェクト削除には承認が必要です。"
+  },
+  "data": {
+    "targetObjectName": "Block_A"
+  }
+}
+```
+
+### 4.14 `blender_request_ai_suggestion` リクエスト
 
 ```json
 {
@@ -429,7 +473,7 @@ MVP UI は少なくとも以下の状態を持つ。
 }
 ```
 
-### 4.13 `blender_request_ai_suggestion` レスポンス
+### 4.15 `blender_request_ai_suggestion` レスポンス
 
 ```json
 {
@@ -455,7 +499,7 @@ MVP UI は少なくとも以下の状態を持つ。
 }
 ```
 
-### 4.14 共通エラー応答
+### 4.16 共通エラー応答
 
 ```json
 {
@@ -483,7 +527,7 @@ MVP UI は少なくとも以下の状態を持つ。
 - `AI_PROVIDER_ERROR`
 - `INTERNAL_ERROR`
 
-### 4.15 シーン要約スキーマ
+### 4.17 シーン要約スキーマ
 
 ```json
 {
@@ -500,7 +544,7 @@ MVP UI は少なくとも以下の状態を持つ。
 }
 ```
 
-### 4.16 選択オブジェクトスキーマ
+### 4.18 選択オブジェクトスキーマ
 
 ```json
 {
@@ -520,13 +564,14 @@ MVP UI は少なくとも以下の状態を持つ。
 
 - Blender Add-on: Python
 - MCP Server: Python
+- MCP 実装: 公式 MCP Python SDK v1.x
+- 主通信方式: ローカル HTTP
+- 依存管理: `uv`
 - テスト: pytest
 - 品質管理: ruff, mypy
 
 ### 要検証
 
-- MCP 実装: FastMCP または公式 Python SDK
-- 通信: HTTP first, WebSocket later
 - UI 補助: Blender 標準 UI で足りるか、将来的にカスタム描画が必要か
 
 ### 5.3 開発環境基線
@@ -536,7 +581,7 @@ MVP UI は少なくとも以下の状態を持つ。
 - MCP サーバー実行環境: 外部 Python 仮想環境
 - Blender アドオン実行環境: Blender 同梱 Python
 - 依存管理:
-  - MCP サーバー側は通常の Python パッケージ管理を使う
+  - MCP サーバー側は `uv` を使用する
   - Blender アドオン側は外部依存を最小限に抑える
 - 検証形態:
   - ローカル単体起動

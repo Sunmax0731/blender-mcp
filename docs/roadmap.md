@@ -10,14 +10,16 @@
 
 - Blender アドオン最小構成
 - MCP サーバー最小構成
-- `status` `create_primitive` `list_objects` 実装
-- Blender UI に接続状態とログ表示
+- `status` `create_primitive` `list_objects` `transform_object` `delete_object(confirm)` 実装
+- Blender UI に接続状態、チャット履歴、タブ UI、ログ表示
+- Blender アドオン主導の常時接続/再接続制御
 
 ## Phase 2: 対話 UI と安全実行
 
 - Blender UI から Codex へ依頼送信
 - 承認フロー実装
 - 監査ログ実装
+- 多モジュール UI/通信構成の整理
 
 ## Phase 3: AI サービス連携
 
@@ -35,6 +37,6 @@
 ## 優先順位
 
 1. 接続と安全な最小操作
-2. Blender UI の可視性
+2. Blender UI の可視性と拡張前提構造
 3. AI 連携
 4. 拡張操作
