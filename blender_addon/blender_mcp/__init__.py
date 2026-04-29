@@ -1,4 +1,4 @@
-﻿bl_info = {
+bl_info = {
     "name": "Blender MCP",
     "author": "Sunmax0731",
     "version": (0, 1, 1),
