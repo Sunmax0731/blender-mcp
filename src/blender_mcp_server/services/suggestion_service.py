@@ -4,9 +4,9 @@ import json
 import re
 from collections.abc import Mapping
 
-from .ai_client import OpenAICompatibleError
-from .ai_client import create_chat_completion
-from .ai_config import load_openai_compatible_config
+from .codex_cli_client import CodexCliError
+from .codex_cli_client import load_codex_cli_config
+from .codex_cli_client import run_codex_cli_suggestion
 
 
 def build_ai_suggestion_payload(
@@ -26,12 +26,12 @@ def build_ai_suggestion_payload(
     system_prompt = _build_system_prompt()
 
     try:
-        result = create_chat_completion(
-            config=load_openai_compatible_config(),
+        result = run_codex_cli_suggestion(
+            config=load_codex_cli_config(),
             user_prompt=user_prompt,
             system_prompt=system_prompt,
         )
-    except OpenAICompatibleError as exc:
+    except CodexCliError as exc:
         return {
             "success": False,
             "error": {
@@ -125,6 +125,8 @@ def _is_reasonable_japanese_response(*, prompt: str, content: str) -> bool:
         return False
     if _contains_japanese(prompt) and not _contains_japanese(content):
         return False
+    if _looks_like_meta_response(content):
+        return False
 
     request_keywords = _extract_request_keywords(prompt)
     if not request_keywords:
@@ -138,13 +140,35 @@ def _contains_japanese(text: str) -> bool:
     return re.search(r"[\u3040-\u30ff\u3400-\u9fff]", text) is not None
 
 
+def _looks_like_meta_response(content: str) -> bool:
+    blocked_phrases = (
+        "内容がまだ見えていません",
+        "提案内容を貼って",
+        "要件を貼って",
+        "必要なら次のどれでも対応します",
+        "必要なら次の形式で指示してください",
+        "必要なら次の形式で返せます",
+        "入力をもらえれば",
+        "了解しました。以後",
+        "了解。以後",
+        "背景提案生成器として振る舞います",
+        "背景案生成器として振る舞います",
+        "被写体、世界観、用途、画角、時間帯を指定してください",
+        "指定がなければこちらで補完します",
+        "対応します",
+        "貼ってください",
+        "指定してください",
+    )
+    return any(phrase in content for phrase in blocked_phrases)
+
+
 def _extract_request_keywords(prompt: str) -> list[str]:
     compact = prompt.replace(" ", "")
     keywords: list[str] = []
     if any(token in compact for token in ("カービィ", "kirby", "Kirby")):
-        keywords.append("カービィ")
+        keywords.extend(["カービィ", "球体", "丸"])
     if any(token in compact for token in ("作って", "作成", "モデル", "作り")):
-        keywords.extend(["作", "形"])
+        keywords.extend(["作成", "モデル", "形状"])
     if any(token in compact for token in ("大き", "拡大", "scale")):
         keywords.append("拡大")
     if any(token in compact for token in ("移動", "上", "持ち上げ", "move")):

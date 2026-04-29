@@ -1,6 +1,6 @@
-﻿# Blender MCP Server
+# Blender MCP Server
 
-`src/blender_mcp_server/` は Blender 向けの MCP サーバー実装です。
+`src/blender_mcp_server/` は Blender 向け MCP サーバー実装です。
 
 ## 構成
 
@@ -11,7 +11,7 @@
 - `tools/`
   - MCP から公開するツール定義です。
 - `services/`
-  - 状態管理、コマンドキュー、AI 連携、承認結果保持を扱います。
+  - 状態管理、コマンドキュー、承認結果保持、Codex CLI 連携を扱います。
 - `transport/`
   - Blender add-on 向けのローカル HTTP API を提供します。
 
@@ -38,15 +38,27 @@
 - `blender_transform_object`
 - `blender_delete_object`
 
-## AI 設定環境変数
+## AI 提案経路
 
-- `BLENDER_MCP_OPENAI_API_KEY`
-- `BLENDER_MCP_OPENAI_BASE_URL`
-  - 既定値: `https://api.openai.com/v1`
-- `BLENDER_MCP_OPENAI_MODEL`
-  - 既定値: `gpt-4o-mini`
-- `BLENDER_MCP_OPENAI_TIMEOUT_SECONDS`
-  - 既定値: `30`
+このリポジトリでは 2 つの経路を使い分けます。
+
+- Codex App からの Blender 操作
+  - MCP ツール経由で `blender-mcp-server` を利用します。
+- Blender UI からのプロンプト送信
+  - `Codex CLI` をバックグラウンド実行して提案文を生成します。
+
+`/api/ai/suggest` は外部 OpenAI 互換 API ではなく、ローカル `Codex CLI` を使います。
+
+## Codex CLI 設定環境変数
+
+- `BLENDER_MCP_CODEX_COMMAND`
+  - 既定値: Windows は `codex.cmd`、それ以外は `codex`
+- `BLENDER_MCP_CODEX_MODEL`
+  - 任意。指定時だけ `--model` を付けます。
+- `BLENDER_MCP_CODEX_TIMEOUT_SECONDS`
+  - 既定値: `45`
+- `BLENDER_MCP_CODEX_WORKDIR`
+  - 既定値: OS の一時ディレクトリ
 
 ## ローカル起動
 
@@ -54,4 +66,4 @@
 uv run blender-mcp-server
 ```
 
-`FastMCP` は `streamable-http` を `Starlette` に mount しており、Codex からは `/mcp` を通して利用します。
+`FastMCP` は `streamable-http` を `Starlette` に mount しており、Codex App からは `/mcp` を通して利用します。
