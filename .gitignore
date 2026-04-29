@@ -8,6 +8,7 @@ __pycache__/
 .ruff_cache/
 dist/
 build/
+*.egg-info/
 node_modules/
 coverage/
 .DS_Store
