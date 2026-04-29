@@ -1,78 +1,93 @@
-# blender-mcp
+﻿# blender-mcp
 
-Codex から Blender を操作し、Blender 内 UI と外部 AI サービス連携を含む MCP ベースの開発基盤を構築するプロジェクトです。
+公式 Blender MCP を前提に、Codex App と Codex CLI から Blender を扱うための導入・検証・運用を行うリポジトリです。
 
-このリポジトリでは、通常のシステム開発と同様に以下の順序で進めます。
+このリポジトリの主目的は次の 3 点です。
+- 公式 `blender_mcp` add-on / MCP server を Windows 環境へ導入しやすくする
+- Codex App から公式 MCP server を使って Blender を操作できるようにする
+- Blender UI から Codex CLI に指示し、公式 add-on と干渉しない補助導線を整備する
 
-1. 要件定義
-2. 仕様検討
-3. 設計
-4. 実装
-5. テスト
-6. リリース
+## 基本方針
 
-運用方針:
+- Blender 側の中核機能は公式 `blender_mcp` を使う
+- 独自 add-on / 独自 server は段階的に縮退し、公式構成との差分を最小化する
+- 人が確認するドキュメント、Issue、コメントは日本語で管理する
+- 開発は Issue 駆動で進め、工程切替時に `docs/` を見直す
 
-- GitHub でプロジェクトを管理する
-- Issue 駆動で 1 件ずつ進める
-- 要件/設計/仕様は `docs/` を正とする
-- 実装開始前に対象 Issue の受け入れ条件を明確化する
-- 工程の切り替わりごとに `docs/` と関連 Issue を見直し、差分を反映する
-- 人が確認するドキュメント、Issue、コメント、PR 本文は日本語で記載する
+## 参照
 
-ドキュメント:
+- 公式紹介: [Blender MCP Server](https://www.blender.org/lab/mcp-server/)
+- 公式リポジトリ: [lab/blender_mcp](https://projects.blender.org/lab/blender_mcp)
+- 公式リリース: [blender_mcp releases](https://projects.blender.org/lab/blender_mcp/releases)
 
-- [要件定義](./docs/requirements.md)
-- [設計](./docs/design.md)
-- [仕様](./docs/specification.md)
-- [ロードマップ](./docs/roadmap.md)
-- [検証計画](./docs/validation-plan.md)
-- [初回リリース計画](./docs/release-plan.md)
-- [運用ルール](./AGENTS.md)
-- [実行ガイド](./Skill.md)
+2026-04-30 時点で確認した最新安定版は `v1.0.0` です。
 
-想定する主要ユースケース:
+## 現在の構成方針
 
-- Codex から Blender に自然言語または構造化コマンドを送る
-- Blender でモデリング補助やシーン操作を行う
-- Blender 内 UI から Codex と対話する
-- Blender と外部 AI サービスを接続する
-- 生成結果や操作結果を Blender 上で確認、再編集する
+### 1. Codex App から使う経路
 
-## 開発環境
+`Codex App -> 公式 MCP server -> 公式 Blender add-on -> Blender`
 
-- OS: Windows
-- Python: 3.11 系
-- 依存管理: `uv`
-- Blender: 5.1.1 で実機確認済み
+- Codex App 側は MCP クライアントとして公式 server を利用する
+- Blender 側では公式 add-on が TCP bridge server を提供する
+- 3D 操作、スクリーンショット、サマリー取得などは可能な限り公式 tool を使う
 
-## ローカルセットアップ
+### 2. Blender UI から使う経路
 
-1. 依存を同期する
+`Blender UI -> 補助ブリッジ -> Codex CLI -> 公式 Blender MCP / Blender`
+
+- Blender の補助 UI は、公式 add-on を置き換えず補完する位置付けにする
+- 自然言語入力は `Codex CLI` を優先する
+- 補助 UI からの危険操作は `preview -> confirm -> execute` を守る
+
+## セットアップ
+
+### 1. Python 依存
 
 ```powershell
 cd D:\Claude\MCP
 uv sync --python 3.11 --extra dev
 ```
 
-2. 自動テストを実行する
+### 2. 公式 Blender MCP add-on の導入
+
+PowerShell:
+
+```powershell
+cd D:\Claude\MCP
+.\scripts\install_official_blender_mcp.ps1
+```
+
+コマンドプロンプト:
+
+```bat
+cd /d D:\Claude\MCP
+scripts\install_official_blender_mcp.cmd
+```
+
+導入後の Blender 側確認:
+
+1. `Edit > Preferences > Add-ons` を開く
+2. `MCP` を検索して有効化する
+3. Blender の `Online Access` を有効にする
+4. add-on 設定で host / port / autostart を確認する
+
+公式 add-on はローカル TCP bridge server を使うため、`Online Access` が無効だと起動できません。
+
+### 3. テスト
 
 ```powershell
 cd D:\Claude\MCP
 uv run pytest
 ```
 
-3. Blender UI スモークを実行する
+## ドキュメント
 
-```powershell
-cd D:\Claude\MCP
-powershell -ExecutionPolicy Bypass -File .\scripts\run_blender_ui_smoke.ps1
-```
-
-## 現時点の検証結果
-
-- `uv sync --python 3.11 --extra dev`: 成功
-- `uv run pytest`: `16 passed`
-- UI スモーク:
-  - `controlled_launch`
-  - `existing_process`
+- [要件定義](D:/Claude/MCP/docs/requirements.md)
+- [設計](D:/Claude/MCP/docs/design.md)
+- [仕様](D:/Claude/MCP/docs/specification.md)
+- [ロードマップ](D:/Claude/MCP/docs/roadmap.md)
+- [検証計画](D:/Claude/MCP/docs/validation-plan.md)
+- [リリース計画](D:/Claude/MCP/docs/release-plan.md)
+- [運用ルール](D:/Claude/MCP/AGENTS.md)
+- [必要スキル](D:/Claude/MCP/Skill.md)

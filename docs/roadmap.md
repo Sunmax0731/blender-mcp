@@ -1,38 +1,38 @@
-# ロードマップ
+﻿# ロードマップ
 
-## Phase 0: 立ち上げ
-- 要件、仕様、設計、検証計画の整理
-- GitHub リポジトリ準備
-- 初期 Issue 作成
+## Phase 0: 公式構成への切替
 
-## Phase 1: 接続確認 MVP
-- Blender add-on 最小構成
-- MCP サーバー最小構成
-- `status` `create_primitive` `list_objects` `transform_object` `delete_object(confirm)` の実装
-- Blender UI に接続状態、チャット履歴、タブ UI、ログ表示を追加
-- Blender add-on 主導の常時接続と疎通確認
+- 公式 Blender MCP の調査
+- docs を公式前提へ更新
+- 移行方針 Issue の整備
 
-## Phase 2: 対話 UI と承認フロー
-- Blender UI から Codex と連携できる導線を整備
-- 承認待ちフロー実装
-- 監査ログ実装
-- 最小運用 UI と状態表示の整備
+## Phase 1: 公式 add-on 導入基盤
 
-## Phase 3: AI サービス連携
-- OpenAI 互換 API 連携
-- 提案生成の初期実装
-- プロンプトとシーン情報連携
+- 公式 `mcp-1.0.0.zip` の取得
+- Blender add-on 配置先への同期
+- Windows 用導入スクリプト整備
 
-## Phase 4: 検証とリリース準備
-- エラー処理強化
-- テスト拡充
-- UI スモーク自動化の運用
-- reject 系を含む手動確認
-- 初回リリース計画の整備
-- リリース
+## Phase 2: Codex App 利用経路
 
-## 優先順
-1. 接続と操作の最小実装
-2. Blender UI の可視化と承認導線
-3. AI 連携
-4. 検証強化
+- Codex App から公式 MCP を使う前提整理
+- 利用手順と必要設定の明文化
+- 実行経路の検証
+
+## Phase 3: Blender UI 補助導線
+
+- Blender UI から Codex CLI を使う補助経路の設計
+- 公式 add-on と競合しない補助機能の実装
+- 危険操作の確認フロー整備
+
+## Phase 4: 更新と検証の自動化
+
+- 公式版更新検知
+- 再導入・再検証自動化
+- スクリーンショットとログの証跡化
+
+## 直近優先
+
+1. docs の公式構成化
+2. 公式 add-on 導入スクリプト整備
+3. Codex App 利用前提の具体化
+4. 旧独自構成の縮退計画
