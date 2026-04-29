@@ -1,4 +1,4 @@
-import bpy
+﻿import bpy
 
 
 UI_STATE_ITEMS = (
@@ -59,5 +59,5 @@ class BLENDERMCP_PG_state(bpy.types.PropertyGroup):
     )
     addon_version: bpy.props.StringProperty(
         name="Add-on Version",
-        default="0.1.0",
+        default="0.1.1",
     )

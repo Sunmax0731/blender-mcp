@@ -1,4 +1,4 @@
-import json
+﻿import json
 
 import bpy
 
@@ -36,7 +36,7 @@ def _build_selected_objects(bpy_module) -> list[dict[str, object]]:
 
 class BLENDERMCP_OT_send_prompt(bpy.types.Operator):
     bl_idname = "blendermcp.send_prompt"
-    bl_label = "提案を送信"
+    bl_label = "送信"
     bl_description = "現在のプロンプトを送信して提案を取得します"
 
     def execute(self, context):
@@ -89,7 +89,7 @@ class BLENDERMCP_OT_send_prompt(bpy.types.Operator):
 
 class BLENDERMCP_OT_process_next_command(bpy.types.Operator):
     bl_idname = "blendermcp.process_next_command"
-    bl_label = "次のコマンドを取得"
+    bl_label = "取得"
     bl_description = "ローカル MCP サーバーから次のコマンドを取得します"
 
     def execute(self, context):

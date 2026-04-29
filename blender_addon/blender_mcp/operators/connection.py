@@ -1,4 +1,4 @@
-import bpy
+﻿import bpy
 
 from ..services.http_client import request_connection_status
 
@@ -35,7 +35,7 @@ class BLENDERMCP_OT_connect(bpy.types.Operator):
 
 class BLENDERMCP_OT_refresh_status(bpy.types.Operator):
     bl_idname = "blendermcp.refresh_status"
-    bl_label = "状態更新"
+    bl_label = "更新"
     bl_description = "現在の接続状態を更新します"
 
     def execute(self, context):

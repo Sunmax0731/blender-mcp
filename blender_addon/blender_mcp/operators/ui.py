@@ -1,9 +1,9 @@
-import bpy
+﻿import bpy
 
 
 class BLENDERMCP_OT_clear_history(bpy.types.Operator):
     bl_idname = "blendermcp.clear_history"
-    bl_label = "履歴をクリア"
+    bl_label = "履歴消去"
     bl_description = "セッション履歴と結果表示を消去します"
 
     def execute(self, context):

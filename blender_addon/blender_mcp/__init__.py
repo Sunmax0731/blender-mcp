@@ -1,7 +1,7 @@
-bl_info = {
+﻿bl_info = {
     "name": "Blender MCP",
     "author": "Sunmax0731",
-    "version": (0, 1, 0),
+    "version": (0, 1, 1),
     "blender": (4, 5, 0),
     "location": "View3D > Sidebar > Blender MCP",
     "description": "Codex and Blender integration scaffold via MCP",

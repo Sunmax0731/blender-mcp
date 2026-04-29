@@ -1,4 +1,4 @@
-import json
+﻿import json
 from urllib import error
 
 import bpy
@@ -25,13 +25,12 @@ def _try_submit_approval_result(payload: dict[str, object]) -> None:
     try:
         submit_approval_result(payload)
     except error.URLError:
-        # Keep local approval UX working even if the server is temporarily unavailable.
         return
 
 
 class BLENDERMCP_OT_execute_approved_action(bpy.types.Operator):
     bl_idname = "blendermcp.execute_approved_action"
-    bl_label = "承認して実行"
+    bl_label = "実行"
     bl_description = "承認待ちの操作を Blender 上で実行します"
 
     def execute(self, context):

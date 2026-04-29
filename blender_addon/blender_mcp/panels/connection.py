@@ -1,4 +1,4 @@
-import bpy
+﻿import bpy
 
 
 class BLENDERMCP_PT_connection(bpy.types.Panel):
@@ -19,9 +19,9 @@ class BLENDERMCP_PT_connection(bpy.types.Panel):
             layout.label(text=f"Blender: {state.blender_version}")
         layout.label(text=f"アドオン: {state.addon_version}")
 
-        row = layout.row(align=True)
-        row.operator("blendermcp.connect", text="接続")
-        row.operator("blendermcp.refresh_status", text="状態更新")
+        controls = layout.column(align=True)
+        controls.operator("blendermcp.connect", text="接続")
+        controls.operator("blendermcp.refresh_status", text="更新")
 
         if state.last_error:
             layout.separator()

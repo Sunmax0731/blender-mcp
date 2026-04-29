@@ -1,4 +1,4 @@
-import textwrap
+﻿import textwrap
 
 import bpy
 
@@ -16,9 +16,9 @@ class BLENDERMCP_PT_session(bpy.types.Panel):
 
         layout.prop(state, "prompt_text", text="プロンプト")
         controls = layout.column(align=True)
-        controls.operator("blendermcp.send_prompt", text="提案を送信")
-        controls.operator("blendermcp.process_next_command", text="次のコマンドを取得")
-        controls.operator("blendermcp.clear_history", text="履歴をクリア")
+        controls.operator("blendermcp.send_prompt", text="送信")
+        controls.operator("blendermcp.process_next_command", text="取得")
+        controls.operator("blendermcp.clear_history", text="履歴消去")
         layout.separator()
         layout.label(text="履歴")
         box = layout.box()

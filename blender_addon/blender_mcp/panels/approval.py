@@ -1,4 +1,4 @@
-import textwrap
+﻿import textwrap
 
 import bpy
 
@@ -20,7 +20,7 @@ class BLENDERMCP_PT_approval(bpy.types.Panel):
         if state.pending_request_id:
             box.label(text=f"Request ID: {state.pending_request_id}")
         controls = layout.column(align=True)
-        controls.operator("blendermcp.execute_approved_action", text="承認して実行")
+        controls.operator("blendermcp.execute_approved_action", text="実行")
         controls.operator("blendermcp.reject_action", text="却下")
 
     @staticmethod
