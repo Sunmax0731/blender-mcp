@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import ctypes
 import json
 import sys
 import traceback
@@ -34,8 +33,6 @@ OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 SCREENSHOT_PATH = OUTPUT_DIR / ARGS.screenshot_name
 REPORT_PATH = OUTPUT_DIR / ARGS.report_name
 CAPTURE_CONTEXT = {}
-VK_ESCAPE = 0x1B
-KEYEVENTF_KEYUP = 0x0002
 
 RUNTIME = {
     "outputDir": str(OUTPUT_DIR),
@@ -50,17 +47,6 @@ def _write_report(extra: dict[str, object]) -> None:
     payload = dict(RUNTIME)
     payload.update(extra)
     REPORT_PATH.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-
-
-def _dismiss_splash_with_escape() -> None:
-    try:
-        user32 = ctypes.windll.user32
-        user32.keybd_event(VK_ESCAPE, 0, 0, 0)
-        user32.keybd_event(VK_ESCAPE, 0, KEYEVENTF_KEYUP, 0)
-    except Exception:
-        pass
-
-
 def _find_view3d_context():
     for window in bpy.context.window_manager.windows:
         screen = window.screen
@@ -91,21 +77,17 @@ def _prepare_ui_state() -> dict[str, object]:
     bpy.context.preferences.view.show_splash = False
     window, area, window_region, ui_region = _find_view3d_context()
 
-    with bpy.context.temp_override(window=window, area=area, region=window_region):
-        if area.spaces.active.show_region_ui:
-            area.spaces.active.show_region_ui = False
-            bpy.ops.wm.redraw_timer(type="DRAW_WIN_SWAP", iterations=1)
-        bpy.ops.screen.region_toggle(region_type="UI")
-        bpy.ops.wm.redraw_timer(type="DRAW_WIN_SWAP", iterations=1)
-
     ui_region = next((region for region in area.regions if region.type == "UI"), ui_region)
     if ui_region is not None and hasattr(ui_region, "active_panel_category"):
-        ui_region.active_panel_category = "Blender MCP"
+        try:
+            ui_region.active_panel_category = "Blender MCP"
+        except AttributeError:
+            pass
 
     state = bpy.context.scene.blender_mcp_state
     state.server_url = ARGS.server_url
     state.prompt_text = ARGS.prompt
-    state.last_result_text = "?? UI ????????????????????"
+    state.last_result_text = "UI smoke capture completed."
 
     with bpy.context.temp_override(window=window, area=area, region=window_region):
         connect_result = bpy.ops.blendermcp.connect()

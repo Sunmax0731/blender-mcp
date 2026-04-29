@@ -4,6 +4,7 @@ param(
     [string]$ServerUrl = "http://127.0.0.1:8765",
     [string]$Prompt = "UI smoke capture",
     [double]$CaptureDelaySeconds = 5,
+    [double]$AutomationDelaySeconds = 2,
     [string]$OutputDir,
     [switch]$SkipServer,
     [switch]$KeepServer
@@ -46,6 +47,8 @@ New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
 $stdoutPath = Join-Path $OutputDir "server.stdout.log"
 $stderrPath = Join-Path $OutputDir "server.stderr.log"
 $baseBlend = Join-Path $repoRoot "tmp\ui_smoke_base.blend"
+$automationStdout = Join-Path $OutputDir "automation.stdout.log"
+$automationStderr = Join-Path $OutputDir "automation.stderr.log"
 
 & $PythonExe (Join-Path $repoRoot "scripts\build_blender_addon.py")
 & $PythonExe (Join-Path $repoRoot "scripts\sync_blender_addon.py")
@@ -109,12 +112,25 @@ if (-not $SkipServer) {
 }
 
 $captureScript = Join-Path $repoRoot "scripts\blender_ui_capture.py"
-& $BlenderExe $baseBlend --python-exit-code 1 --python $captureScript -- `
-    --output-dir $OutputDir `
-    --server-url $ServerUrl `
-    --prompt $Prompt `
-    --wait-seconds $CaptureDelaySeconds
-$blenderExitCode = $LASTEXITCODE
+$automationScript = Join-Path $repoRoot "scripts\prepare_blender_window.py"
+$blenderArgs = "`"$baseBlend`" --python-exit-code 1 --python `"$captureScript`" -- --output-dir `"$OutputDir`" --server-url `"$ServerUrl`" --prompt `"$Prompt`" --wait-seconds $CaptureDelaySeconds"
+$blenderProcess = Start-Process `
+    -FilePath $BlenderExe `
+    -ArgumentList $blenderArgs `
+    -WorkingDirectory $repoRoot `
+    -PassThru
+
+$automationProcess = Start-Process `
+    -FilePath $PythonExe `
+    -ArgumentList $automationScript, "--pid", "$($blenderProcess.Id)", "--delay-seconds", "$AutomationDelaySeconds" `
+    -WorkingDirectory $repoRoot `
+    -WindowStyle Hidden `
+    -RedirectStandardOutput $automationStdout `
+    -RedirectStandardError $automationStderr `
+    -PassThru
+
+Wait-Process -Id $blenderProcess.Id
+$blenderExitCode = $blenderProcess.ExitCode
 
 if ($serverWasStarted -and -not $KeepServer -and $serverProcess -and -not $serverProcess.HasExited) {
     Stop-Process -Id $serverProcess.Id -Force
