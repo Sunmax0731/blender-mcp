@@ -2,12 +2,12 @@ import bpy
 
 
 UI_STATE_ITEMS = (
-    ("disconnected", "Disconnected", "Blender MCP is not connected"),
-    ("connecting", "Connecting", "Blender MCP is connecting"),
-    ("connected_idle", "Connected", "Blender MCP is connected and idle"),
-    ("request_running", "Running", "A request is running"),
-    ("approval_pending", "Approval Pending", "An approval is pending"),
-    ("request_failed", "Failed", "The last request failed"),
+    ("disconnected", "未接続", "Blender MCP is not connected"),
+    ("connecting", "接続中", "Blender MCP is connecting"),
+    ("connected_idle", "接続済み", "Blender MCP is connected and idle"),
+    ("request_running", "処理中", "A request is running"),
+    ("approval_pending", "承認待ち", "An approval is pending"),
+    ("request_failed", "失敗", "The last request failed"),
 )
 
 
@@ -19,7 +19,7 @@ class BLENDERMCP_PG_state(bpy.types.PropertyGroup):
     )
     connection_label: bpy.props.StringProperty(
         name="Connection Label",
-        default="Disconnected",
+        default="未接続",
     )
     server_url: bpy.props.StringProperty(
         name="Server URL",
@@ -31,11 +31,11 @@ class BLENDERMCP_PG_state(bpy.types.PropertyGroup):
     )
     history_text: bpy.props.StringProperty(
         name="History",
-        default="No history yet.",
+        default="履歴はまだありません。",
     )
     last_result_text: bpy.props.StringProperty(
         name="Last Result",
-        default="No command processed yet.",
+        default="まだ結果はありません。",
     )
     last_error: bpy.props.StringProperty(
         name="Last Error",
@@ -43,7 +43,7 @@ class BLENDERMCP_PG_state(bpy.types.PropertyGroup):
     )
     pending_action_label: bpy.props.StringProperty(
         name="Pending Action",
-        default="No pending actions.",
+        default="承認待ちの操作はありません。",
     )
     pending_request_id: bpy.props.StringProperty(
         name="Pending Request ID",
