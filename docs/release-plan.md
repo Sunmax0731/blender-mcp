@@ -6,9 +6,16 @@
 
 ## 2. リリース対象
 
+### 2.0 初回 Release 版数
+
+- このリポジトリの初回 GitHub Release 版数は `v0.1.0` とする
+- これは本リポジトリの導入アプリと統合スクリプトの版数であり、公式 Blender MCP の版数とは分けて扱う
+- 公式 Blender MCP の初期対応版は `v1.0.0` とする
+- GitHub tag / Release 名称は `v0.1.0` を基準にする
+
 ### 2.1 配布物
 - 1 クリック導入アプリ
-  - `blender-mcp-installer` の実行可能配布物
+  - `dist/one-click-installer/blender-mcp-installer.exe`
 - 公式導入補助スクリプト
   - `scripts/install_official_blender_mcp.ps1`
   - `scripts/install_official_blender_mcp_server.ps1`
@@ -20,6 +27,22 @@
   - `README.md`
   - `docs/validation-plan.md`
   - `docs/release-plan.md`
+
+### 2.1.1 GitHub Release へ添付する配布物
+
+- `blender-mcp-installer.exe`
+  - Windows 向けの主配布物
+  - Blender と Codex App が事前導入済みの利用者を対象にする
+
+### 2.1.2 GitHub Release に添付しないもの
+
+- `dist/official-blender-mcp/mcp-1.0.0.zip`
+  - 公式 Blender MCP の配布物であり、このリポジトリの Release asset としては再配布しない
+  - 導入時は公式配布元または取得済みキャッシュを使う
+- Blender 本体
+- Codex App 本体
+- `.official-mcp-venv/`
+- `artifacts/` 配下の検証ログ一式
 
 ### 2.2 初回リリースに含める機能
 - 公式 add-on 配布物の取得
@@ -61,6 +84,7 @@
 - Blender 本体と Codex App は事前導入を前提とする
 - live 接続確認は Blender 起動状態に依存する
 - Windows ローカル環境を第一対象としている
+- 公式 Blender MCP 本体はこの Release で fork や再配布を行わず、対応版 `v1.0.0` を前提に導入する
 
 ## 5. リリース手順
 1. `uv sync --python 3.11 --extra dev`

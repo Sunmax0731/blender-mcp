@@ -26,6 +26,7 @@
 - 公式リリース: [blender_mcp releases](https://projects.blender.org/lab/blender_mcp/releases)
 
 2026-04-30 時点で確認した最新安定版は `v1.0.0` です。
+このリポジトリの初回 GitHub Release 版数は `v0.1.0` を予定しています。
 
 ## 現在の構成方針
 
@@ -181,6 +182,9 @@ uv sync --python 3.11 --extra dev
 - headless 実行では `artifacts/one-click-installer/` 配下へログを残せる
 - `exe` は `dist/one-click-installer/` 配下へ生成する
 
+初回 GitHub Release では、主配布物として `blender-mcp-installer.exe` を添付します。
+公式 Blender MCP の `mcp-1.0.0.zip` は、このリポジトリの Release asset としては再配布しません。
+
 ## ドキュメント
 
 - [要件定義](D:/Claude/MCP/docs/requirements.md)
@@ -189,6 +193,7 @@ uv sync --python 3.11 --extra dev
 - [ロードマップ](D:/Claude/MCP/docs/roadmap.md)
 - [検証計画](D:/Claude/MCP/docs/validation-plan.md)
 - [リリース計画](D:/Claude/MCP/docs/release-plan.md)
+- [初回 Release ノート案](D:/Claude/MCP/docs/release-notes-v0.1.0.md)
 - [旧独自構成の在庫](D:/Claude/MCP/docs/legacy-inventory.md)
 - [運用ルール](D:/Claude/MCP/AGENTS.md)
 - [必要スキル](D:/Claude/MCP/Skill.md)
