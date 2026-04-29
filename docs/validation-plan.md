@@ -1,4 +1,4 @@
-﻿# 検証計画
+# 検証計画
 
 ## 1. 目的
 - 実装内容が仕様どおりに動作することを確認する
@@ -15,6 +15,7 @@
 - コマンド実行ロジック
 - 承認結果保持
 - AI プロバイダアダプタ
+- reject 操作時の状態遷移
 - ログとエラー整形
 
 ### 2.2 結合テスト
@@ -63,10 +64,11 @@
 ## 4. 現時点の確認結果
 
 ### 4.1 自動テスト
-- `pytest` で 15 件成功
+- `pytest` で 16 件成功
 - `tests/test_mcp_roundtrip.py` で `/mcp` 経由の command round trip を確認
 - `tests/test_request_status.py` で承認後結果の参照を確認
 - `tests/test_ai_service.py` で AI 提案経路の成功系と未設定エラーを確認
+- `tests/test_approval_operator.py` で reject 操作時の状態遷移と承認結果返却を確認
 
 ### 4.2 Blender 実機確認
 - 実行環境: `Blender 5.1.1`

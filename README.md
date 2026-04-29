@@ -27,6 +27,7 @@ Codex から Blender を操作し、Blender 内 UI と外部 AI サービス連�
 - [仕様](./docs/specification.md)
 - [ロードマップ](./docs/roadmap.md)
 - [検証計画](./docs/validation-plan.md)
+- [初回リリース計画](./docs/release-plan.md)
 - [運用ルール](./AGENTS.md)
 - [実行ガイド](./Skill.md)
 
