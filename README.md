@@ -51,18 +51,21 @@ Codex から Blender を操作し、Blender 内 UI と外部 AI サービス連�
 1. 依存を同期する
 
 ```powershell
+cd D:\Claude\MCP
 uv sync --python 3.11 --extra dev
 ```
 
 2. 自動テストを実行する
 
 ```powershell
+cd D:\Claude\MCP
 uv run pytest
 ```
 
 3. Blender UI スモークを実行する
 
 ```powershell
+cd D:\Claude\MCP
 powershell -ExecutionPolicy Bypass -File .\scripts\run_blender_ui_smoke.ps1
 ```
 
