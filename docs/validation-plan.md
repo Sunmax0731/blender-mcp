@@ -20,6 +20,9 @@
 - ローカル展開できる
 - Blender add-on 配置先へ同期できる
 - Blender 側で有効化対象として認識できる
+- 公式 MCP server を `.official-mcp-venv` へ導入できる
+- `blender-mcp --help` が実行できる
+- Codex 設定へ `mcp_servers.blender-official` を追記できる
 
 ### 2.3 運用確認
 
@@ -32,6 +35,8 @@
 - スクリプト実行ログ
 - 展開済みファイル一覧
 - Blender add-on 配置結果
+- `.official-mcp-venv` の作成結果
+- Codex 設定更新結果
 - Issue コメント
 
 ## 4. 完了条件

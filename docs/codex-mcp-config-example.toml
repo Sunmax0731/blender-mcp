@@ -1,0 +1,3 @@
+﻿[mcp_servers.blender-official]
+command = "powershell"
+args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "D:\\Claude\\MCP\\scripts\\start_official_blender_mcp.ps1"]

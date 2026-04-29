@@ -81,6 +81,42 @@ cd D:\Claude\MCP
 uv run pytest
 ```
 
+### 4. 公式 Blender MCP server の導入
+
+PowerShell:
+
+```powershell
+cd D:\Claude\MCP
+.\scripts\install_official_blender_mcp_server.ps1
+```
+
+コマンドプロンプト:
+
+```bat
+cd /d D:\Claude\MCP
+scripts\install_official_blender_mcp_server.cmd
+```
+
+- 公式 server は repo の `.venv` ではなく `D:\Claude\MCP\.official-mcp-venv` に導入する
+- これにより、repo 内の legacy 実装依存と競合させない
+
+### 5. Codex App への登録
+
+PowerShell:
+
+```powershell
+cd D:\Claude\MCP
+.\scripts\register_official_blender_mcp_in_codex.ps1
+```
+
+- `C:\Users\gkkjh\.codex\config.toml` に `mcp_servers.blender-official` を追記する
+- 実行前にバックアップを作成する
+- 反映には Codex App の再起動が必要
+
+設定例:
+
+- [Codex MCP 設定例](D:/Claude/MCP/docs/codex-mcp-config-example.toml)
+
 ## ドキュメント
 
 - [要件定義](D:/Claude/MCP/docs/requirements.md)

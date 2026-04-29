@@ -31,6 +31,8 @@
 - 公式 `mcp-1.0.0.zip` を取得する
 - ローカル展開して Blender add-on 配置先へ同期する
 - 将来的にバージョン指定更新へ対応できる構造にする
+- 公式 MCP server は専用仮想環境 `D:\Claude\MCP\.official-mcp-venv` へ導入する
+- Codex App 用の MCP 設定登録スクリプトを提供する
 
 ### 3.1.1 Blender 側の前提
 
@@ -62,5 +64,7 @@
 - 公式配布物が取得できること
 - Blender へ導入できること
 - Blender 側で add-on が有効化できること
+- 公式 MCP server が専用仮想環境へ導入できること
+- Codex 設定へ `mcp_servers.blender-official` を登録できること
 - 公式構成を前提に docs が一致していること
 - 補助導線が公式構成を壊さないこと
