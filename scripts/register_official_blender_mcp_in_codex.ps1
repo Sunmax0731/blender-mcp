@@ -3,11 +3,14 @@
 )
 
 $ErrorActionPreference = 'Stop'
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$startScriptPath = Join-Path $scriptDir 'start_official_blender_mcp.ps1'
+$escapedStartScriptPath = $startScriptPath.Replace('\', '\\')
 $sectionHeader = '[mcp_servers.blender-official]'
 $entry = @"
 [mcp_servers.blender-official]
 command = "powershell"
-args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "D:\\Claude\\MCP\\scripts\\start_official_blender_mcp.ps1"]
+args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "$escapedStartScriptPath"]
 "@
 
 if (-not (Test-Path $ConfigPath)) {

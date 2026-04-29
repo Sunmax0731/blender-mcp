@@ -20,8 +20,10 @@ if __package__ in (None, ""):
         default_steps,
         repo_root,
     )
+    from blender_mcp_installer.runtime import prepare_runtime_root  # type: ignore[no-redef]
 else:
     from .runner import InstallerRunner, InstallerStep, default_log_dir, default_steps, repo_root
+    from .runtime import prepare_runtime_root
 
 
 @dataclass
@@ -66,8 +68,8 @@ class InstallerApp:
         preview = (
             "Targets to be changed:\n"
             "- Blender add-on directory\n"
-            "- D:\\Claude\\MCP\\.official-mcp-venv\n"
-            "- C:\\Users\\gkkjh\\.codex\\config.toml and its backup\n"
+            f"- {self.repo_root / '.official-mcp-venv'}\n"
+            f"- {Path.home() / '.codex' / 'config.toml'} and its backup\n"
             "- Blender user preferences"
         )
         tk.Label(container, text=preview, justify=tk.LEFT, anchor="w", pady=8).pack(fill=tk.X)
@@ -213,6 +215,7 @@ def run_headless(output_dir: Path | None = None, include_launch_blender: bool = 
 
 
 def main() -> None:
+    prepare_runtime_root()
     args = parse_args()
     if args.plan:
         for step in default_steps(repo_root(), include_launch_blender=not args.no_launch_blender):

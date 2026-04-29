@@ -6,6 +6,8 @@ from pathlib import Path
 import subprocess
 from typing import Callable, Iterable
 
+from .runtime import prepare_runtime_root
+
 
 @dataclass(frozen=True)
 class InstallerStep:
@@ -16,7 +18,7 @@ class InstallerStep:
 
 
 def repo_root() -> Path:
-    return Path(__file__).resolve().parents[2]
+    return prepare_runtime_root()
 
 
 def powershell_command(script_path: Path, extra_args: Iterable[str] | None = None) -> list[str]:

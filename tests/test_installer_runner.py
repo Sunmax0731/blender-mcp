@@ -4,6 +4,7 @@ import subprocess
 import sys
 
 from blender_mcp_installer.main import parse_args
+from blender_mcp_installer.runtime import source_repo_root, support_root
 from blender_mcp_installer.runner import default_log_dir, default_steps, powershell_command
 
 
@@ -77,3 +78,13 @@ def test_main_py_can_run_as_script_for_plan_mode() -> None:
 
     assert result.returncode == 0
     assert "official-addon" in result.stdout
+
+
+def test_source_repo_root_points_to_workspace_repo() -> None:
+    assert source_repo_root() == Path("D:/Claude/MCP")
+
+
+def test_support_root_uses_local_appdata(monkeypatch) -> None:
+    monkeypatch.setenv("LOCALAPPDATA", r"C:\Users\tester\AppData\Local")
+
+    assert support_root() == Path(r"C:\Users\tester\AppData\Local\BlenderMcpInstaller")
