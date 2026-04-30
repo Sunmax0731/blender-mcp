@@ -110,3 +110,30 @@ def test_build_pipeline_spec_adds_base_asset_branching_when_manifest_is_present(
     assert pipeline_spec["expression_stage"]["base_asset_mode"] == "reuse_base_shape_keys"
     assert pipeline_spec["look_stage"]["base_asset_mode"] == "reuse_base_materials"
     assert "validation/base_asset_manifest.json" in pipeline_spec["artifact_plan"]["required_artifacts"]
+
+
+def test_build_pipeline_spec_adds_image_reference_inputs_when_manifest_is_present():
+    prompt = "Create a humanoid hero with blue jacket and short hair."
+    character_spec = normalize_prompt_to_character_spec(prompt)
+    pipeline_spec = build_pipeline_spec(
+        prompt,
+        character_spec,
+        run_directory="outputs/image-reference-run",
+        character_spec_ref="character_spec.yaml",
+        image_reference_manifest={
+            "detected_views": ["front", "side", "face_closeup", "expression_smile"],
+            "prompt_image_conflicts": [{"field": "look_spec.materials.accent"}],
+            "image_priority_fields": ["body_proportions", "parts.hair"],
+        },
+    )
+
+    assert pipeline_spec["normalized_character_spec"]["image_reference"]["manifest_ref"] == "validation/image_reference_manifest.json"
+    assert pipeline_spec["shape_stage"]["image_reference_mode"] == "guided_shape"
+    assert "image_reference_front" in pipeline_spec["shape_stage"]["inputs"]
+    assert "image_reference_side" in pipeline_spec["shape_stage"]["inputs"]
+    assert pipeline_spec["look_stage"]["image_reference_mode"] == "guided_look"
+    assert "image_reference_palette" in pipeline_spec["look_stage"]["inputs"]
+    assert pipeline_spec["expression_stage"]["image_reference_mode"] == "guided_expression"
+    assert "image_reference_face" in pipeline_spec["expression_stage"]["inputs"]
+    assert "image_reference_expression_set" in pipeline_spec["expression_stage"]["inputs"]
+    assert "validation/image_reference_manifest.json" in pipeline_spec["artifact_plan"]["required_artifacts"]

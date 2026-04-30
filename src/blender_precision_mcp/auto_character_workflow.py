@@ -11,6 +11,8 @@ import yaml
 from .auto_character import build_pipeline_spec
 from .auto_character import normalize_prompt_to_character_spec
 from .auto_character_validation import validate_auto_character
+from .image_reference_analysis import analyze_image_reference_package
+from .image_reference_analysis import apply_image_reference_to_character_spec
 
 
 def run_auto_character_dry_run(
@@ -19,6 +21,7 @@ def run_auto_character_dry_run(
     *,
     base_asset_manifest_path: str | Path | None = None,
     adaptation_plan_path: str | Path | None = None,
+    image_reference_package_path: str | Path | None = None,
 ) -> dict[str, Any]:
     return run_auto_character_workflow(
         prompt,
@@ -26,6 +29,7 @@ def run_auto_character_dry_run(
         live=False,
         base_asset_manifest_path=base_asset_manifest_path,
         adaptation_plan_path=adaptation_plan_path,
+        image_reference_package_path=image_reference_package_path,
     )
 
 
@@ -36,6 +40,7 @@ def run_auto_character_workflow(
     live: bool = False,
     base_asset_manifest_path: str | Path | None = None,
     adaptation_plan_path: str | Path | None = None,
+    image_reference_package_path: str | Path | None = None,
 ) -> dict[str, Any]:
     resolved_output_dir = Path(output_dir)
     validation_dir = resolved_output_dir / "validation"
@@ -52,6 +57,11 @@ def run_auto_character_workflow(
         base_asset_manifest_path=base_asset_manifest_path,
         adaptation_plan_path=adaptation_plan_path,
     )
+    image_reference_manifest = _load_image_reference_inputs(
+        image_reference_package_path=image_reference_package_path,
+        prompt=normalized_prompt,
+        character_spec=character_spec,
+    )
     if base_asset_inputs is not None:
         character_spec["base_asset"] = {
             "enabled": True,
@@ -61,12 +71,15 @@ def run_auto_character_workflow(
             "reuse_targets": base_asset_inputs["adaptation_plan"].get("reuse_targets", []),
             "regenerate_targets": base_asset_inputs["adaptation_plan"].get("regenerate_targets", []),
         }
+    if image_reference_manifest is not None:
+        character_spec = apply_image_reference_to_character_spec(character_spec, image_reference_manifest)
     pipeline_spec = build_pipeline_spec(
         normalized_prompt,
         character_spec,
         run_directory=str(resolved_output_dir).replace("\\", "/"),
         character_spec_ref="character_spec.yaml",
         base_asset_inputs=base_asset_inputs,
+        image_reference_manifest=image_reference_manifest,
     )
 
     prompt_path = resolved_output_dir / "prompt.txt"
@@ -88,6 +101,10 @@ def run_auto_character_workflow(
         base_asset_inputs=base_asset_inputs,
         validation_dir=validation_dir,
     )
+    _write_image_reference_artifacts(
+        image_reference_manifest=image_reference_manifest,
+        validation_dir=validation_dir,
+    )
 
     execution = _resolve_execution_context(live=live, pipeline_spec=pipeline_spec)
     artifact_index = _artifact_index(
@@ -100,6 +117,7 @@ def run_auto_character_workflow(
         exports_dir=exports_dir,
         run_manifest_path=run_manifest_path,
         base_asset_inputs=base_asset_inputs,
+        image_reference_manifest=image_reference_manifest,
     )
     artifact_paths = list(artifact_index.values())
 
@@ -130,6 +148,7 @@ def run_auto_character_workflow(
         artifact_index=artifact_index,
         execution=execution,
         base_asset_inputs=base_asset_inputs,
+        image_reference_manifest=image_reference_manifest,
     )
     run_manifest_path.write_text(
         json.dumps(run_manifest, ensure_ascii=False, indent=2) + "\n",
@@ -148,6 +167,7 @@ def run_auto_character_workflow(
         "error": execution["error"],
         "run_manifest_path": str(run_manifest_path),
         "base_asset_enabled": base_asset_inputs is not None,
+        "image_reference_enabled": image_reference_manifest is not None,
     }
     summary_path = resolved_output_dir / "dry_run_summary.json"
     summary_path.write_text(
@@ -220,6 +240,7 @@ def _artifact_index(
     exports_dir: Path,
     run_manifest_path: Path,
     base_asset_inputs: dict[str, Any] | None,
+    image_reference_manifest: dict[str, Any] | None,
 ) -> dict[str, str]:
     artifacts = {
         "prompt": str(prompt_path),
@@ -234,6 +255,10 @@ def _artifact_index(
     if base_asset_inputs is not None:
         artifacts["base_asset_manifest"] = str(validation_report_path.parent / "base_asset_manifest.json")
         artifacts["adaptation_plan"] = str(validation_report_path.parent / "adaptation_plan.json")
+    if image_reference_manifest is not None:
+        artifacts["image_reference_manifest"] = str(
+            validation_report_path.parent / "image_reference_manifest.json"
+        )
     return artifacts
 
 
@@ -246,6 +271,7 @@ def _build_run_manifest(
     artifact_index: dict[str, str],
     execution: dict[str, Any],
     base_asset_inputs: dict[str, Any] | None,
+    image_reference_manifest: dict[str, Any] | None,
 ) -> dict[str, Any]:
     exported_files: list[str] = []
     final_status = validation_report["status"]
@@ -277,6 +303,15 @@ def _build_run_manifest(
             "artifact_refs": {
                 "base_asset_manifest": artifact_index["base_asset_manifest"],
                 "adaptation_plan": artifact_index["adaptation_plan"],
+            },
+        }
+    if image_reference_manifest is not None:
+        manifest["image_reference_trace"] = {
+            "enabled": True,
+            "detected_views": image_reference_manifest.get("detected_views", []),
+            "conflict_count": len(image_reference_manifest.get("prompt_image_conflicts", [])),
+            "artifact_refs": {
+                "image_reference_manifest": artifact_index["image_reference_manifest"],
             },
         }
     return manifest
@@ -321,6 +356,21 @@ def _load_base_asset_inputs(
     }
 
 
+def _load_image_reference_inputs(
+    *,
+    image_reference_package_path: str | Path | None,
+    prompt: str,
+    character_spec: dict[str, Any],
+) -> dict[str, Any] | None:
+    if image_reference_package_path is None:
+        return None
+    return analyze_image_reference_package(
+        image_reference_package_path,
+        prompt=prompt,
+        character_spec=character_spec,
+    )
+
+
 def _write_base_asset_artifacts(
     *,
     base_asset_inputs: dict[str, Any] | None,
@@ -335,5 +385,19 @@ def _write_base_asset_artifacts(
     )
     (validation_dir / "adaptation_plan.json").write_text(
         json.dumps(base_asset_inputs["adaptation_plan"], ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+
+def _write_image_reference_artifacts(
+    *,
+    image_reference_manifest: dict[str, Any] | None,
+    validation_dir: Path,
+) -> None:
+    if image_reference_manifest is None:
+        return
+
+    (validation_dir / "image_reference_manifest.json").write_text(
+        json.dumps(image_reference_manifest, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )

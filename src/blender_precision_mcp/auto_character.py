@@ -57,6 +57,7 @@ def build_pipeline_spec(
     run_directory: str = "outputs/auto-character/generated-run",
     character_spec_ref: str = "character_spec.generated.yaml",
     base_asset_inputs: dict[str, Any] | None = None,
+    image_reference_manifest: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     normalized_prompt = " ".join(prompt.split())
     pipeline = _load_yaml_template(PIPELINE_SPEC_TEMPLATE_PATH)
@@ -75,6 +76,12 @@ def build_pipeline_spec(
             "reuse_targets": base_asset_inputs["adaptation_plan"].get("reuse_targets", []),
             "regenerate_targets": base_asset_inputs["adaptation_plan"].get("regenerate_targets", []),
         }
+    if image_reference_manifest:
+        pipeline["normalized_character_spec"]["image_reference"] = {
+            "manifest_ref": "validation/image_reference_manifest.json",
+            "detected_views": image_reference_manifest.get("detected_views", []),
+            "conflict_count": len(image_reference_manifest.get("prompt_image_conflicts", [])),
+        }
 
     for stage_name in ("shape_stage", "look_stage", "rig_stage", "expression_stage", "weight_stage"):
         pipeline[stage_name] = _stage_for_type(
@@ -89,6 +96,12 @@ def build_pipeline_spec(
                 base_asset_inputs["adaptation_plan"],
                 base_asset_inputs["artifact_refs"],
             )
+        if image_reference_manifest:
+            pipeline[stage_name] = _apply_image_reference_stage_plan(
+                stage_name,
+                pipeline[stage_name],
+                image_reference_manifest,
+            )
 
     pipeline["artifact_plan"]["run_directory"] = run_directory
     pipeline["artifact_plan"]["required_artifacts"] = _required_artifacts_for_type(
@@ -100,6 +113,10 @@ def build_pipeline_spec(
                 "validation/base_asset_manifest.json",
                 "validation/adaptation_plan.json",
             ]
+        )
+    if image_reference_manifest:
+        pipeline["artifact_plan"]["required_artifacts"].append(
+            "validation/image_reference_manifest.json"
         )
     pipeline["validation_plan"]["final_validators"] = _final_validators_for_type(
         character_spec["character_type"]
@@ -367,4 +384,37 @@ def _apply_base_asset_stage_plan(
             "armature_objects": target_objects.get("armature_objects", []),
         }
 
+    return stage_copy
+
+
+def _apply_image_reference_stage_plan(
+    stage_name: str,
+    stage: dict[str, Any],
+    image_reference_manifest: dict[str, Any],
+) -> dict[str, Any]:
+    stage_copy = deepcopy(stage)
+    detected_views = set(image_reference_manifest.get("detected_views", []))
+    stage_copy["image_reference_mode"] = "unguided"
+    stage_copy["image_reference_refs"] = {
+        "image_reference_manifest": "validation/image_reference_manifest.json",
+    }
+
+    if stage_name == "shape_stage":
+        stage_copy["image_reference_mode"] = "guided_shape"
+        if "front" in detected_views:
+            stage_copy["inputs"] = stage_copy["inputs"] + ["image_reference_front"]
+        if "side" in detected_views:
+            stage_copy["inputs"] = stage_copy["inputs"] + ["image_reference_side"]
+    elif stage_name == "look_stage":
+        stage_copy["image_reference_mode"] = "guided_look"
+        stage_copy["inputs"] = stage_copy["inputs"] + ["image_reference_palette"]
+    elif stage_name == "expression_stage":
+        stage_copy["image_reference_mode"] = "guided_expression"
+        if "face_closeup" in detected_views:
+            stage_copy["inputs"] = stage_copy["inputs"] + ["image_reference_face"]
+        if any(view.startswith("expression_") for view in detected_views):
+            stage_copy["inputs"] = stage_copy["inputs"] + ["image_reference_expression_set"]
+
+    stage_copy["image_priority_fields"] = image_reference_manifest.get("image_priority_fields", [])
+    stage_copy["prompt_image_conflicts"] = image_reference_manifest.get("prompt_image_conflicts", [])
     return stage_copy

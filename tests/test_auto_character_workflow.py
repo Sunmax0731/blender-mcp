@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 
+from PIL import Image
+
 from blender_precision_mcp.auto_character_workflow import run_auto_character_workflow
 from blender_precision_mcp.auto_character_workflow import run_auto_character_dry_run
 
@@ -126,3 +128,68 @@ def test_run_auto_character_workflow_copies_base_asset_artifacts_and_traceabilit
     assert manifest["artifact_paths"]["base_asset_manifest"].endswith("validation\\base_asset_manifest.json")
     assert "base_asset:" in character_spec
     assert "base_asset_mode: reuse_base_mesh" in pipeline_spec
+
+
+def test_run_auto_character_workflow_writes_image_reference_manifest_and_conflicts(tmp_path):
+    output_dir = tmp_path / "image-reference"
+    package_dir = tmp_path / "image-package"
+    package_dir.mkdir(parents=True, exist_ok=True)
+
+    _write_reference_image(package_dir / "front.png", body_color=(32, 64, 196, 255), hair_color=(220, 90, 120, 255))
+    _write_reference_image(package_dir / "side.png", body_color=(32, 64, 196, 255), hair_color=(220, 90, 120, 255))
+    _write_reference_image(
+        package_dir / "face_closeup.png",
+        body_color=(240, 220, 200, 255),
+        hair_color=(220, 90, 120, 255),
+    )
+    _write_reference_image(
+        package_dir / "expression_smile.png",
+        body_color=(240, 220, 200, 255),
+        hair_color=(220, 90, 120, 255),
+    )
+    (package_dir / "notes.md").write_text(
+        "\n".join(
+            [
+                "Hair silhouette to preserve: long layered hair",
+                "Face features to preserve: large eyes and rounded mouth",
+                "Pattern or color placement to preserve: blue jacket with pink trim",
+                "Expression notes: cheerful smile reference",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    summary = run_auto_character_dry_run(
+        "Create a humanoid hero with blue jacket and short hair.",
+        output_dir=output_dir,
+        image_reference_package_path=package_dir,
+    )
+
+    manifest = json.loads((output_dir / "run_manifest.json").read_text(encoding="utf-8"))
+    image_manifest = json.loads(
+        (output_dir / "validation" / "image_reference_manifest.json").read_text(encoding="utf-8")
+    )
+    character_spec = (output_dir / "character_spec.yaml").read_text(encoding="utf-8")
+    pipeline_spec = (output_dir / "pipeline_spec.yaml").read_text(encoding="utf-8")
+
+    assert summary["image_reference_enabled"] is True
+    assert manifest["image_reference_trace"]["enabled"] is True
+    assert manifest["artifact_paths"]["image_reference_manifest"].endswith(
+        "validation\\image_reference_manifest.json"
+    )
+    assert image_manifest["detected_views"] == ["front", "side", "face_closeup", "expression_smile"]
+    assert any(conflict["field"] == "parts.hair" for conflict in image_manifest["prompt_image_conflicts"])
+    assert "image_reference:" in character_spec
+    assert "image_reference_mode: guided_shape" in pipeline_spec
+
+
+def _write_reference_image(path, *, body_color, hair_color):
+    image = Image.new("RGBA", (128, 192), (255, 255, 255, 0))
+    pixels = image.load()
+    for y in range(36, 170):
+        for x in range(34, 96):
+            pixels[x, y] = body_color
+    for y in range(10, 52):
+        for x in range(28, 102):
+            pixels[x, y] = hair_color
+    image.save(path)

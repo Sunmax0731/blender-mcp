@@ -30,6 +30,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--base-asset-manifest", type=Path, default=None)
     parser.add_argument("--adaptation-plan", type=Path, default=None)
+    parser.add_argument("--image-reference-package", type=Path, default=None)
     parser.add_argument("--blender-exe", type=Path, default=None)
     return parser
 
@@ -45,6 +46,7 @@ def main() -> int:
         live=True,
         base_asset_manifest_path=args.base_asset_manifest,
         adaptation_plan_path=args.adaptation_plan,
+        image_reference_package_path=args.image_reference_package,
     )
     character_spec = normalize_prompt_to_character_spec(args.prompt)
     rig_plan = build_live_rig_plan(character_spec)
@@ -176,6 +178,10 @@ def main() -> int:
     if args.base_asset_manifest and args.adaptation_plan:
         summary["artifacts"]["base_asset_manifest"] = str(output_dir / "validation" / "base_asset_manifest.json")
         summary["artifacts"]["adaptation_plan"] = str(output_dir / "validation" / "adaptation_plan.json")
+    if args.image_reference_package:
+        summary["artifacts"]["image_reference_manifest"] = str(
+            output_dir / "validation" / "image_reference_manifest.json"
+        )
     summary_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(summary, ensure_ascii=False, indent=2))
     return 0 if summary["success"] else 1
