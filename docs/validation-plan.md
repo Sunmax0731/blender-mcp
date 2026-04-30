@@ -149,6 +149,14 @@ M5 テスト工程へ入る前に、少なくとも次の実装完了と確認�
 
 pre-test 実装が揃った後、M5 では次をテスト対象にする。
 
+### 7.0 現在の実行順
+
+2026-04-30 時点では、M5 を次の順で進める。
+
+1. [#159](https://github.com/Sunmax0731/blender-mcp/issues/159) dry-run 入力経路 regression
+2. [#160](https://github.com/Sunmax0731/blender-mcp/issues/160) live Blender build と strict validation regression
+3. [#161](https://github.com/Sunmax0731/blender-mcp/issues/161) hair preset と retry traceability regression
+
 ### 7.1 dry-run regression
 
 - prompt だけで `character_spec` / `pipeline_spec` / validation artifact が出る

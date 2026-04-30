@@ -51,8 +51,8 @@ Blender 側では公式 `MCP` add-on の Preferences を確認し、モデリン
 - M1 要件定義: 完了
 - M2 仕様検討: 完了
 - M3 設計: 完了
-- M4 実装: 進行中
-- M5 テスト: 未着手
+- M4 実装: 完了
+- M5 テスト: 進行中
 - M6 リリース: 未着手
 
 実装済みの主な範囲:
@@ -65,17 +65,17 @@ Blender 側では公式 `MCP` add-on の Preferences を確認し、モデリン
 - `BaseAvatar.vrm -> BaseAvatar.blend` 変換
 - `base_character_package/BaseAvatar.blend` への同期保存
 - `.blend` から `base_asset_manifest.json` / `adaptation_plan.json` 生成
+- base asset manifest の pipeline 接続
+- image reference package からの `character_spec` 補強
+- hair preset library と live hair build
+- auto-fix retry loop と retry traceability
 
-テスト工程へ入る前に必要な実装:
+現在の M5 テスト Issue:
 
-1. [#151](https://github.com/Sunmax0731/blender-mcp/issues/151) base asset manifest を auto character pipeline に接続する
-2. [#156](https://github.com/Sunmax0731/blender-mcp/issues/156) 画像入力から `character_spec` 補強と `image_reference_manifest` を生成する
-3. [#153](https://github.com/Sunmax0731/blender-mcp/issues/153) hair preset library と live hair build を追加する
-4. [#154](https://github.com/Sunmax0731/blender-mcp/issues/154) auto-fix retry loop と stage retry traceability を追加する
-
-判断の残件:
-
-- [#148](https://github.com/Sunmax0731/blender-mcp/issues/148) hair preset と外部 add-on 方針
+1. [#158](https://github.com/Sunmax0731/blender-mcp/issues/158) M5: 全自動キャラクターモデル生成の総合テストを進める
+2. [#159](https://github.com/Sunmax0731/blender-mcp/issues/159) テスト: dry-run 入力経路の regression matrix を固定する
+3. [#160](https://github.com/Sunmax0731/blender-mcp/issues/160) テスト: live Blender build と strict validation を固定する
+4. [#161](https://github.com/Sunmax0731/blender-mcp/issues/161) テスト: hair preset と retry traceability の回帰を固定する
 
 ## セットアップ
 
