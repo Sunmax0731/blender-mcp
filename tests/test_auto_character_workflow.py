@@ -78,3 +78,51 @@ def test_run_auto_character_workflow_writes_run_manifest_for_traceability(tmp_pa
     assert manifest["validation_trace"]["stage_summary_ref"] == manifest["artifact_paths"]["validation_report"]
     assert manifest["validation_trace"]["validator_results_ref"] == manifest["artifact_paths"]["validation_report"]
     assert manifest["fallbacks_used"] == []
+
+
+def test_run_auto_character_workflow_copies_base_asset_artifacts_and_traceability(tmp_path):
+    output_dir = tmp_path / "base-asset"
+    validation_dir = output_dir / "input-validation"
+    validation_dir.mkdir(parents=True, exist_ok=True)
+
+    base_asset_manifest = {
+        "status": "ok",
+        "source_file_path": "D:/base/BaseAvatar.blend",
+        "main_mesh_object": "Body",
+        "face_mesh_object": "Face",
+    }
+    adaptation_plan = {
+        "status": "ok",
+        "reuse_targets": ["mesh", "rig", "shape_keys"],
+        "regenerate_targets": ["materials_and_textures"],
+        "target_objects": {
+            "main_mesh_object": "Body",
+            "face_mesh_object": "Face",
+            "armature_objects": ["Armature"],
+            "material_names": ["Skin"],
+        },
+    }
+    manifest_path = validation_dir / "base_asset_manifest.json"
+    adaptation_plan_path = validation_dir / "adaptation_plan.json"
+    manifest_path.write_text(json.dumps(base_asset_manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+    adaptation_plan_path.write_text(json.dumps(adaptation_plan, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    summary = run_auto_character_dry_run(
+        "Create a stylized human character with blue jacket and short hair.",
+        output_dir=output_dir,
+        base_asset_manifest_path=manifest_path,
+        adaptation_plan_path=adaptation_plan_path,
+    )
+
+    manifest = json.loads((output_dir / "run_manifest.json").read_text(encoding="utf-8"))
+    character_spec = (output_dir / "character_spec.yaml").read_text(encoding="utf-8")
+    pipeline_spec = (output_dir / "pipeline_spec.yaml").read_text(encoding="utf-8")
+
+    assert summary["base_asset_enabled"] is True
+    assert (output_dir / "validation" / "base_asset_manifest.json").exists()
+    assert (output_dir / "validation" / "adaptation_plan.json").exists()
+    assert manifest["base_asset_trace"]["enabled"] is True
+    assert manifest["base_asset_trace"]["source_file_path"] == "D:/base/BaseAvatar.blend"
+    assert manifest["artifact_paths"]["base_asset_manifest"].endswith("validation\\base_asset_manifest.json")
+    assert "base_asset:" in character_spec
+    assert "base_asset_mode: reuse_base_mesh" in pipeline_spec

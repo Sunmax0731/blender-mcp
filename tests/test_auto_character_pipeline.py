@@ -75,3 +75,38 @@ def test_build_pipeline_spec_matches_schema_and_adds_type_specific_inputs():
     assert "creature_pose_library" in pipeline_spec["weight_stage"]["inputs"]
     assert "creature_balance_final" in pipeline_spec["validation_plan"]["final_validators"]
     assert "review/back.png" in pipeline_spec["artifact_plan"]["required_artifacts"]
+
+
+def test_build_pipeline_spec_adds_base_asset_branching_when_manifest_is_present():
+    prompt = "Create a humanoid hero using an existing base avatar."
+    character_spec = normalize_prompt_to_character_spec(prompt)
+    pipeline_spec = build_pipeline_spec(
+        prompt,
+        character_spec,
+        run_directory="outputs/base-asset-run",
+        character_spec_ref="character_spec.yaml",
+        base_asset_inputs={
+            "manifest": {"source_file_path": "D:/base/BaseAvatar.blend"},
+            "adaptation_plan": {
+                "reuse_targets": ["mesh", "rig", "shape_keys", "materials_and_textures"],
+                "regenerate_targets": [],
+                "target_objects": {
+                    "main_mesh_object": "Body",
+                    "face_mesh_object": "Face",
+                    "armature_objects": ["Armature"],
+                    "material_names": ["Skin"],
+                },
+            },
+            "artifact_refs": {
+                "base_asset_manifest": "validation/base_asset_manifest.json",
+                "adaptation_plan": "validation/adaptation_plan.json",
+            },
+        },
+    )
+
+    assert pipeline_spec["normalized_character_spec"]["base_asset"]["source_file_path"] == "D:/base/BaseAvatar.blend"
+    assert pipeline_spec["shape_stage"]["base_asset_mode"] == "reuse_base_mesh"
+    assert pipeline_spec["rig_stage"]["base_asset_mode"] == "reuse_base_rig"
+    assert pipeline_spec["expression_stage"]["base_asset_mode"] == "reuse_base_shape_keys"
+    assert pipeline_spec["look_stage"]["base_asset_mode"] == "reuse_base_materials"
+    assert "validation/base_asset_manifest.json" in pipeline_spec["artifact_plan"]["required_artifacts"]

@@ -13,8 +13,20 @@ from .auto_character import normalize_prompt_to_character_spec
 from .auto_character_validation import validate_auto_character
 
 
-def run_auto_character_dry_run(prompt: str, output_dir: str | Path) -> dict[str, Any]:
-    return run_auto_character_workflow(prompt, output_dir=output_dir, live=False)
+def run_auto_character_dry_run(
+    prompt: str,
+    output_dir: str | Path,
+    *,
+    base_asset_manifest_path: str | Path | None = None,
+    adaptation_plan_path: str | Path | None = None,
+) -> dict[str, Any]:
+    return run_auto_character_workflow(
+        prompt,
+        output_dir=output_dir,
+        live=False,
+        base_asset_manifest_path=base_asset_manifest_path,
+        adaptation_plan_path=adaptation_plan_path,
+    )
 
 
 def run_auto_character_workflow(
@@ -22,6 +34,8 @@ def run_auto_character_workflow(
     output_dir: str | Path,
     *,
     live: bool = False,
+    base_asset_manifest_path: str | Path | None = None,
+    adaptation_plan_path: str | Path | None = None,
 ) -> dict[str, Any]:
     resolved_output_dir = Path(output_dir)
     validation_dir = resolved_output_dir / "validation"
@@ -34,11 +48,25 @@ def run_auto_character_workflow(
     normalized_prompt = prompt.strip()
     run_id = _build_run_id(normalized_prompt)
     character_spec = normalize_prompt_to_character_spec(normalized_prompt)
+    base_asset_inputs = _load_base_asset_inputs(
+        base_asset_manifest_path=base_asset_manifest_path,
+        adaptation_plan_path=adaptation_plan_path,
+    )
+    if base_asset_inputs is not None:
+        character_spec["base_asset"] = {
+            "enabled": True,
+            "manifest_ref": "validation/base_asset_manifest.json",
+            "adaptation_plan_ref": "validation/adaptation_plan.json",
+            "source_file_path": base_asset_inputs["manifest"].get("source_file_path"),
+            "reuse_targets": base_asset_inputs["adaptation_plan"].get("reuse_targets", []),
+            "regenerate_targets": base_asset_inputs["adaptation_plan"].get("regenerate_targets", []),
+        }
     pipeline_spec = build_pipeline_spec(
         normalized_prompt,
         character_spec,
         run_directory=str(resolved_output_dir).replace("\\", "/"),
         character_spec_ref="character_spec.yaml",
+        base_asset_inputs=base_asset_inputs,
     )
 
     prompt_path = resolved_output_dir / "prompt.txt"
@@ -56,6 +84,10 @@ def run_auto_character_workflow(
         yaml.safe_dump(pipeline_spec, allow_unicode=True, sort_keys=False),
         encoding="utf-8",
     )
+    _write_base_asset_artifacts(
+        base_asset_inputs=base_asset_inputs,
+        validation_dir=validation_dir,
+    )
 
     execution = _resolve_execution_context(live=live, pipeline_spec=pipeline_spec)
     artifact_index = _artifact_index(
@@ -67,6 +99,7 @@ def run_auto_character_workflow(
         review_dir=review_dir,
         exports_dir=exports_dir,
         run_manifest_path=run_manifest_path,
+        base_asset_inputs=base_asset_inputs,
     )
     artifact_paths = list(artifact_index.values())
 
@@ -96,6 +129,7 @@ def run_auto_character_workflow(
         validation_report=validation_report,
         artifact_index=artifact_index,
         execution=execution,
+        base_asset_inputs=base_asset_inputs,
     )
     run_manifest_path.write_text(
         json.dumps(run_manifest, ensure_ascii=False, indent=2) + "\n",
@@ -113,6 +147,7 @@ def run_auto_character_workflow(
         "fallback": execution["fallback"],
         "error": execution["error"],
         "run_manifest_path": str(run_manifest_path),
+        "base_asset_enabled": base_asset_inputs is not None,
     }
     summary_path = resolved_output_dir / "dry_run_summary.json"
     summary_path.write_text(
@@ -184,8 +219,9 @@ def _artifact_index(
     review_dir: Path,
     exports_dir: Path,
     run_manifest_path: Path,
+    base_asset_inputs: dict[str, Any] | None,
 ) -> dict[str, str]:
-    return {
+    artifacts = {
         "prompt": str(prompt_path),
         "character_spec": str(character_spec_path),
         "pipeline_spec": str(pipeline_spec_path),
@@ -195,6 +231,10 @@ def _artifact_index(
         "exports_dir": str(exports_dir),
         "run_manifest": str(run_manifest_path),
     }
+    if base_asset_inputs is not None:
+        artifacts["base_asset_manifest"] = str(validation_report_path.parent / "base_asset_manifest.json")
+        artifacts["adaptation_plan"] = str(validation_report_path.parent / "adaptation_plan.json")
+    return artifacts
 
 
 def _build_run_manifest(
@@ -205,10 +245,11 @@ def _build_run_manifest(
     validation_report: dict[str, Any],
     artifact_index: dict[str, str],
     execution: dict[str, Any],
+    base_asset_inputs: dict[str, Any] | None,
 ) -> dict[str, Any]:
     exported_files: list[str] = []
     final_status = validation_report["status"]
-    return {
+    manifest = {
         "schema_version": "0.1",
         "run_id": run_id,
         "source_prompt_hash": hashlib.sha256(prompt.encode("utf-8")).hexdigest(),
@@ -227,6 +268,18 @@ def _build_run_manifest(
         "execution": execution,
         "timestamp": datetime.now().isoformat(timespec="seconds"),
     }
+    if base_asset_inputs is not None:
+        manifest["base_asset_trace"] = {
+            "enabled": True,
+            "source_file_path": base_asset_inputs["manifest"].get("source_file_path"),
+            "reuse_targets": base_asset_inputs["adaptation_plan"].get("reuse_targets", []),
+            "regenerate_targets": base_asset_inputs["adaptation_plan"].get("regenerate_targets", []),
+            "artifact_refs": {
+                "base_asset_manifest": artifact_index["base_asset_manifest"],
+                "adaptation_plan": artifact_index["adaptation_plan"],
+            },
+        }
+    return manifest
 
 
 def _build_run_id(prompt: str) -> str:
@@ -242,3 +295,45 @@ def _try_load_bpy() -> Any | None:
     if not hasattr(bpy, "context") or not hasattr(bpy, "ops"):
         return None
     return bpy
+
+
+def _load_base_asset_inputs(
+    *,
+    base_asset_manifest_path: str | Path | None,
+    adaptation_plan_path: str | Path | None,
+) -> dict[str, Any] | None:
+    if base_asset_manifest_path is None and adaptation_plan_path is None:
+        return None
+    if base_asset_manifest_path is None or adaptation_plan_path is None:
+        raise ValueError("base_asset_manifest_path and adaptation_plan_path must be provided together")
+
+    manifest_path = Path(base_asset_manifest_path)
+    plan_path = Path(adaptation_plan_path)
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    adaptation_plan = json.loads(plan_path.read_text(encoding="utf-8"))
+    return {
+        "manifest": manifest,
+        "adaptation_plan": adaptation_plan,
+        "artifact_refs": {
+            "base_asset_manifest": "validation/base_asset_manifest.json",
+            "adaptation_plan": "validation/adaptation_plan.json",
+        },
+    }
+
+
+def _write_base_asset_artifacts(
+    *,
+    base_asset_inputs: dict[str, Any] | None,
+    validation_dir: Path,
+) -> None:
+    if base_asset_inputs is None:
+        return
+
+    (validation_dir / "base_asset_manifest.json").write_text(
+        json.dumps(base_asset_inputs["manifest"], ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    (validation_dir / "adaptation_plan.json").write_text(
+        json.dumps(base_asset_inputs["adaptation_plan"], ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )

@@ -28,6 +28,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
         type=Path,
         default=ROOT / "artifacts" / "auto-character-live-test",
     )
+    parser.add_argument("--base-asset-manifest", type=Path, default=None)
+    parser.add_argument("--adaptation-plan", type=Path, default=None)
     parser.add_argument("--blender-exe", type=Path, default=None)
     return parser
 
@@ -37,7 +39,13 @@ def main() -> int:
     output_dir = args.output_dir.resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    workflow_summary = run_auto_character_workflow(args.prompt, output_dir=output_dir, live=True)
+    workflow_summary = run_auto_character_workflow(
+        args.prompt,
+        output_dir=output_dir,
+        live=True,
+        base_asset_manifest_path=args.base_asset_manifest,
+        adaptation_plan_path=args.adaptation_plan,
+    )
     character_spec = normalize_prompt_to_character_spec(args.prompt)
     rig_plan = build_live_rig_plan(character_spec)
     model_spec = build_model_spec_from_character_spec(
@@ -165,6 +173,9 @@ def main() -> int:
             "export_count": len(export_manifest.get("exports", [])),
         },
     }
+    if args.base_asset_manifest and args.adaptation_plan:
+        summary["artifacts"]["base_asset_manifest"] = str(output_dir / "validation" / "base_asset_manifest.json")
+        summary["artifacts"]["adaptation_plan"] = str(output_dir / "validation" / "adaptation_plan.json")
     summary_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(summary, ensure_ascii=False, indent=2))
     return 0 if summary["success"] else 1

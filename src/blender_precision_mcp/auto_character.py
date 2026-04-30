@@ -56,6 +56,7 @@ def build_pipeline_spec(
     *,
     run_directory: str = "outputs/auto-character/generated-run",
     character_spec_ref: str = "character_spec.generated.yaml",
+    base_asset_inputs: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     normalized_prompt = " ".join(prompt.split())
     pipeline = _load_yaml_template(PIPELINE_SPEC_TEMPLATE_PATH)
@@ -68,6 +69,12 @@ def build_pipeline_spec(
         "required_expressions": character_spec["expression_spec"]["required_expressions"],
         "rig_template": character_spec["rig_spec"]["template"],
     }
+    if base_asset_inputs:
+        pipeline["normalized_character_spec"]["base_asset"] = {
+            "source_file_path": base_asset_inputs["manifest"].get("source_file_path"),
+            "reuse_targets": base_asset_inputs["adaptation_plan"].get("reuse_targets", []),
+            "regenerate_targets": base_asset_inputs["adaptation_plan"].get("regenerate_targets", []),
+        }
 
     for stage_name in ("shape_stage", "look_stage", "rig_stage", "expression_stage", "weight_stage"):
         pipeline[stage_name] = _stage_for_type(
@@ -75,11 +82,25 @@ def build_pipeline_spec(
             pipeline[stage_name],
             character_spec["character_type"],
         )
+        if base_asset_inputs:
+            pipeline[stage_name] = _apply_base_asset_stage_plan(
+                stage_name,
+                pipeline[stage_name],
+                base_asset_inputs["adaptation_plan"],
+                base_asset_inputs["artifact_refs"],
+            )
 
     pipeline["artifact_plan"]["run_directory"] = run_directory
     pipeline["artifact_plan"]["required_artifacts"] = _required_artifacts_for_type(
         character_spec["character_type"]
     )
+    if base_asset_inputs:
+        pipeline["artifact_plan"]["required_artifacts"].extend(
+            [
+                "validation/base_asset_manifest.json",
+                "validation/adaptation_plan.json",
+            ]
+        )
     pipeline["validation_plan"]["final_validators"] = _final_validators_for_type(
         character_spec["character_type"]
     )
@@ -291,3 +312,59 @@ def _final_validators_for_type(character_type: str) -> list[str]:
     if character_type == "creature":
         validators.append("creature_balance_final")
     return validators
+
+
+def _apply_base_asset_stage_plan(
+    stage_name: str,
+    stage: dict[str, Any],
+    adaptation_plan: dict[str, Any],
+    artifact_refs: dict[str, str],
+) -> dict[str, Any]:
+    stage_copy = deepcopy(stage)
+    reuse_targets = set(adaptation_plan.get("reuse_targets", []))
+    target_objects = adaptation_plan.get("target_objects", {})
+
+    stage_copy["base_asset_mode"] = "generate_new"
+    stage_copy["base_asset_refs"] = {
+        "base_asset_manifest": artifact_refs["base_asset_manifest"],
+        "adaptation_plan": artifact_refs["adaptation_plan"],
+    }
+
+    if stage_name == "shape_stage" and "mesh" in reuse_targets:
+        stage_copy["base_asset_mode"] = "reuse_base_mesh"
+        stage_copy["inputs"] = stage_copy["inputs"] + ["base_asset_mesh"]
+        stage_copy["outputs"] = ["mesh_objects", "shape_snapshot", "base_asset_mesh_reuse_report"]
+        stage_copy["base_asset_targets"] = {
+            "main_mesh_object": target_objects.get("main_mesh_object"),
+        }
+    elif stage_name == "look_stage" and "materials_and_textures" in reuse_targets:
+        stage_copy["base_asset_mode"] = "reuse_base_materials"
+        stage_copy["inputs"] = stage_copy["inputs"] + ["base_asset_materials"]
+        stage_copy["outputs"] = ["materials", "textures", "review_images", "base_asset_material_reuse_report"]
+        stage_copy["base_asset_targets"] = {
+            "material_names": target_objects.get("material_names", []),
+        }
+    elif stage_name == "rig_stage" and "rig" in reuse_targets:
+        stage_copy["base_asset_mode"] = "reuse_base_rig"
+        stage_copy["inputs"] = stage_copy["inputs"] + ["base_asset_armature"]
+        stage_copy["outputs"] = ["armature", "bone_map", "base_asset_rig_reuse_report"]
+        stage_copy["base_asset_targets"] = {
+            "armature_objects": target_objects.get("armature_objects", []),
+        }
+    elif stage_name == "expression_stage" and "shape_keys" in reuse_targets:
+        stage_copy["base_asset_mode"] = "reuse_base_shape_keys"
+        stage_copy["inputs"] = stage_copy["inputs"] + ["base_asset_shape_keys"]
+        stage_copy["outputs"] = ["shape_keys", "expression_preview", "base_asset_expression_reuse_report"]
+        stage_copy["base_asset_targets"] = {
+            "face_mesh_object": target_objects.get("face_mesh_object"),
+        }
+    elif stage_name == "weight_stage" and "rig" in reuse_targets and "mesh" in reuse_targets:
+        stage_copy["base_asset_mode"] = "reuse_base_weights"
+        stage_copy["inputs"] = stage_copy["inputs"] + ["base_asset_skinning"]
+        stage_copy["outputs"] = ["weight_data", "pose_test_report", "base_asset_weight_reuse_report"]
+        stage_copy["base_asset_targets"] = {
+            "main_mesh_object": target_objects.get("main_mesh_object"),
+            "armature_objects": target_objects.get("armature_objects", []),
+        }
+
+    return stage_copy
