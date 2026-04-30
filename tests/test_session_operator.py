@@ -81,6 +81,9 @@ def _load_session_module():
 class _FakeState:
     def __init__(self):
         self.prompt_text = "カービィを作ってほしいです"
+        self.prompt_plan_text = "実行計画はまだありません。"
+        self.prompt_preview_text = "Preview はまだありません。"
+        self.prompt_confirmed = False
         self.history_text = ""
         self.last_result_text = ""
         self.last_error = ""
@@ -118,3 +121,30 @@ def test_send_prompt_executes_proposed_action_when_available():
     assert "実行: UV_SPHERE created." in state.history_text
     assert state.last_result_text == "UV_SPHERE created."
     assert state.last_error == ""
+
+
+def test_prompt_plan_confirm_execute_flow():
+    module, executed_commands = _load_session_module()
+    context = _FakeContext()
+
+    plan_result = module.BLENDERMCP_OT_plan_prompt().execute(context)
+    state = context.scene.blender_mcp_state
+
+    assert plan_result == {"FINISHED"}
+    assert executed_commands == []
+    assert "球体を追加してカービィの素体を作ります。" in state.prompt_plan_text
+    assert "Action: create_primitive" in state.prompt_preview_text
+    assert state.prompt_confirmed is False
+
+    confirm_result = module.BLENDERMCP_OT_confirm_prompt_plan().execute(context)
+
+    assert confirm_result == {"FINISHED"}
+    assert state.prompt_confirmed is True
+
+    execute_result = module.BLENDERMCP_OT_execute_prompt_plan().execute(context)
+
+    assert execute_result == {"FINISHED"}
+    assert executed_commands[0]["action"] == "create_primitive"
+    assert executed_commands[0]["params"]["_approved"] is True
+    assert state.prompt_confirmed is False
+    assert state.pending_command_json == ""

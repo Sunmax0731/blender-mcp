@@ -3,6 +3,9 @@ from .operators.approval import BLENDERMCP_OT_reject_action
 from .operators.connection import BLENDERMCP_OT_connect
 from .operators.connection import BLENDERMCP_OT_refresh_status
 from .operators.session import BLENDERMCP_OT_process_next_command
+from .operators.session import BLENDERMCP_OT_confirm_prompt_plan
+from .operators.session import BLENDERMCP_OT_execute_prompt_plan
+from .operators.session import BLENDERMCP_OT_plan_prompt
 from .operators.session import BLENDERMCP_OT_send_prompt
 from .operators.ui import BLENDERMCP_OT_clear_history
 from .panels.approval import BLENDERMCP_PT_approval
@@ -16,6 +19,9 @@ CLASSES = (
     BLENDERMCP_OT_connect,
     BLENDERMCP_OT_refresh_status,
     BLENDERMCP_OT_send_prompt,
+    BLENDERMCP_OT_plan_prompt,
+    BLENDERMCP_OT_confirm_prompt_plan,
+    BLENDERMCP_OT_execute_prompt_plan,
     BLENDERMCP_OT_process_next_command,
     BLENDERMCP_OT_clear_history,
     BLENDERMCP_OT_execute_approved_action,

@@ -88,6 +88,7 @@ v2 完成時点で、利用者は次を実行できる状態を目指す。
 - Codex CLI に plan を作らせ、preview / confirm / execute を経て実行する
 - 実行結果、validation report、review screenshot の場所を UI で確認できる
 - 公式 `mcp` add-on の設定や責務を上書きしない
+- 既存補助 add-on は `Plan -> Confirm -> Execute` の明示ボタンを持ち、互換用の旧 `send_prompt` operator は維持する
 
 ### Phase v2-7: Skill / AGENTS / subagent 配布
 

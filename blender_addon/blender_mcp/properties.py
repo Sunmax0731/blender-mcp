@@ -29,6 +29,18 @@ class BLENDERMCP_PG_state(bpy.types.PropertyGroup):
         name="Prompt",
         default="",
     )
+    prompt_plan_text: bpy.props.StringProperty(
+        name="Prompt Plan",
+        default="実行計画はまだありません。",
+    )
+    prompt_preview_text: bpy.props.StringProperty(
+        name="Prompt Preview",
+        default="Preview はまだありません。",
+    )
+    prompt_confirmed: bpy.props.BoolProperty(
+        name="Prompt Confirmed",
+        default=False,
+    )
     history_text: bpy.props.StringProperty(
         name="History",
         default="履歴はまだありません。",
