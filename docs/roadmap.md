@@ -20,7 +20,8 @@
 
 ## Phase 3: Blender UI 補助導線
 
-- Blender UI から Codex CLI を使う補助経路の設計
+- Blender UI からプロンプトを入力する補助経路の設計
+- 実行計画、Preview、Confirm、Execute の状態遷移整理
 - 公式 add-on と競合しない補助機能の実装
 - 危険操作の確認フロー整備
 
@@ -40,6 +41,6 @@
 
 ## 直近優先
 
-1. Release 判定と公開手順の最終確認
-2. Release ノートと配布資産の整備
-3. リリース後の利用手順確認
+1. Blender UI プロンプト導線の設計確定
+2. 高品質モデル制作向け Skill / Agent 指示の整備
+3. 公式 Blender MCP Example の利用者向け掲載

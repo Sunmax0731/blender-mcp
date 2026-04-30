@@ -44,6 +44,13 @@
 - Codex App から Blender ワークスペース切替や状態取得が実行できる
 - 1 クリック導入アプリのログから失敗箇所を追跡できる
 
+### 2.5 Blender UI プロンプト導線確認
+
+- プロンプト入力、実行計画作成、Preview、Confirm、Execute の状態遷移が docs と一致している
+- 危険操作を含む計画は明示承認なしに実行できない
+- Codex CLI 未検出時、公式 MCP 未接続時、実行計画不備時のエラーが利用者に表示される
+- 実行結果とログが確認できる
+
 ## 3. 証跡
 
 - スクリプト実行ログ
@@ -54,6 +61,7 @@
 - `.official-mcp-venv` の作成結果
 - Codex 設定更新結果
 - Codex App からの接続結果
+- Blender UI プロンプト導線の Preview / Confirm / Execute 確認結果
 - Issue コメント
 
 ## 4. 完了条件
