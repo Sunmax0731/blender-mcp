@@ -52,6 +52,7 @@ v0.1.0 は、Windows 利用者が公式 Blender MCP を導入し、Codex App か
 - `uv run blender-mcp-installer --plan --include-precision-profile --no-launch-blender` が成功している
 - precision template / schema validation が成功している
 - installer exe を再ビルドし、checksum を記録している
+- Release asset の境界が [v0.1.0 release assets](release-assets-v0.1.0.md) と一致している
 - Blender 5.1 で公式 `MCP` add-on 導入 / 有効化の証跡がある
 - Codex App から公式 Blender MCP tool の live 接続証跡がある
 - Release notes に known limitations が明記されている

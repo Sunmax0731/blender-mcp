@@ -72,7 +72,8 @@ Release 前に次を確認します。
 ## GitHub Release に添付するもの
 
 - `blender-mcp-installer.exe`
-- checksum / packaging manifest
+- `blender-mcp-installer.exe.sha256`
+- `release-manifest-v0.1.0.json`
 
 ## GitHub Release に添付しないもの
 
@@ -97,5 +98,6 @@ Release 前に次を確認します。
 
 - [v0.1.0 setup checklist](setup-checklist-v0.1.0.md)
 - [v0.1.0 release scope](release-scope-v0.1.0.md)
+- [v0.1.0 release assets](release-assets-v0.1.0.md)
 - [v2 release validation](release-validation-v2.md)
 - [Release milestone plan](release-milestones.md)

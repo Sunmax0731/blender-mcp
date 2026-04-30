@@ -32,9 +32,11 @@ v0.1.0 の詳細な scope と Go / No-Go 条件は [v0.1.0 release scope](releas
 
 ### 2.1.1 GitHub Release へ添付する配布物
 
+添付 asset の詳細は [v0.1.0 release assets](release-assets-v0.1.0.md) を正とする。
+
 - `blender-mcp-installer.exe`
-  - Windows 向けの主配布物
-  - Blender と Codex App が事前導入済みの利用者を対象にする
+- `blender-mcp-installer.exe.sha256`
+- `release-manifest-v0.1.0.json`
 
 ### 2.1.2 GitHub Release に添付しないもの
 
