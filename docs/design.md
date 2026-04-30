@@ -188,3 +188,56 @@ Blender の 3D View Sidebar に `Blender MCP Prompt` のような補助パネル
 - GUI は薄く保ち、導入ロジックは既存スクリプト群へ寄せる
 - Blender UI 補助導線は、入力、確認、承認、ログ表示に責務を限定する
 - 配布用 Skill は、品質チェックと作業手順を提供し、公式 MCP の tool 実装は持たない
+
+## 9. v2 精密モデリング設計
+
+### 9.1 推奨アーキテクチャ
+
+```text
+Codex App / Codex CLI
+  -> blender-precision-mcp sidecar
+    -> 公式 Blender MCP server
+      -> 公式 Blender add-on
+        -> Blender scene / approved add-ons
+```
+
+sidecar は、公式 Blender MCP の tool を置き換えるのではなく、制作計画、検証、視覚レビュー、承認済み add-on 実行を高水準 tool としてまとめる。
+
+### 9.2 sidecar の責務
+
+- `blender_precision_config.yaml` を読み込む
+- profile / tool pack / policy を解決する
+- `tools/list` で公開 tool を切り替える
+- `model_spec.yaml` と JSON Schema を検証する
+- 破壊的操作前に backup と preview を要求する
+- 公式 Blender MCP への低水準操作を集約する
+- validation report と review screenshot を保存する
+
+### 9.3 Codex 設定の責務分離
+
+Codex の STDIO MCP 設定では、`command` / `args` は server 起動用とする。公開 tool の増減は、sidecar server の `tools/list` と Codex 側の `enabled_tools` / `disabled_tools` で扱う。
+
+このため、設計上は「`args` で tool を注入する」のではなく、「`args` で profile / config / tool pack を渡し、sidecar server が公開 tool を選ぶ」と表現する。
+
+### 9.4 add-on 実行設計
+
+add-on operator 実行は、通常のモデリング tool から分離する。
+
+- `addon_registry` に承認済み add-on と operator を登録する
+- `inspect_addons` で導入済み add-on と operator capability を確認する
+- `prepare_operator_context` で mode、selection、active object、area override を準備する
+- `check_operator_poll` で実行可能性を確認する
+- `run_approved_addon_operator` は registry と policy を通過したものだけを実行する
+
+modal operator、UI 専用 operator、未承認 operator は通常導線では実行しない。
+
+### 9.5 配布設計
+
+利用者へ配布するものは、installer で選択導入できる形に寄せる。
+
+- precision profile 用 Codex MCP 設定例
+- `AGENTS.md` テンプレート
+- `SKILL.md` と参照資料
+- subagent template
+- `model_spec.yaml` / `blender_precision_config.yaml` テンプレート
+- validation / visual QA script

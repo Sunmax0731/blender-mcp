@@ -157,3 +157,63 @@
 - 補助導線が公式構成を壊さないこと
 - GUI 導入アプリから実行順序とログが追跡できること
 - Blender UI プロンプト導線の状態遷移と確認フローが docs と一致していること
+
+## 8. v2 精密モデリング仕様
+
+### 8.1 sidecar MCP server
+
+`blender-precision-mcp` は、公式 Blender MCP server / add-on を直接置き換えず、Codex と公式 Blender MCP の間で高水準 tool、検証、設定制御を担う sidecar / proxy として扱う。
+
+想定起動設定:
+
+- `command`: sidecar MCP server プロセスを起動する実行ファイル
+- `args`: `--config`, `--profile`, `--tool-pack` など、server 起動時の設定
+- `env` / `cwd`: Blender 接続先、設定ファイル、作業ディレクトリ
+- `startup_timeout_sec` / `tool_timeout_sec`: 起動と tool 実行のタイムアウト
+- `enabled_tools` / `disabled_tools`: Codex 側での公開 tool 制御
+
+`args` は tool の実行時引数ではない。MCP tool の実行時引数は `tools/call` の `arguments` で受け取る。
+
+### 8.2 tool 公開制御
+
+sidecar MCP server は、profile、tool pack、policy、approved add-on registry を読み込み、`tools/list` で公開する tool を切り替える。
+
+代表的な tool pack:
+
+- `modeling`: 形状生成、材質設定、命名、階層整理
+- `validation`: scene / mesh / material validation
+- `visual_qa`: viewport screenshot、レビュー画像生成、差分確認
+- `addon_inspection`: 導入済み add-on、operator、capability の調査
+- `addon_execution`: 承認済み add-on operator の実行。初期状態では無効化する
+
+危険 tool は既定で `disabled_tools` または policy block に置く。
+
+### 8.3 データ契約
+
+MCP tool は次を持つ。
+
+- `name`
+- `description`
+- `inputSchema`
+- 任意の `outputSchema`
+
+v2 で標準化する主なデータ:
+
+- `model_spec`: 制作対象、寸法、パーツ、材質、品質基準、検証条件
+- `validation_report`: 検証結果、警告、失敗理由、レビュー画像、修正提案
+- `addon_registry`: 承認済み add-on、operator、property map、context 条件、破壊的操作フラグ
+
+### 8.4 add-on integration
+
+Blender add-on は、登録済み operator、Python API、batch 実行、context 準備の可否を確認できるものだけを自動化対象にする。
+
+実行前に確認する項目:
+
+- add-on が導入済みで、有効化可能である
+- operator が registry に登録されている
+- `poll` が成功する、または不足 context を準備できる
+- modal / UI 専用 operator ではない
+- 破壊的操作の場合は backup が作成されている
+- 実行後の validation threshold が定義されている
+
+`bpy.ops`、`bpy.context`、operator context override は context 依存が強いため、addon integration 実装の専用責務として扱う。

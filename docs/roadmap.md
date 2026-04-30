@@ -44,3 +44,16 @@
 1. Blender UI プロンプト導線の設計確定
 2. 高品質モデル制作向け Skill / Agent 指示の整備
 3. 公式 Blender MCP Example の利用者向け掲載
+
+## v2: 精密モデリング完成ロードマップ
+
+v2 の詳細な完成ロードマップは [v2 精密モデリング完成ロードマップ](v2-precision-roadmap.md) に分離する。既存 Phase 0-5 は公式 Blender MCP 導入と MVP 配布の流れとして維持し、v2 はその上に高品質モデリング、検証、add-on integration、Skill / subagent 配布を追加する。
+
+直近の v2 優先順:
+
+1. v2 資料を canonical docs と Issue 群へ統合する
+2. template / schema / config を正式配置する
+3. sidecar MCP server の scaffold と profile / tool-pack 制御を実装する
+4. model spec、validation report、visual QA を実装する
+5. add-on registry と approved operator 実行を実装する
+6. Blender UI prompt flow と installer 配布に統合する

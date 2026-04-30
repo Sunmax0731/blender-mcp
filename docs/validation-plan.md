@@ -70,3 +70,43 @@
 - 1 クリック導入アプリ経由でも主要導入が追跡できる
 - docs が公式前提に更新済みである
 - Issue 上で移行方針と結果が追跡できる
+
+## 5. v2 精密モデリング検証
+
+### 5.1 静的検証
+
+- `blender_precision_config.yaml` が schema と一致する
+- `model_spec.yaml` が schema と一致する
+- `validation_report` が schema と一致する
+- Codex MCP 設定例で `command` / `args` が server 起動設定として記載されている
+- tool の実行時引数が `tools/call` の `arguments` として説明されている
+- `enabled_tools` / `disabled_tools` と sidecar の `tools/list` の責務が docs と一致している
+
+### 5.2 sidecar MCP 検証
+
+- profile ごとに公開 tool が変わる
+- tool pack ごとに公開 tool が変わる
+- policy block された tool が公開または実行されない
+- `startup_timeout_sec` / `tool_timeout_sec` の設定例が導入手順と矛盾しない
+- structured result に成功、失敗、警告、証跡パスが含まれる
+
+### 5.3 Blender scene 検証
+
+- `model_spec` の寸法、パーツ、材質、命名に沿ってシーンを検証できる
+- mesh cleanup、non-manifold、loose geometry、quad ratio などの結果を report に残せる
+- viewport screenshot を指定ビューで保存できる
+- 検証失敗時に修正候補が report に残る
+
+### 5.4 add-on integration 検証
+
+- 導入済み add-on 一覧を取得できる
+- approved add-on registry にない operator は実行できない
+- operator の `poll` と context 条件を確認できる
+- modal / UI 専用 operator は structured failure として扱う
+- 破壊的 operator の前に backup が作成される
+
+### 5.5 配布検証
+
+- installer から precision profile / Skill / template の導入有無を選べる
+- 導入後に Codex App 再起動が必要な場合、その案内が表示される
+- `AGENTS.md` / `SKILL.md` / subagent template の配置先が docs と一致している

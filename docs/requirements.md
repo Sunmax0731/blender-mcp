@@ -117,3 +117,33 @@ Blender UI からプロンプトを入力し、Codex CLI と公式 Blender MCP �
 - GitHub Issue 上で判断経緯が追跡できる
 - 1 クリック導入アプリの成果物定義と適用範囲が追跡できる
 - Blender UI プロンプト導線の対象、非対象、安全要件が追跡できる
+
+## 8. v2 精密モデリング要件
+
+v2 では、公式 Blender MCP を土台に、より高品質なモデル制作、検証、視覚レビュー、Blender add-on 活用を行うための sidecar MCP server と配布用テンプレートを追加対象とする。
+
+### 8.1 対象
+
+- Codex から呼び出す高水準 tool 群を提供する `blender-precision-mcp` sidecar / proxy
+- profile / config / tool pack に応じた MCP tool 公開制御
+- `model_spec.yaml` による制作意図、寸法、構成要素、材質、検証条件の明文化
+- `validation_report` によるシーン検証、メッシュ検証、材質検証、視覚レビュー証跡
+- `addon_registry` による承認済み Blender add-on、operator、property map、検証基準の管理
+- Codex 向け `AGENTS.md` / `SKILL.md` / subagent template の配布
+- 利用者が導入できる precision profile / Skill / template の installer 連携
+
+### 8.2 非対象
+
+- Codex MCP 設定の `args` で tool を直接注入する設計
+- 未承認 add-on operator の実行
+- UI 操作や modal operator 前提の自動化
+- 確認なしの破壊的シーン編集
+- 任意 Python / `bpy` 実行を利用者向け通常導線で許可すること
+
+### 8.3 安全要件
+
+- `command` / `args` は MCP server 起動のために使い、公開 tool は server の `tools/list` と Codex 側の `enabled_tools` / `disabled_tools` で制御する
+- `args` で渡すのは profile、config、tool pack などの server 起動設定に限定する
+- 破壊的操作はバックアップ作成と `preview -> confirm -> execute` を必須にする
+- add-on 利用は承認済み registry、operator poll、context 準備、dry-run 可能性を確認してから実行する
+- `bpy.ops` / `bpy.context` / operator context override は add-on integration の設計領域として分離する

@@ -206,6 +206,7 @@ uv sync --python 3.11 --extra dev
 - [設計](docs/design.md)
 - [仕様](docs/specification.md)
 - [ロードマップ](docs/roadmap.md)
+- [v2 精密モデリング完成ロードマップ](docs/v2-precision-roadmap.md)
 - [検証計画](docs/validation-plan.md)
 - [リリース計画](docs/release-plan.md)
 - [Blender MCP 実行例](docs/examples.md)
