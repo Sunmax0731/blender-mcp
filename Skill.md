@@ -55,3 +55,11 @@
 - Codex App からの公式 MCP 利用
 - Blender UI から Codex CLI へつなぐ補助導線
 - 既存独自構成から公式構成への移行計画
+
+## 4. 配布用 Skill
+
+利用者が Codex 環境へ導入して使う Skill は、repo 直下の `skills/` に配置する。
+
+- `skills/blender-quality-modeling/`: Blender MCP で高品質なモデル、マテリアル、ライト、カメラ、検証証跡を作るための Skill
+
+配布とインストール手順は [docs/skills.md](docs/skills.md) にまとめる。

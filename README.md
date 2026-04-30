@@ -209,6 +209,7 @@ uv sync --python 3.11 --extra dev
 - [検証計画](docs/validation-plan.md)
 - [リリース計画](docs/release-plan.md)
 - [Blender MCP 実行例](docs/examples.md)
+- [配布用 Skill](docs/skills.md)
 - [初回 Release ノート案](docs/release-notes-v0.1.0.md)
 - [運用ルール](AGENTS.md)
 - [必要スキル](Skill.md)

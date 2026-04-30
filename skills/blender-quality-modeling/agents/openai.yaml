@@ -1,0 +1,4 @@
+interface:
+  display_name: "Blender Quality Modeling"
+  short_description: "Create higher quality Blender models with MCP."
+  default_prompt: "Create a high-quality Blender model from this prompt, with materials, lighting, camera, and validation evidence."

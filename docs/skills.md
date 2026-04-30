@@ -1,0 +1,44 @@
+# 配布用 Skill
+
+このリポジトリでは、Blender MCP を使った作業品質を上げるための Codex Skill を `skills/` 配下に配置します。
+
+## 1. 利用できる Skill
+
+### blender-quality-modeling
+
+- パス: `skills/blender-quality-modeling/`
+- 目的: Blender MCP または Blender Python 経由で、より品質の高いモデル、マテリアル、ライト、カメラ、検証証跡を作る
+- 主な対象:
+  - Blender モデル作成
+  - 既存シーンの見た目改善
+  - マテリアルやライトの追加
+  - ドキュメント掲載用のレンダー確認
+
+## 2. インストール
+
+利用者の Codex 環境で Skill として使う場合は、`skills/blender-quality-modeling/` を Codex の skill ディレクトリへコピーします。
+
+PowerShell 例:
+
+```powershell
+Copy-Item -Recurse -Force .\skills\blender-quality-modeling "$env:USERPROFILE\.codex\skills\blender-quality-modeling"
+```
+
+Codex App が起動中の場合は、コピー後に Codex App を再起動してください。
+
+## 3. 使い方
+
+Blender モデル作成や品質改善を依頼するときに、次のような依頼で利用できます。
+
+```text
+Blender MCP で高品質なロボットのモデルを作成してください。マテリアル、ライト、カメラ、確認画像も設定してください。
+```
+
+Skill は、モデルを部品に分ける、マテリアル名を付ける、ライトとカメラを置く、レンダー確認する、といった品質確認観点を Codex に与えます。
+
+## 4. 運用方針
+
+- 配布用 Skill は `skills/<skill-name>/SKILL.md` を入口にする
+- 詳細な品質基準は `references/` に分ける
+- 利用者向け README には概要とインストール先だけを載せる
+- Skill を更新した場合は、`agents/openai.yaml` と validation も確認する
