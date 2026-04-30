@@ -51,55 +51,59 @@ function Get-PrecisionMcpConfigBlock {
     return ($lines[$start..($lines.Count - 1)] -join [Environment]::NewLine)
 }
 
-function Merge-PrecisionMcpConfig {
+function Remove-GeneratedPrecisionMcpConfig {
     param(
         [string]$ConfigPath,
-        [string]$TemplateConfigPath,
         [switch]$PlanOnly
     )
 
-    $block = Get-PrecisionMcpConfigBlock -TemplateConfigPath $TemplateConfigPath
-    if (Test-Path $ConfigPath) {
-        $existing = Get-Content -Raw -Encoding UTF8 $ConfigPath
-        if ($existing -match '(?m)^\[mcp_servers\.blender_precision\]\s*$') {
-            Write-Output "Codex config already contains [mcp_servers.blender_precision]. No merge needed."
-            return
-        }
-    } else {
-        $existing = ""
+    if (-not (Test-Path $ConfigPath)) {
+        Write-Output "Codex config not found. No precision MCP cleanup needed."
+        return
     }
 
-    Write-Output "Codex config merge preview: append [mcp_servers.blender_precision] to $ConfigPath"
-    Write-Output $block
+    $existing = Get-Content -Raw -Encoding UTF8 $ConfigPath
+    $sectionPattern = '(?ms)^\[mcp_servers\.blender_precision\]\s*.*?(?=^\[|\z)'
+    $match = [regex]::Match($existing, $sectionPattern)
+    if (-not $match.Success) {
+        Write-Output "Codex config does not contain [mcp_servers.blender_precision]. No cleanup needed."
+        return
+    }
+
+    $section = $match.Value
+    $looksGenerated = (
+        $section -match 'command\s*=\s*"uvx"' -and
+        $section -match '"blender-precision-mcp"' -and
+        $section -match 'templates/precision/blender_precision_config\.yaml'
+    )
+
+    if (-not $looksGenerated) {
+        Write-Output "Codex config contains [mcp_servers.blender_precision], but it does not match the generated experimental block. No automatic cleanup was applied."
+        return
+    }
+
+    Write-Output "Codex config cleanup preview: remove generated [mcp_servers.blender_precision] from $ConfigPath"
+    Write-Output $section.Trim()
 
     if ($PlanOnly) {
         Write-Output "Plan only: Codex config was not modified."
         return
     }
 
-    if (Test-Path $ConfigPath) {
-        $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
-        $backupPath = "$ConfigPath.backup-$timestamp"
-        Copy-Item -Force $ConfigPath $backupPath
-        Write-Output "Codex config backup created: $backupPath"
-    } else {
-        New-Item -ItemType Directory -Force (Split-Path -Parent $ConfigPath) | Out-Null
-        New-Item -ItemType File -Force $ConfigPath | Out-Null
-        Write-Output "Codex config created: $ConfigPath"
-    }
+    $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
+    $backupPath = "$ConfigPath.backup-$timestamp"
+    Copy-Item -Force $ConfigPath $backupPath
+    Write-Output "Codex config backup created: $backupPath"
 
-    $prefix = ""
-    if ((Get-Item $ConfigPath).Length -gt 0) {
-        $prefix = [Environment]::NewLine + [Environment]::NewLine
-    }
-    Add-Content -Encoding UTF8 -Path $ConfigPath -Value ($prefix + $block)
-    Write-Output "Codex config merged: [mcp_servers.blender_precision]"
+    $updated = [regex]::Replace($existing, $sectionPattern, "")
+    Set-Content -Encoding UTF8 -Path $ConfigPath -Value $updated.Trim()
+    Write-Output "Codex config cleaned: removed generated [mcp_servers.blender_precision]"
 }
 
 if ($MergeCodexConfig -or $PlanConfigMerge) {
-    Merge-PrecisionMcpConfig `
+    Write-Output "Precision MCP server auto-registration is disabled in this release because blender-precision-mcp is an experimental scaffold and is not published as a standalone uvx package."
+    Remove-GeneratedPrecisionMcpConfig `
         -ConfigPath $CodexConfigPath `
-        -TemplateConfigPath (Join-Path $TemplateRoot "codex_config.toml") `
         -PlanOnly:$PlanConfigMerge
 } else {
     Write-Output "Codex config merge skipped. Template copied to: $(Join-Path $ProfileRoot 'codex_config.toml')"

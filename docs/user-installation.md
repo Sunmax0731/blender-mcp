@@ -42,7 +42,9 @@ precision profile は、高品質モデリング支援のための optional expe
 
 通常の公式 Blender MCP 導入だけを使う場合は有効にする必要はありません。導入すると、Codex 用 template、Skill、subagent template が追加されます。
 
-precision profile 導入時は、既存の Codex `config.toml` を丸ごと置き換えません。`mcp_servers.blender_precision` が未登録の場合は、既存 `config.toml` をバックアップしたうえで precision 用 MCP server 設定を追記します。すでに登録済みの場合は重複追記しません。
+precision profile 導入時は、既存の Codex `config.toml` を丸ごと置き換えません。v1 系では `blender-precision-mcp` を standalone MCP server として自動登録せず、template、Skill、subagent template の配布に留めます。
+
+過去の installer で生成された experimental な `[mcp_servers.blender_precision]` が残っている場合は、既存 `config.toml` をバックアップしたうえでその section を削除します。
 
 GUI では precision profile のチェックを有効にしてから導入します。
 
@@ -52,7 +54,7 @@ headless で導入する場合:
 uv run blender-mcp-installer --headless --include-precision-profile
 ```
 
-precision profile の config 追記予定だけ確認する場合:
+precision profile の config cleanup 予定だけ確認する場合:
 
 ```powershell
 .\scripts\install_precision_profile.ps1 -PlanConfigMerge

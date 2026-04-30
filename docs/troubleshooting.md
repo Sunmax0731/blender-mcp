@@ -67,7 +67,9 @@ config 追記予定を確認する場合:
 .\scripts\install_precision_profile.ps1 -PlanConfigMerge
 ```
 
-precision profile 導入後に Codex App 側の挙動が不安定な場合は、`config.toml.backup-<timestamp>` 形式のバックアップを確認してください。
+precision profile 導入後に Codex App 側の挙動が不安定な場合は、`blender_precision` MCP server が残っていないか確認してください。v1 系では precision profile は template / Skill / subagent 配布に留め、standalone MCP server としては自動登録しません。
+
+cleanup が行われた場合は、`config.toml.backup-<timestamp>` 形式のバックアップが作成されます。
 
 ## 6. Blender UI prompt が実行できない
 

@@ -61,7 +61,9 @@ Blender UI から prompt を入力し、`Plan -> Confirm -> Execute` の流れ�
 
 v1.0.0 では experimental として同梱します。正式な完成機能ではありません。
 
-precision profile 導入時の Codex `config.toml` は、既存設定を保持したまま `mcp_servers.blender_precision` を追記します。追記前にバックアップを作成し、同じ section が存在する場合は重複追記しません。
+v1 系では、precision profile 導入時に `blender_precision` MCP server を自動登録しません。`blender-precision-mcp` は experimental scaffold であり、standalone `uvx` package として配布していないためです。
+
+過去の installer で生成された experimental な `[mcp_servers.blender_precision]` が残っている場合は、既存設定をバックアップしたうえでその generated section を削除します。
 
 ## 7. 安全方針
 

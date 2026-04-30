@@ -58,7 +58,9 @@ uv run blender-mcp-installer --headless --output-dir <log-dir>
 
 通常の公式 Blender MCP 登録では、既存 `config.toml` をバックアップしてから `blender-official` を登録する。
 
-precision profile 導入では、既存 `config.toml` を丸ごと置き換えない。`mcp_servers.blender_precision` が未登録の場合だけ、バックアップを作成したうえで precision 用 block を追記する。
+precision profile 導入では、既存 `config.toml` を丸ごと置き換えない。v1 系では `blender-precision-mcp` を standalone MCP server として自動登録せず、template / Skill / subagent template の配布に留める。
+
+過去の installer で生成された experimental な `mcp_servers.blender_precision` が残っている場合は、バックアップを作成したうえでその generated section を削除する。
 
 precision profile の config 追記予定だけ確認する:
 
