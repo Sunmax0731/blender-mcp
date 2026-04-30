@@ -1,0 +1,18 @@
+preset_library: humanoid_hair_presets
+generation_mode: mesh_preset
+future_extensions:
+  - approved_addon
+default_preset: short
+presets:
+  short:
+    mesh_recipe: short_cap
+    silhouette: rounded_short
+  bob:
+    mesh_recipe: bob_cut
+    silhouette: side_framed
+  twin_tail:
+    mesh_recipe: twin_tail
+    silhouette: twin_tail
+  long:
+    mesh_recipe: long_back
+    silhouette: long_back

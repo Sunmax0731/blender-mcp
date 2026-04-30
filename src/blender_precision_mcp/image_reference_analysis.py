@@ -147,6 +147,11 @@ def apply_image_reference_to_character_spec(
         spec["look_spec"]["textures"][0]["reference_pattern_notes"] = pattern_notes
 
     spec["expression_spec"]["image_reference_hints"] = manifest.get("extracted_expression_hints", [])
+    if hair_keyword:
+        spec.setdefault("hair_spec", {})
+        spec["hair_spec"]["image_hint"] = hair_keyword
+        if hair_keyword in {"short", "bob", "long", "twintail", "twin_tail"}:
+            spec["hair_spec"]["preset"] = "twin_tail" if hair_keyword in {"twintail", "twin_tail"} else hair_keyword
 
     for part in spec.get("parts", []):
         if part.get("name") == "hair" and hair_keyword:

@@ -1,0 +1,15 @@
+preset_library: creature_hair_presets
+generation_mode: mesh_preset
+future_extensions:
+  - approved_addon
+default_preset: crest
+presets:
+  crest:
+    mesh_recipe: short_cap
+    silhouette: crest
+  short:
+    mesh_recipe: short_cap
+    silhouette: short_mane
+  long:
+    mesh_recipe: long_back
+    silhouette: long_mane

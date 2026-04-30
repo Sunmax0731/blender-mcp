@@ -19,6 +19,9 @@ def test_build_model_spec_from_humanoid_character_spec():
     assert model_spec["scene"]["reset_scene_before_build"] is True
     assert any(obj["name"] == "RoundBuddy_Body" and obj["type"] == "sphere" for obj in model_spec["objects"])
     assert any(obj["name"] == "RoundBuddy_Mouth" and obj["type"] == "torus" for obj in model_spec["objects"])
+    assert any(obj["name"] == "RoundBuddy_Hair_Cap" for obj in model_spec["objects"])
+    assert any(material["name"] == "mat_hair" for material in model_spec["materials"])
+    assert model_spec["hair"]["preset"] == "short"
     assert model_spec["validation"]["forbid_extra_objects"] is True
     assert "RoundBuddy_Rig" in model_spec["validation"]["allowed_extra_objects"]
     assert model_spec["exports"][0]["path"].endswith("outputs/auto-character/humanoid-live/exports/final.blend")
@@ -31,7 +34,7 @@ def test_build_model_spec_adds_type_specific_parts():
     creature_model_spec = build_model_spec_from_character_spec(creature_spec)
 
     chibi_spec = normalize_prompt_to_character_spec(
-        "Create a chibi hero with pink cape and expressive talking face."
+        "Create a chibi hero with pink cape, expressive talking face, and twin tail hair."
     )
     chibi_model_spec = build_model_spec_from_character_spec(chibi_spec)
 
@@ -42,3 +45,5 @@ def test_build_model_spec_adds_type_specific_parts():
     assert "RoundBuddy_Horn_L" in creature_names
     assert "RoundBuddy_Cheek_L" in chibi_names
     assert "RoundBuddy_Cheek_R" in chibi_names
+    assert "RoundBuddy_Hair_TwinTail_L" in chibi_names
+    assert "RoundBuddy_Hair_TwinTail_R" in chibi_names

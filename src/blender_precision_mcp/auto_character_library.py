@@ -16,6 +16,7 @@ LIBRARY_FILE_NAMES = {
     "expression_library": "expression_library.yaml",
     "pose_test_library": "pose_test_library.yaml",
     "material_preset": "material_preset.yaml",
+    "hair_preset": "hair_preset.yaml",
 }
 
 
@@ -27,6 +28,7 @@ class CharacterLibraryBundle:
     expression_library: dict[str, Any]
     pose_test_library: dict[str, Any]
     material_preset: dict[str, Any]
+    hair_preset: dict[str, Any]
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -36,6 +38,7 @@ class CharacterLibraryBundle:
             "expression_library": self.expression_library,
             "pose_test_library": self.pose_test_library,
             "material_preset": self.material_preset,
+            "hair_preset": self.hair_preset,
         }
 
 
@@ -55,6 +58,7 @@ def load_character_library(
         expression_library=_load_yaml_mapping(library_dir / LIBRARY_FILE_NAMES["expression_library"]),
         pose_test_library=_load_yaml_mapping(library_dir / LIBRARY_FILE_NAMES["pose_test_library"]),
         material_preset=_load_yaml_mapping(library_dir / LIBRARY_FILE_NAMES["material_preset"]),
+        hair_preset=_load_yaml_mapping(library_dir / LIBRARY_FILE_NAMES["hair_preset"]),
     )
 
 

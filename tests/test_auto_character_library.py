@@ -13,6 +13,7 @@ def test_load_character_library_reads_humanoid_bundle():
     assert bundle.expression_library["library_name"] == "humanoid_basic_expressions"
     assert bundle.pose_test_library["base_pose"] == "t_pose"
     assert bundle.material_preset["preset_name"] == "humanoid_default_materials"
+    assert bundle.hair_preset["default_preset"] == "short"
 
 
 def test_load_all_character_libraries_reads_all_types():
@@ -25,3 +26,4 @@ def test_load_all_character_libraries_reads_all_types():
         expression["name"] == "mouth_o"
         for expression in bundles["chibi"].expression_library["expressions"]
     )
+    assert "twin_tail" in bundles["humanoid"].hair_preset["presets"]

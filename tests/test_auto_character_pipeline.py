@@ -31,6 +31,7 @@ def test_normalize_prompt_defaults_to_humanoid_and_matches_schema():
     assert character_spec["rig_spec"]["template"] == "humanoid_standard"
     assert any(part["name"] == "jacket" for part in character_spec["parts"])
     assert character_spec["look_spec"]["materials"][1]["base_color"] == [0.12, 0.24, 0.68, 1.0]
+    assert character_spec["hair_spec"]["preset"] == "short"
 
 
 def test_normalize_prompt_builds_chibi_variant():
@@ -43,6 +44,7 @@ def test_normalize_prompt_builds_chibi_variant():
     assert character_spec["rig_spec"]["template"] == "chibi_standard"
     assert "mouth_o" in character_spec["expression_spec"]["required_expressions"]
     assert character_spec["pose_test_spec"]["base_pose"] == "t_pose"
+    assert character_spec["hair_spec"]["preset"] == "short"
 
 
 def test_normalize_prompt_builds_creature_variant():
@@ -55,6 +57,7 @@ def test_normalize_prompt_builds_creature_variant():
     assert any(part["name"] == "tail" for part in character_spec["parts"])
     assert "tail" in character_spec["rig_spec"]["required_bones"]
     assert character_spec["pose_test_spec"]["base_pose"] == "a_pose"
+    assert character_spec["hair_spec"]["preset"] == "crest"
 
 
 def test_build_pipeline_spec_matches_schema_and_adds_type_specific_inputs():

@@ -65,6 +65,7 @@ def test_apply_image_reference_to_character_spec_overrides_image_priority_fields
     assert enriched["image_reference"]["enabled"] is True
     assert accent_material["color_source"] == "image_reference"
     assert "image hair hint: long" in hair_part["notes"]
+    assert enriched["hair_spec"]["preset"] == "long"
     assert enriched["look_spec"]["textures"][0]["reference_pattern_notes"] == "blue jacket with pink trim"
 
 

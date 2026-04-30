@@ -7,11 +7,11 @@ import sys
 import textwrap
 from pathlib import Path
 
-from blender_precision_mcp.auto_character import normalize_prompt_to_character_spec
 from blender_precision_mcp.auto_character_model_spec import build_model_spec_from_character_spec
 from blender_precision_mcp.auto_character_rig_plan import build_live_rig_plan
 from blender_precision_mcp.auto_character_workflow import run_auto_character_workflow
 from blender_precision_mcp.validation import validate_model_spec
+import yaml
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -48,7 +48,7 @@ def main() -> int:
         adaptation_plan_path=args.adaptation_plan,
         image_reference_package_path=args.image_reference_package,
     )
-    character_spec = normalize_prompt_to_character_spec(args.prompt)
+    character_spec = yaml.safe_load((output_dir / "character_spec.yaml").read_text(encoding="utf-8"))
     rig_plan = build_live_rig_plan(character_spec)
     model_spec = build_model_spec_from_character_spec(
         character_spec,

@@ -3,6 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from .auto_character_library import load_character_library
+
 
 def build_model_spec_from_character_spec(
     character_spec: dict[str, Any],
@@ -14,6 +16,7 @@ def build_model_spec_from_character_spec(
     head_radius = _head_radius(body)
     body_radius = round(head_radius * 0.82, 3)
     eye_radius = round(head_radius * 0.12, 3)
+    hair_preset = _select_hair_preset(character_spec)
 
     materials = [
         {
@@ -37,6 +40,13 @@ def build_model_spec_from_character_spec(
             "roughness": 0.25,
             "metallic": 0.0,
         },
+        {
+            "name": "mat_hair",
+            "type": "principled",
+            "color": _hair_color_from_character_spec(character_spec),
+            "roughness": 0.6,
+            "metallic": 0.0,
+        },
     ]
 
     objects = _base_round_character_objects(
@@ -49,6 +59,15 @@ def build_model_spec_from_character_spec(
         objects.extend(_creature_extra_objects(body_radius))
     if character_type == "chibi":
         objects.extend(_chibi_extra_objects(body_radius))
+    objects.extend(
+        _hair_objects_for_preset(
+            character_spec=character_spec,
+            preset_name=hair_preset,
+            character_type=character_type,
+            head_radius=head_radius,
+            body_radius=body_radius,
+        )
+    )
 
     exports_dir = Path(output_dir) / "exports"
     return {
@@ -89,6 +108,11 @@ def build_model_spec_from_character_spec(
             "require_review_images": True,
             "forbid_extra_objects": True,
             "allowed_extra_objects": ["RoundBuddy_Rig"],
+        },
+        "hair": {
+            "preset": hair_preset,
+            "generation_mode": "mesh_preset",
+            "extension_policy": "approved_addon_only",
         },
         "exports": [
             {
@@ -242,6 +266,131 @@ def _head_radius(body: dict[str, Any]) -> float:
     if head_count <= 4.5:
         return 0.38
     return 0.34
+
+
+def _select_hair_preset(character_spec: dict[str, Any]) -> str:
+    hair_spec = character_spec.get("hair_spec", {})
+    preset = str(hair_spec.get("preset", "none"))
+    character_type = str(character_spec.get("character_type", "humanoid"))
+    bundle = load_character_library(character_type)
+    presets = bundle.hair_preset.get("presets", {})
+    if preset in presets:
+        return preset
+    return str(bundle.hair_preset.get("default_preset", "short"))
+
+
+def _hair_color_from_character_spec(character_spec: dict[str, Any]) -> list[float]:
+    base = _color_from_materials(character_spec, "accent", [0.18, 0.14, 0.12, 1.0])
+    return [
+        round(max(base[0] * 0.72, 0.05), 3),
+        round(max(base[1] * 0.72, 0.05), 3),
+        round(max(base[2] * 0.72, 0.05), 3),
+        1.0,
+    ]
+
+
+def _hair_objects_for_preset(
+    *,
+    character_spec: dict[str, Any],
+    preset_name: str,
+    character_type: str,
+    head_radius: float,
+    body_radius: float,
+) -> list[dict[str, Any]]:
+    if preset_name == "none":
+        return []
+
+    bundle = load_character_library(character_type)
+    preset = bundle.hair_preset.get("presets", {}).get(preset_name, {})
+    mesh_recipe = str(preset.get("mesh_recipe", "short_cap"))
+    head_z = round(body_radius * 2.0 + head_radius * 1.08, 3)
+    if mesh_recipe == "bob_cut":
+        return [
+            _sphere(
+                "RoundBuddy_Hair_Cap",
+                round(head_radius * 0.98, 3),
+                [0.0, 0.0, head_z + head_radius * 0.03],
+                "mat_hair",
+                "auto_character/hair",
+            ),
+            _cylinder(
+                "RoundBuddy_Hair_Bob_L",
+                [head_radius * 0.28, head_radius * 0.65, head_radius * 0.28],
+                [-head_radius * 0.76, -head_radius * 0.12, head_z - head_radius * 0.18],
+                [0.0, 0.0, 0.08],
+                "mat_hair",
+                "auto_character/hair",
+            ),
+            _cylinder(
+                "RoundBuddy_Hair_Bob_R",
+                [head_radius * 0.28, head_radius * 0.65, head_radius * 0.28],
+                [head_radius * 0.76, -head_radius * 0.12, head_z - head_radius * 0.18],
+                [0.0, 0.0, -0.08],
+                "mat_hair",
+                "auto_character/hair",
+            ),
+        ]
+    if mesh_recipe == "twin_tail":
+        return [
+            _sphere(
+                "RoundBuddy_Hair_Cap",
+                round(head_radius * 0.96, 3),
+                [0.0, 0.0, head_z + head_radius * 0.04],
+                "mat_hair",
+                "auto_character/hair",
+            ),
+            _cone(
+                "RoundBuddy_Hair_TwinTail_L",
+                [head_radius * 0.3, head_radius * 0.3, head_radius * 0.95],
+                [-head_radius * 0.8, 0.02, head_z - head_radius * 0.18],
+                [0.15, 0.0, 0.36],
+                "mat_hair",
+                "auto_character/hair",
+            ),
+            _cone(
+                "RoundBuddy_Hair_TwinTail_R",
+                [head_radius * 0.3, head_radius * 0.3, head_radius * 0.95],
+                [head_radius * 0.8, 0.02, head_z - head_radius * 0.18],
+                [0.15, 0.0, -0.36],
+                "mat_hair",
+                "auto_character/hair",
+            ),
+        ]
+    if mesh_recipe == "long_back":
+        return [
+            _sphere(
+                "RoundBuddy_Hair_Cap",
+                round(head_radius * 0.97, 3),
+                [0.0, 0.0, head_z + head_radius * 0.04],
+                "mat_hair",
+                "auto_character/hair",
+            ),
+            _cylinder(
+                "RoundBuddy_Hair_Back",
+                [head_radius * 0.82, head_radius * 1.25, head_radius * 0.35],
+                [0.0, head_radius * 0.46, head_z - head_radius * 0.44],
+                [1.2, 0.0, 0.0],
+                "mat_hair",
+                "auto_character/hair",
+            ),
+        ]
+    return [
+        _sphere(
+            "RoundBuddy_Hair_Cap",
+            round(head_radius * (0.9 if character_type == "chibi" else 0.95), 3),
+            [0.0, 0.0, head_z + head_radius * 0.04],
+            "mat_hair",
+            "auto_character/hair",
+        ),
+        _cylinder(
+            "RoundBuddy_Hair_Bang",
+            [head_radius * 0.42, head_radius * 0.42, head_radius * 0.22],
+            [0.0, -head_radius * 0.62, head_z + head_radius * 0.08],
+            [1.5, 0.0, 0.0],
+            "mat_hair",
+            "auto_character/hair",
+        ),
+    ]
 
 
 def _color_from_materials(

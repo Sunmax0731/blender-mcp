@@ -46,6 +46,7 @@ def normalize_prompt_to_character_spec(prompt: str) -> dict[str, Any]:
     spec["rig_spec"] = _rig_spec_for_type(spec["character_type"])
     spec["expression_spec"] = _expression_spec_for_prompt(prompt_lower)
     spec["pose_test_spec"] = _pose_test_spec_for_type(spec["character_type"])
+    spec["hair_spec"] = _hair_spec_for_prompt(prompt_lower, spec["character_type"])
     spec["source_prompt"] = normalized_prompt
     return spec
 
@@ -69,6 +70,7 @@ def build_pipeline_spec(
         "required_parts": [part["name"] for part in character_spec["parts"]],
         "required_expressions": character_spec["expression_spec"]["required_expressions"],
         "rig_template": character_spec["rig_spec"]["template"],
+        "hair_preset": character_spec.get("hair_spec", {}).get("preset", "none"),
     }
     if base_asset_inputs:
         pipeline["normalized_character_spec"]["base_asset"] = {
@@ -286,6 +288,26 @@ def _pose_test_spec_for_type(character_type: str) -> dict[str, Any]:
             "knees_bend",
             "neck_turn",
         ],
+    }
+
+
+def _hair_spec_for_prompt(prompt_lower: str, character_type: str) -> dict[str, Any]:
+    preset = "none"
+    if "twin tail" in prompt_lower or "twintail" in prompt_lower:
+        preset = "twin_tail"
+    elif "bob" in prompt_lower:
+        preset = "bob"
+    elif "long" in prompt_lower:
+        preset = "long"
+    elif "hair" in prompt_lower or character_type in {"humanoid", "chibi"}:
+        preset = "short"
+    elif character_type == "creature":
+        preset = "crest"
+
+    return {
+        "preset": preset,
+        "generation_mode": "mesh_preset",
+        "allow_approved_addon_extension": True,
     }
 
 
