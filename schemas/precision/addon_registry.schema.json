@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Blender Precision Add-on Registry",
+  "type": "object",
+  "properties": {
+    "approved_addons": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "module",
+          "allowed_operations"
+        ],
+        "properties": {
+          "module": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "version_constraint": {
+            "type": "string"
+          },
+          "license_status": {
+            "type": "string"
+          },
+          "allowed_operations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "operators": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "approved_addons"
+  ]
+}

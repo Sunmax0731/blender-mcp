@@ -1,0 +1,22 @@
+approved_addons:
+  - module: example_retopology_addon
+    display_name: Example Retopology Add-on
+    version_constraint: ">=1.0,<2.0"
+    license_status: verified
+    allowed_operations: [retopology]
+    operators:
+      - idname: object.example_retopology
+        label: Example Retopology
+        context:
+          mode: OBJECT
+          requires_active_object: true
+          requires_selected_objects: true
+          requires_view3d: false
+        destructive: true
+        backup_required: true
+        property_map:
+          target_face_count: target_count
+          preserve_boundaries: preserve_boundary
+    validation:
+      min_quad_ratio: 0.85
+      max_non_manifold_edges: 0

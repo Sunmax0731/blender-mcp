@@ -1,0 +1,24 @@
+{
+  "name": "codex-blender-precision",
+  "version": "0.1.0",
+  "description": "Precision Blender modeling workflow for Codex with BlenderMCP, validation, visual QA, and approved add-on wrappers.",
+  "author": {
+    "name": "Your Team"
+  },
+  "license": "MIT",
+  "keywords": ["codex", "blender", "mcp", "3d", "retopology"],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Blender Precision",
+    "shortDescription": "Specification-driven Blender modeling with validation and add-on support.",
+    "developerName": "Your Team",
+    "category": "Developer Tools",
+    "capabilities": ["Read", "Write"],
+    "defaultPrompt": [
+      "Use Blender Precision to create a model from a model_spec.yaml.",
+      "Use Blender Precision to validate the current Blender scene.",
+      "Use Blender Precision to inspect approved retopology add-ons."
+    ]
+  }
+}

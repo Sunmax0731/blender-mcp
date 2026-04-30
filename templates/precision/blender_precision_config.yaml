@@ -1,0 +1,101 @@
+server:
+  name: blender-precision-mcp
+  version: "0.1.0"
+  log_dir: outputs/logs
+  strict: true
+
+blender:
+  host: "127.0.0.1"
+  port: 9876
+  connection_timeout_sec: 10
+  operation_timeout_sec: 180
+
+profiles:
+  safe:
+    tool_packs: [validation, visual_qa, addon_inspection]
+    allow_destructive_ops: false
+    allow_raw_code_execution: false
+  precise:
+    tool_packs: [modeling, validation, visual_qa, addon_inspection]
+    allow_destructive_ops: false
+    allow_raw_code_execution: false
+  retopo:
+    tool_packs: [validation, visual_qa, addon_inspection, addon_execution]
+    allow_destructive_ops: true
+    require_backup_for_destructive_ops: true
+    allow_raw_code_execution: false
+  audit:
+    tool_packs: [validation, addon_inspection]
+    allow_destructive_ops: false
+    allow_raw_code_execution: false
+  dev:
+    tool_packs: [modeling, validation, visual_qa, addon_inspection, addon_execution]
+    allow_destructive_ops: true
+    require_backup_for_destructive_ops: true
+    allow_raw_code_execution: false
+
+tool_packs:
+  modeling:
+    enabled_tools:
+      - get_scene_snapshot
+      - create_parametric_object
+      - create_or_update_scene_from_spec
+      - assign_materials_from_spec
+      - export_scene
+  validation:
+    enabled_tools:
+      - validate_scene_against_spec
+      - analyze_mesh_quality
+      - validate_retopology_result
+  visual_qa:
+    enabled_tools:
+      - capture_review_views
+  addon_inspection:
+    enabled_tools:
+      - list_blender_addons
+      - get_addon_status
+      - inspect_addon_capabilities
+      - list_registered_operators
+  addon_execution:
+    enabled_tools:
+      - enable_approved_addon
+      - backup_object
+      - restore_object_backup
+      - apply_mesh_cleanup
+      - apply_retopology
+      - apply_uv_unwrap
+      - transfer_mesh_data
+
+policy:
+  allow_unknown_addons: false
+  allow_enable_addon: approved_only
+  allow_modal_operator: false
+  require_backup_for_destructive_ops: true
+  require_license_metadata: true
+  block_tools:
+    - execute_blender_code
+    - run_unapproved_addon_operator
+    - delete_all_objects_without_backup
+
+approved_addons:
+  - module: example_retopology_addon
+    display_name: Example Retopology Add-on
+    version_constraint: ">=1.0,<2.0"
+    license_status: verified
+    allowed_operations: [retopology]
+    operators:
+      - idname: object.example_retopology
+        label: Example Retopology
+        context:
+          mode: OBJECT
+          requires_active_object: true
+          requires_selected_objects: true
+          requires_view3d: false
+        destructive: true
+        backup_required: true
+        property_map:
+          target_face_count: target_count
+          preserve_boundaries: preserve_boundary
+    validation:
+      min_quad_ratio: 0.85
+      max_non_manifold_edges: 0

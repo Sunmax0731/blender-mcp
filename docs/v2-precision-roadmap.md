@@ -40,6 +40,7 @@ v2 完成時点で、利用者は次を実行できる状態を目指す。
 - `blender_precision_config.yaml`、`model_spec.yaml`、Codex MCP 設定例を正式配置する
 - `model_spec`, `validation_report`, `addon_registry` の schema を正式配置する
 - 配置先、編集対象、利用者向け説明を docs に反映する
+- 正式配置先は [v2 precision template / schema](precision-templates.md) に記載する
 
 ### Phase v2-2: sidecar MCP server scaffold
 

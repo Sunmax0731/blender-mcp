@@ -1,0 +1,75 @@
+schema_version: "0.2"
+
+scene:
+  unit: meters
+  blender_unit_scale: 1.0
+  up_axis: Z
+  origin_policy: main_object_centered
+  main_collection: model
+  output_dir: outputs
+
+objects:
+  - name: example_body
+    type: box
+    collection: model/body
+    dimensions: [1.2, 0.4, 0.8]
+    location: [0.0, 0.0, 0.4]
+    rotation: [0.0, 0.0, 0.0]
+    material: mat_default
+    requirements:
+      bevel_radius: 0.02
+      apply_scale: true
+      must_touch_ground: true
+
+materials:
+  - name: mat_default
+    type: principled
+    color: [0.8, 0.8, 0.8, 1.0]
+    roughness: 0.5
+    metallic: 0.0
+
+mesh_quality:
+  defaults:
+    max_non_manifold_edges: 0
+    max_loose_vertices: 0
+    require_normals_outward: true
+    min_quad_ratio: 0.0
+  objects:
+    - name: example_body
+      min_quad_ratio: 0.0
+      max_non_manifold_edges: 0
+
+addon_workflows:
+  - name: optional_retopology
+    enabled: false
+    target_object: example_body
+    operation: retopology
+    method: addon_quad_remesh
+    target_face_count: 8000
+    preserve_boundaries: true
+    preserve_uvs: true
+    preserve_materials: true
+    preserve_vertex_groups: false
+    create_backup: true
+    max_surface_deviation: 0.01
+
+visual_qa:
+  required: true
+  views: [front, side, top, perspective]
+  resolution: [1280, 1280]
+  wireframe_for_retopology: true
+
+validation:
+  max_dimension_error_m: 0.01
+  max_location_error_m: 0.01
+  require_named_objects: true
+  require_named_materials: true
+  require_camera: true
+  require_lights: true
+  require_review_images: true
+
+exports:
+  - format: blend
+    path: outputs/exports/final.blend
+  - format: glb
+    path: outputs/exports/final.glb

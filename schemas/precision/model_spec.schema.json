@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Blender Precision Model Spec",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "scene",
+    "objects",
+    "validation"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "scene": {
+      "type": "object"
+    },
+    "objects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "type"
+        ]
+      }
+    },
+    "materials": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "mesh_quality": {
+      "type": "object"
+    },
+    "addon_workflows": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "visual_qa": {
+      "type": "object"
+    },
+    "validation": {
+      "type": "object"
+    },
+    "exports": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    }
+  },
+  "additionalProperties": true
+}

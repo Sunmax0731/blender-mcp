@@ -1,0 +1,39 @@
+model = "gpt-5.5"
+model_reasoning_effort = "high"
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+
+[agents]
+max_threads = 4
+max_depth = 1
+
+[mcp_servers.blender_precision]
+command = "uvx"
+args = [
+  "blender-precision-mcp",
+  "--config", "templates/precision/blender_precision_config.yaml",
+  "--profile", "precise",
+  "--tool-pack", "modeling,validation,visual_qa,addon_inspection"
+]
+cwd = "."
+startup_timeout_sec = 30
+tool_timeout_sec = 180
+required = true
+enabled = true
+
+enabled_tools = [
+  "get_scene_snapshot",
+  "create_or_update_scene_from_spec",
+  "validate_scene_against_spec",
+  "analyze_mesh_quality",
+  "capture_review_views",
+  "list_blender_addons",
+  "inspect_addon_capabilities",
+  "export_scene"
+]
+
+disabled_tools = [
+  "execute_blender_code",
+  "run_unapproved_addon_operator",
+  "delete_all_objects_without_backup"
+]

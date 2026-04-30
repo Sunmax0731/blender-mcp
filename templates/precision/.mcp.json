@@ -1,0 +1,27 @@
+{
+  "mcpServers": {
+    "blender_precision": {
+      "command": "uvx",
+      "args": [
+        "blender-precision-mcp",
+        "--config",
+        "templates/precision/blender_precision_config.yaml",
+        "--profile",
+        "precise"
+      ],
+      "enabledTools": [
+        "get_scene_snapshot",
+        "create_or_update_scene_from_spec",
+        "validate_scene_against_spec",
+        "analyze_mesh_quality",
+        "capture_review_views",
+        "list_blender_addons",
+        "inspect_addon_capabilities"
+      ],
+      "disabledTools": [
+        "execute_blender_code",
+        "run_unapproved_addon_operator"
+      ]
+    }
+  }
+}

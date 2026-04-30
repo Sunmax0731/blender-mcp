@@ -1,0 +1,17 @@
+{
+  "schema_version": "0.1",
+  "status": "warning",
+  "spec_path": "templates/precision/model_spec.yaml",
+  "checks": [
+    {
+      "name": "schema",
+      "status": "ok",
+      "message": "model_spec schema validation passed"
+    }
+  ],
+  "warnings": [
+    "This is a sample report. Run scene validation against Blender before release evidence."
+  ],
+  "failures": [],
+  "artifacts": []
+}
