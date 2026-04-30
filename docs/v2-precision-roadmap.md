@@ -105,6 +105,7 @@ v2 完成時点で、利用者は次を実行できる状態を目指す。
 - release checklist に v2 検証項目を追加する
 - examples と validation evidence を release docs に残す
 - headless / plan mode では `--include-precision-profile` で任意導入ステップを追跡する
+- v2 release 判定は [v2 release validation](release-validation-v2.md) で追跡する
 
 ## 5. 完成までの Issue 分解
 
