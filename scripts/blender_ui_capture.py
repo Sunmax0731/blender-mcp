@@ -26,6 +26,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--report-name", default="blender-mcp-ui-report.json")
     parser.add_argument("--wait-seconds", type=float, default=5.0)
     parser.add_argument("--send-prompt", action="store_true")
+    parser.add_argument("--plan-confirm-execute", action="store_true")
     return parser.parse_args(argv)
 
 
@@ -99,8 +100,21 @@ def _prepare_ui_state() -> dict[str, object]:
         connect_result = bpy.ops.blendermcp.connect()
         bpy.ops.wm.redraw_timer(type="DRAW_WIN_SWAP", iterations=1)
         send_result = None
+        plan_result = None
+        execute_before_confirm_result = None
+        confirm_result = None
+        execute_result = None
         if ARGS.send_prompt:
             send_result = bpy.ops.blendermcp.send_prompt()
+            bpy.ops.wm.redraw_timer(type="DRAW_WIN_SWAP", iterations=1)
+        if ARGS.plan_confirm_execute:
+            plan_result = bpy.ops.blendermcp.plan_prompt()
+            bpy.ops.wm.redraw_timer(type="DRAW_WIN_SWAP", iterations=1)
+            execute_before_confirm_result = bpy.ops.blendermcp.execute_prompt_plan()
+            bpy.ops.wm.redraw_timer(type="DRAW_WIN_SWAP", iterations=1)
+            confirm_result = bpy.ops.blendermcp.confirm_prompt_plan()
+            bpy.ops.wm.redraw_timer(type="DRAW_WIN_SWAP", iterations=1)
+            execute_result = bpy.ops.blendermcp.execute_prompt_plan()
             bpy.ops.wm.redraw_timer(type="DRAW_WIN_SWAP", iterations=1)
 
     CAPTURE_CONTEXT.update({"window": window, "area": area, "region": window_region})
@@ -112,10 +126,23 @@ def _prepare_ui_state() -> dict[str, object]:
         "historyText": state.history_text,
         "lastResultText": state.last_result_text,
         "lastError": state.last_error,
+        "promptPlanText": state.prompt_plan_text,
+        "promptPreviewText": state.prompt_preview_text,
+        "promptConfirmed": bool(state.prompt_confirmed),
+        "pendingCommandJson": state.pending_command_json,
         "blenderVersion": state.blender_version,
         "addonVersion": state.addon_version,
         "sendPromptEnabled": bool(ARGS.send_prompt),
         "sendResult": list(send_result) if send_result is not None else None,
+        "planConfirmExecuteEnabled": bool(ARGS.plan_confirm_execute),
+        "planResult": list(plan_result) if plan_result is not None else None,
+        "executeBeforeConfirmResult": (
+            list(execute_before_confirm_result)
+            if execute_before_confirm_result is not None
+            else None
+        ),
+        "confirmResult": list(confirm_result) if confirm_result is not None else None,
+        "executeResult": list(execute_result) if execute_result is not None else None,
         "kirbyBaseExists": "Kirby_Base" in bpy.data.objects,
     }
     if "Kirby_Base" in bpy.data.objects:
