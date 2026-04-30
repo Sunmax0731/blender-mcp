@@ -582,6 +582,48 @@ v2 で標準化する主なデータ:
   - どの要件を再生成するか
   - どの object / armature / material を対象にするか
 
+### 8.3.7 画像入力補強契約
+
+画像入力は、次のパッケージ構成を推奨する。
+
+- `references/front.png`
+- `references/side.png`
+- `references/back.png`
+- `references/face_closeup.png`
+- `references/expression_smile.png`
+- `references/expression_angry.png`
+- `references/expression_surprised.png`
+- `references/notes.md`
+
+#### 受け入れルール
+
+- 最低 1 枚の `front` 画像が必要
+- 形状比率補強には `front + side` を推奨
+- 表情補強には `face_closeup` または `expression_*` を推奨
+- 同一キャラ、同一衣装、同一髪型で揃っていることを推奨
+- 透過 PNG を優先するが、単純背景の JPG も許容する
+
+#### `notes.md` 任意項目
+
+- 画像の優先順位
+- 画像ごとの補足
+- prompt と異なる点
+- 画像上で特に重視してほしい箇所
+
+#### `image_reference_manifest.json`
+
+画像入力がある場合、少なくとも次を artifact として出力する。
+
+- `image_reference_manifest.json`
+  - input_images
+  - detected_views
+  - extracted_color_hints
+  - extracted_shape_hints
+  - extracted_expression_hints
+  - prompt_image_conflicts
+  - prompt_priority_fields
+  - image_priority_fields
+
 ### 8.4 add-on integration
 
 Blender add-on は、登録済み operator、Python API、batch 実行、context 準備の可否を確認できるものだけを自動化対象にする。

@@ -88,6 +88,7 @@ def build_model_spec_from_character_spec(
             "require_lights": True,
             "require_review_images": True,
             "forbid_extra_objects": True,
+            "allowed_extra_objects": ["RoundBuddy_Rig"],
         },
         "exports": [
             {

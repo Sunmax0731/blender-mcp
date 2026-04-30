@@ -119,14 +119,21 @@ def main() -> int:
     )
 
     review_manifest_path = review_dir / "review_manifest.json"
+    rig_report_path = output_dir / "validation" / "rig_report.json"
+    shape_key_report_path = output_dir / "validation" / "shape_key_report.json"
+    weight_report_path = output_dir / "validation" / "weight_report.json"
     review_manifest = json.loads(review_manifest_path.read_text(encoding="utf-8"))
     export_manifest = json.loads(export_manifest_path.read_text(encoding="utf-8"))
     scene_report = json.loads(scene_report_path.read_text(encoding="utf-8"))
+    rig_report = json.loads(rig_report_path.read_text(encoding="utf-8"))
+    shape_key_report = json.loads(shape_key_report_path.read_text(encoding="utf-8"))
+    weight_report = json.loads(weight_report_path.read_text(encoding="utf-8"))
 
     summary = {
         "success": bool(
             scene_report.get("objects")
             and validation_report.get("status") == "ok"
+            and rig_report.get("bone_count", 0) > 0
             and review_manifest.get("status") == "captured"
             and export_manifest.get("exports")
         ),
@@ -142,12 +149,18 @@ def main() -> int:
             "validation_report": str(validation_report_path),
             "live_scene_snapshot": str(live_scene_snapshot_path),
             "object_list": str(object_list_path),
+            "rig_report": str(rig_report_path),
+            "shape_key_report": str(shape_key_report_path),
+            "weight_report": str(weight_report_path),
             "review_manifest": str(review_manifest_path),
             "export_manifest": str(export_manifest_path),
         },
         "results": {
             "scene_success": True,
             "validation_status": validation_report.get("status"),
+            "rig_status": rig_report.get("status"),
+            "shape_key_status": shape_key_report.get("status"),
+            "weight_status": weight_report.get("status"),
             "review_status": review_manifest.get("status"),
             "export_count": len(export_manifest.get("exports", [])),
         },
@@ -244,10 +257,12 @@ def _build_blender_runner_script(
 
         import bpy
         from blender_precision_mcp.exporter import export_scene
+        from blender_precision_mcp.auto_character_live_rig import run_live_rig_bridge
         from blender_precision_mcp.scene_builder import create_or_update_scene_from_spec
         from blender_precision_mcp.visual_qa import capture_review_views
 
         spec_path = Path({json.dumps(str(spec_path))})
+        rig_plan_path = Path({json.dumps(str(spec_path.parent / "rig_plan.json"))})
         scene_report_path = Path({json.dumps(str(scene_report_path))})
         review_dir = Path({json.dumps(str(review_dir))})
         export_manifest_path = Path({json.dumps(str(export_manifest_path))})
@@ -262,6 +277,8 @@ def _build_blender_runner_script(
             output_path=scene_report_path,
             dry_run=False,
         )
+        rig_plan = json.loads(rig_plan_path.read_text(encoding="utf-8"))
+        rig_result = run_live_rig_bridge(rig_plan, live_scene_snapshot_path.parent)
         review_result = capture_review_views(
             spec_path=spec_path,
             output_dir=review_dir,
@@ -309,6 +326,7 @@ def _build_blender_runner_script(
 
         summary = {{
             "scene_result": scene_result,
+            "rig_result": rig_result,
             "review_result": review_result,
             "export_result": export_result,
             "snapshot_path": str(live_scene_snapshot_path),

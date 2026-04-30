@@ -418,6 +418,11 @@ def _run_live_scene_checks(
             if isinstance(obj, dict) and isinstance(obj.get("name"), str)
         }
         allowed_scene_objects = set(expected_objects)
+        allowed_scene_objects.update(
+            str(name)
+            for name in validation.get("allowed_extra_objects", [])
+            if isinstance(name, str)
+        )
         if validation.get("require_camera", False) and snapshot.get("camera"):
             allowed_scene_objects.add(str(snapshot["camera"]))
         if validation.get("require_lights", False):
