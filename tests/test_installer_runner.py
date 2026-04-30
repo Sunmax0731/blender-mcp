@@ -192,3 +192,33 @@ def test_support_root_uses_local_appdata(monkeypatch) -> None:
     monkeypatch.setenv("LOCALAPPDATA", r"C:\Users\tester\AppData\Local")
 
     assert support_root() == Path(r"C:\Users\tester\AppData\Local\BlenderMcpInstaller")
+
+
+def test_prepare_runtime_root_copies_templates_for_frozen_runtime(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    from blender_mcp_installer import runtime
+
+    bundle_root = tmp_path / "bundle"
+    support_parent = tmp_path / "local-appdata"
+    (bundle_root / "scripts").mkdir(parents=True)
+    (bundle_root / "templates" / "precision").mkdir(parents=True)
+    (bundle_root / "scripts" / "install_precision_profile.ps1").write_text(
+        "script",
+        encoding="utf-8",
+    )
+    (bundle_root / "templates" / "precision" / "codex_config.toml").write_text(
+        "[mcp_servers.blender_precision]\n",
+        encoding="utf-8",
+    )
+
+    monkeypatch.setenv("LOCALAPPDATA", str(support_parent))
+    monkeypatch.setattr(sys, "frozen", True, raising=False)
+    monkeypatch.setattr(sys, "_MEIPASS", str(bundle_root), raising=False)
+
+    runtime_root = runtime.prepare_runtime_root()
+
+    assert runtime_root == support_parent / "BlenderMcpInstaller"
+    assert (runtime_root / "scripts" / "install_precision_profile.ps1").exists()
+    assert (runtime_root / "templates" / "precision" / "codex_config.toml").exists()

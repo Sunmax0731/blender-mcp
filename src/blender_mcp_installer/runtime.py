@@ -39,9 +39,10 @@ def prepare_runtime_root() -> Path:
     runtime_root = support_root()
     runtime_root.mkdir(parents=True, exist_ok=True)
 
-    bundled_scripts = bundle_root / "scripts"
-    runtime_scripts = runtime_root / "scripts"
-    if bundled_scripts.exists():
-        shutil.copytree(bundled_scripts, runtime_scripts, dirs_exist_ok=True)
+    for directory_name in ("scripts", "templates"):
+        bundled_directory = bundle_root / directory_name
+        runtime_directory = runtime_root / directory_name
+        if bundled_directory.exists():
+            shutil.copytree(bundled_directory, runtime_directory, dirs_exist_ok=True)
 
     return runtime_root
