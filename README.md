@@ -223,6 +223,7 @@ v1.0.0 Release 準備:
 - [v1.0.0 release scope](docs/release-scope-v1.0.0.md)
 - [v1.0.0 release milestone plan](docs/release-milestones-v1.0.0.md)
 - [v1.0.0 installer safety checklist](docs/installer-safety-v1.0.0.md)
+- [v1.0.0 release manifest](docs/release-manifest-v1.0.0.md)
 
 設計・開発者向け:
 
