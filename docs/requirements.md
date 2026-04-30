@@ -141,3 +141,20 @@ v2 では、公式 Blender MCP を土台に、より高品質なモデル制作�
 - sidecar 単独では `bpy` 非依存の dry-run と static validation を正とし、`bpy` 必須の live 処理は Blender 側実行経路を用意する
 - precision profile 導入後の利用者は、`blender-official` 接続確認、`blender_precision` dry-run、live 実行の順に到達できなければならない
 - live 実行の完了条件には validation report、object list、review 画像などの artifact 採取を含める
+
+## 9. 全自動キャラクターモデル生成トラック
+
+prompt のみを入力として、次の 5 要件をすべて自動で満たすキャラクターモデル制作基盤を新トラックとして扱う。
+
+1. キャラクターの形状をメッシュで再現する
+2. キャラクターの色味や模様をテクスチャ、マテリアルで再現する
+3. キャラクターのボーンを自動設定する
+4. キャラクターの表情変化をシェイプキーで再現する
+5. キャラクターの姿勢変化を正しく設定できるウェイトを再現する
+
+### 9.1 要件定義の初期方針
+
+- 単発の自然文 prompt を直接 Blender 操作へ流さず、いったん structured spec へ変換する
+- 形状、見た目、rig、shape key、weight を別工程として扱い、それぞれに validator を持つ
+- 完全自動の完了条件には、見た目だけでなく rig・表情・変形品質の検証証跡を含める
+- 失敗時は 1 回で諦めず、差分修正ループと artifact 比較を前提にする
