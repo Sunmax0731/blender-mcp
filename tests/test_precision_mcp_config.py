@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 from pathlib import Path
 
 from blender_precision_mcp.config import load_precision_config
@@ -42,6 +43,26 @@ def test_create_precision_mcp_server_registers_status_tools():
     server = create_mcp_server(config.resolve_profile("safe"))
 
     assert server.name == "blender-precision-mcp"
+
+
+def test_precision_mcp_tools_list_reflects_profile_tool_pack():
+    config = load_precision_config(CONFIG_PATH)
+    server = create_mcp_server(
+        config.resolve_profile(
+            "precise",
+            requested_tool_packs=parse_tool_packs("validation,visual_qa"),
+        )
+    )
+
+    tools = asyncio.run(server.list_tools())
+    tool_names = {tool.name for tool in tools}
+
+    assert "precision_status" in tool_names
+    assert "precision_get_config_summary" in tool_names
+    assert "validate_scene_against_spec" in tool_names
+    assert "capture_review_views" in tool_names
+    assert "create_or_update_scene_from_spec" not in tool_names
+    assert "execute_blender_code" not in tool_names
 
 
 def test_precision_cli_dry_run(capsys):

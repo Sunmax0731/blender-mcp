@@ -109,6 +109,10 @@ class ResolvedPrecisionConfig:
             },
             "profile": self.profile.name,
             "tool_packs": list(self.selected_tool_packs),
+            "control_tools": [
+                "precision_status",
+                "precision_get_config_summary",
+            ],
             "enabled_tools": list(self.enabled_tools),
             "blocked_tools": list(self.config.policy.block_tools),
             "approved_addon_count": len(self.config.approved_addons),

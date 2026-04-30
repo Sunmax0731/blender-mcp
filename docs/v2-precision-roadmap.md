@@ -50,6 +50,12 @@ v2 完成時点で、利用者は次を実行できる状態を目指す。
 - 危険 tool を policy と Codex `disabled_tools` の両方で抑止する
 - 最小 scaffold は `blender-precision-mcp --dry-run` で設定解決を確認できる
 
+### Phase v2-2.5: profile / tool-pack tools/list 制御
+
+- sidecar の control tool は常に公開する
+- profile / tool-pack 由来の tool は policy block を通過したものだけ公開する
+- 未実装 tool は structured `not_implemented` を返し、後続 Issue で実処理を追加する
+
 ### Phase v2-3: model spec と validation
 
 - `model_spec.yaml` を読み込み、制作対象、寸法、パーツ、材質、検証条件へ展開する
