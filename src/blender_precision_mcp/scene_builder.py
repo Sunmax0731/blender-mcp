@@ -137,8 +137,12 @@ def create_or_update_scene_from_spec(
     operations = [_object_plan(obj) for obj in objects if _validate_object_spec(obj) is None]
 
     validation = spec.get("validation", {}) if isinstance(spec.get("validation"), dict) else {}
+    scene_config = spec.get("scene", {}) if isinstance(spec.get("scene"), dict) else {}
+    reset_scene_before_build = bool(scene_config.get("reset_scene_before_build", False))
     should_create_camera = ensure_camera and bool(validation.get("require_camera", True))
     should_create_lights = ensure_lights and bool(validation.get("require_lights", True))
+    if reset_scene_before_build:
+        operations.append({"action": "reset_scene"})
     if should_create_camera:
         operations.append({"action": "ensure_camera", "name": "Precision_Camera"})
     if should_create_lights:
@@ -168,6 +172,8 @@ def create_or_update_scene_from_spec(
     material_map = _material_specs_by_name(materials)
     created_objects = []
     try:
+        if reset_scene_before_build:
+            _reset_scene_objects(bpy_module)
         for material in materials:
             name = material.get("name")
             if isinstance(name, str):
@@ -271,6 +277,12 @@ def _create_or_update_object(
     if isinstance(requirements, dict) and requirements.get("bevel_radius") is not None:
         _ensure_bevel_modifier(obj, float(requirements["bevel_radius"]))
     return obj
+
+
+def _reset_scene_objects(bpy_module: Any) -> None:
+    scene = bpy_module.context.scene
+    for obj in list(scene.objects):
+        bpy_module.data.objects.remove(obj, do_unlink=True)
 
 
 def _create_primitive(bpy_module: Any, object_spec: dict[str, Any]) -> Any:

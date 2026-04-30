@@ -411,6 +411,41 @@ def _run_live_scene_checks(
         else:
             failures.append(_failure("live_scene.lights", "At least one light is required but not found."))
 
+    if validation.get("forbid_extra_objects", False):
+        expected_objects = {
+            obj.get("name")
+            for obj in spec.get("objects", [])
+            if isinstance(obj, dict) and isinstance(obj.get("name"), str)
+        }
+        allowed_scene_objects = set(expected_objects)
+        if validation.get("require_camera", False) and snapshot.get("camera"):
+            allowed_scene_objects.add(str(snapshot["camera"]))
+        if validation.get("require_lights", False):
+            allowed_scene_objects.update(str(light) for light in snapshot.get("lights", []))
+
+        extra_objects = sorted(
+            name
+            for name in scene_objects
+            if isinstance(name, str) and name not in allowed_scene_objects
+        )
+        if extra_objects:
+            failures.append(
+                _failure(
+                    "live_scene.extra_objects",
+                    "Live scene contains objects that are not declared in model_spec.",
+                    "Remove undeclared scene objects or disable validation.forbid_extra_objects.",
+                    evidence={"extra_objects": extra_objects},
+                )
+            )
+        else:
+            checks.append(
+                _check(
+                    "live_scene.extra_objects",
+                    "ok",
+                    "Live scene has no undeclared objects.",
+                )
+            )
+
     if not snapshot.get("objects"):
         warnings.append("Live scene snapshot contains no objects.")
 

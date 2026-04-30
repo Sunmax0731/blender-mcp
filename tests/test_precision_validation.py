@@ -116,6 +116,74 @@ def test_validate_model_spec_reports_live_scene_measurement_failures():
     assert "live_scene.lights" in failure_names
 
 
+def test_validate_model_spec_reports_extra_objects_when_forbidden(tmp_path):
+    strict_spec = tmp_path / "strict_model_spec.json"
+    strict_spec.write_text(
+        json.dumps(
+            {
+                "schema_version": "0.2",
+                "scene": {},
+                "objects": [
+                    {
+                        "name": "example_body",
+                        "type": "box",
+                        "dimensions": [1.2, 0.4, 0.8],
+                        "location": [0.0, 0.0, 0.4],
+                        "material": "mat_default",
+                    }
+                ],
+                "materials": [
+                    {
+                        "name": "mat_default",
+                        "type": "principled",
+                        "color": [0.8, 0.8, 0.8, 1.0],
+                    }
+                ],
+                "validation": {
+                    "require_camera": True,
+                    "require_lights": True,
+                    "forbid_extra_objects": True,
+                },
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    snapshot = {
+        "available": True,
+        "scene_name": "Scene",
+        "objects": [
+            {
+                "name": "example_body",
+                "type": "MESH",
+                "dimensions": [1.2, 0.4, 0.8],
+                "location": [0.0, 0.0, 0.4],
+                "materials": ["mat_default"],
+                "visible": True,
+            },
+            {
+                "name": "Cube",
+                "type": "MESH",
+                "dimensions": [2.0, 2.0, 2.0],
+                "location": [0.0, 0.0, 0.0],
+                "materials": ["Material"],
+                "visible": True,
+            },
+        ],
+        "materials": ["mat_default", "Material"],
+        "camera": "Camera",
+        "lights": ["Light"],
+    }
+
+    report = validate_model_spec(strict_spec, live_scene=True, live_scene_snapshot=snapshot)
+
+    assert report["status"] == "failed"
+    assert any(failure["name"] == "live_scene.extra_objects" for failure in report["failures"])
+
+
 def test_validate_model_spec_returns_structured_error_when_blender_is_unavailable():
     report = validate_model_spec(MODEL_SPEC, live_scene=True)
 

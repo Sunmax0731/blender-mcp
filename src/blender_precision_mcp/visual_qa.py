@@ -246,7 +246,13 @@ def analyze_review_image(
 
 
 def _ensure_camera(bpy_module: Any, name: str = "precision_review_camera") -> Any:
-    camera_object = bpy_module.data.objects.get(name)
+    scene_camera = getattr(bpy_module.context.scene, "camera", None)
+    if scene_camera is not None:
+        return scene_camera
+
+    camera_object = bpy_module.data.objects.get("Precision_Camera")
+    if camera_object is None:
+        camera_object = bpy_module.data.objects.get(name)
     if camera_object is None:
         camera_data = bpy_module.data.cameras.new(name)
         camera_object = bpy_module.data.objects.new(name, camera_data)
