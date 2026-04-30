@@ -96,6 +96,7 @@ v2 完成時点で、利用者は次を実行できる状態を目指す。
 - Blender add-on 開発用 Skill と分離する
 - scene validator、visual reviewer、addon auditor の subagent template を配布する
 - 利用者向け導入手順と再起動手順を docs に記載する
+- v2 precision 用の `AGENTS.md` / `SKILL.md` / subagent template は `templates/precision/` を正式配布元にする
 
 ### Phase v2-8: installer / release
 

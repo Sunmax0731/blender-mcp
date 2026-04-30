@@ -13,6 +13,11 @@ template:
 - [`templates/precision/codex_config.toml`](../templates/precision/codex_config.toml)
 - [`templates/precision/.mcp.json`](../templates/precision/.mcp.json)
 - [`templates/precision/plugin.json`](../templates/precision/plugin.json)
+- [`templates/precision/agents/AGENTS.md`](../templates/precision/agents/AGENTS.md)
+- [`templates/precision/skills/precise-blender-modeling/SKILL.md`](../templates/precision/skills/precise-blender-modeling/SKILL.md)
+- [`templates/precision/subagents/scene-validator.toml`](../templates/precision/subagents/scene-validator.toml)
+- [`templates/precision/subagents/visual-reviewer.toml`](../templates/precision/subagents/visual-reviewer.toml)
+- [`templates/precision/subagents/addon-auditor.toml`](../templates/precision/subagents/addon-auditor.toml)
 
 schema:
 
@@ -25,6 +30,8 @@ schema:
 `templates/precision/` は、利用者環境や installer へコピーする配布元として扱う。`schemas/precision/` は、template と実行結果の検証契約として扱う。
 
 `codex_config.toml` の `command` / `args` は MCP server 起動設定であり、tool の実行時引数ではない。公開 tool は sidecar server の `tools/list` と Codex 側の `enabled_tools` / `disabled_tools` で制御する。
+
+`agents/AGENTS.md` は利用者プロジェクトへ置く作業指示 template であり、このリポジトリ自身の `AGENTS.md` とは別物として扱う。`skills/precise-blender-modeling/SKILL.md` は Codex の skill ディレクトリへコピーして使う。`subagents/*.toml` は検証、視覚レビュー、add-on 監査の役割分離に使う。
 
 ## 検証
 
