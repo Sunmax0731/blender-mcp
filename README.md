@@ -193,6 +193,7 @@ uv sync --python 3.11 --extra dev
 - [ロードマップ](D:/Claude/MCP/docs/roadmap.md)
 - [検証計画](D:/Claude/MCP/docs/validation-plan.md)
 - [リリース計画](D:/Claude/MCP/docs/release-plan.md)
+- [Blender MCP 実行例](D:/Claude/MCP/docs/examples.md)
 - [初回 Release ノート案](D:/Claude/MCP/docs/release-notes-v0.1.0.md)
 - [旧独自構成の在庫](D:/Claude/MCP/docs/legacy-inventory.md)
 - [運用ルール](D:/Claude/MCP/AGENTS.md)
