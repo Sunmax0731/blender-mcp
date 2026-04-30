@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Blender Precision Pipeline Spec",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "source_prompt",
+    "normalized_character_spec",
+    "shape_stage",
+    "look_stage",
+    "rig_stage",
+    "expression_stage",
+    "weight_stage",
+    "validation_plan",
+    "artifact_plan",
+    "fallback_plan"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "source_prompt": {
+      "type": "string"
+    },
+    "normalized_character_spec": {
+      "type": "object"
+    },
+    "shape_stage": {"$ref": "#/$defs/stage"},
+    "look_stage": {"$ref": "#/$defs/stage"},
+    "rig_stage": {"$ref": "#/$defs/stage"},
+    "expression_stage": {"$ref": "#/$defs/stage"},
+    "weight_stage": {"$ref": "#/$defs/stage"},
+    "validation_plan": {
+      "type": "object",
+      "required": ["final_validators"],
+      "additionalProperties": true
+    },
+    "artifact_plan": {
+      "type": "object",
+      "required": ["run_directory", "required_artifacts"],
+      "additionalProperties": true
+    },
+    "fallback_plan": {
+      "type": "object",
+      "required": ["live_execution_route"],
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "stage": {
+      "type": "object",
+      "required": ["inputs", "outputs", "dependencies", "validators", "retry_policy"],
+      "properties": {
+        "inputs": {"type": "array", "items": {"type": "string"}},
+        "outputs": {"type": "array", "items": {"type": "string"}},
+        "dependencies": {"type": "array", "items": {"type": "string"}},
+        "validators": {"type": "array", "items": {"type": "string"}},
+        "retry_policy": {"type": "object"}
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

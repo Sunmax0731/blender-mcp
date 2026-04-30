@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Blender Precision Character Spec",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "character_type",
+    "body_proportions",
+    "parts",
+    "look_spec",
+    "rig_spec",
+    "expression_spec",
+    "pose_test_spec"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "character_type": {
+      "type": "string",
+      "enum": ["humanoid", "chibi", "creature"]
+    },
+    "body_proportions": {
+      "type": "object",
+      "required": ["head_count", "shoulder_width", "torso_length", "arm_length", "leg_length"],
+      "additionalProperties": true
+    },
+    "parts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "category"],
+        "properties": {
+          "name": {"type": "string"},
+          "category": {"type": "string"},
+          "notes": {"type": "string"}
+        },
+        "additionalProperties": true
+      }
+    },
+    "look_spec": {
+      "type": "object",
+      "required": ["materials", "textures"],
+      "additionalProperties": true
+    },
+    "rig_spec": {
+      "type": "object",
+      "required": ["template", "required_bones"],
+      "additionalProperties": true
+    },
+    "expression_spec": {
+      "type": "object",
+      "required": ["required_expressions"],
+      "additionalProperties": true
+    },
+    "pose_test_spec": {
+      "type": "object",
+      "required": ["base_pose", "required_pose_tests"],
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

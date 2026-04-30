@@ -182,6 +182,101 @@ sidecar は、公式 Blender MCP の tool を置き換えるのではなく、�
 - 利用者向け docs では、`blender_unavailable` を sidecar 不具合ではなく実行コンテキスト境界として説明する
 - live 成果物は `model_spec`、validation report、object list、review 画像、export manifest を同一 artifact directory にまとめる
 
+### 9.2.2 全自動キャラクター生成の責務分離
+
+#### sidecar の責務
+
+- prompt を `character_spec` と `pipeline_spec` へ正規化する
+- 類型別 template / library を選択する
+- stage 実行順序を決定する
+- validator 実行結果を集約する
+- auto-fix の再試行制御を行う
+- artifact manifest と traceability 情報を管理する
+
+#### 公式 Blender MCP の責務
+
+- Blender scene の状態取得
+- object、material、camera、light などの低水準操作
+- scene snapshot と screenshot の取得
+- sidecar が必要とする live inspection の中継
+
+#### Blender 実行コンテキストの責務
+
+- `bpy` を必要とする live shape 生成
+- UV / texture 適用を含む material 実処理
+- armature、shape key、weight の適用
+- pose test に必要な Blender 内処理
+- `.blend` や `.glb` の最終 export
+
+#### fallback 設計
+
+- sidecar 単独で `bpy` 必須処理を完結できない stage は、Blender background 実行または公式 MCP 経由へ切り替える
+- fallback は stage 単位で発動し、run 全体を巻き戻さない
+- fallback 発動時も、artifact と report に使用経路を残す
+
+### 9.2.3 5要件パイプラインのコンポーネント分割
+
+全自動トラックの実装単位は、少なくとも次のコンポーネントに分ける。
+
+- prompt normalizer
+- shape generator
+- look generator
+- rig builder
+- expression builder
+- weight builder
+- validation coordinator
+- auto-fix controller
+- artifact manager
+
+#### 再実行単位
+
+- `shape generator`
+  - silhouette、比率、部位構成の失敗時に再実行
+- `look generator`
+  - 色味、模様、texture / UV の失敗時に再実行
+- `rig builder`
+  - 命名、親子関係、寸法フィットの失敗時に再実行
+- `expression builder`
+  - 表情 coverage、neutral 復帰、左右破綻の失敗時に再実行
+- `weight builder`
+  - pose test、食い込み、左右差の失敗時に再実行
+
+#### 依存関係
+
+- `look generator` は `shape generator` の出力に依存する
+- `rig builder` は `shape generator` の出力に依存する
+- `expression builder` は `shape generator` と `rig builder` に依存する
+- `weight builder` は `shape generator`、`rig builder`、必要に応じて `expression builder` に依存する
+- `validation coordinator` は全 stage の出力を参照する
+- `auto-fix controller` は validator の失敗結果を参照して最小影響の stage を再実行する
+
+### 9.2.4 validator と auto-fix の実行モデル
+
+- validator は stage 実行直後の局所検証と、最終集約検証の 2 段階で実行する
+- `validation coordinator` は、局所 failed を stage 単位に集約し、再実行候補を `auto-fix controller` へ渡す
+- `auto-fix controller` は、同時多発 failed でも最上流原因を優先して処理する
+- 同一 run では、再試行履歴と改善量を比較し、改善が頭打ちなら停止する
+- 非 retryable failed は、その時点で設計上の fallback か最終失敗へ遷移させる
+
+### 9.2.5 類型別テンプレートとライブラリ管理
+
+- 類型別テンプレートは `humanoid`、`chibi`、`creature` の 3 系統で管理する
+- テンプレートとライブラリは、少なくとも次を別管理する
+  - shape template
+  - rig template
+  - expression library
+  - pose test library
+  - material preset
+- 共通 schema を保ちながら、類型ごとの差分はテンプレートデータで吸収する
+- テンプレート更新時は、どの類型のどの stage に影響するかを artifact と release notes で追跡できるようにする
+
+### 9.2.6 artifact と traceability の保存設計
+
+- `artifact manager` は run ごとのルートディレクトリを払い出し、全 stage の成果物をそこへ集約する
+- stage report、validator 結果、retry 履歴、review 画像、export は `run_id` で相互参照可能にする
+- debug 用の中間成果物と、利用者向け最終成果物は同じ run 配下で層分けして保存する
+- 後追い調査では、prompt、template 選択、validator failed、fallback 発動、最終 export を 1 本の trace として復元できなければならない
+
 ### 9.3 Codex 設定の責務分離
 
 Codex の STDIO MCP 設定では、`command` / `args` は server 起動用とする。公開 tool の増減は、sidecar server の `tools/list` と Codex 側の `enabled_tools` / `disabled_tools` で扱う。

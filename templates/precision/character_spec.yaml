@@ -1,0 +1,69 @@
+schema_version: "0.1"
+
+character_type: humanoid
+
+body_proportions:
+  head_count: 6.5
+  shoulder_width: 1.8
+  torso_length: 2.2
+  arm_length: 2.6
+  leg_length: 3.4
+  hand_size: medium
+  foot_size: medium
+
+parts:
+  - name: head
+    category: anatomy
+    notes: rounded silhouette
+  - name: torso
+    category: anatomy
+    notes: slim but stable volume
+  - name: hair
+    category: style
+    notes: short layered hair
+  - name: jacket
+    category: costume
+    notes: cropped jacket
+
+look_spec:
+  materials:
+    - part: skin
+      base_color: [0.92, 0.78, 0.70, 1.0]
+      roughness: 0.55
+    - part: jacket
+      base_color: [0.12, 0.18, 0.32, 1.0]
+      roughness: 0.7
+  textures:
+    - part: jacket
+      mode: image
+      symmetry: mirrored
+
+rig_spec:
+  template: humanoid_standard
+  required_bones:
+    - root
+    - hips
+    - spine
+    - chest
+    - neck
+    - head
+    - arm_l
+    - arm_r
+    - leg_l
+    - leg_r
+
+expression_spec:
+  required_expressions:
+    - smile
+    - angry
+    - surprised
+    - blink
+    - mouth_a
+
+pose_test_spec:
+  base_pose: t_pose
+  required_pose_tests:
+    - arms_raise
+    - elbows_bend
+    - knees_bend
+    - neck_turn

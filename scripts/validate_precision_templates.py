@@ -69,6 +69,14 @@ def main() -> int:
     root = args.root.resolve()
     pairs = [
         (
+            root / "templates/precision/character_spec.yaml",
+            root / "schemas/precision/character_spec.schema.json",
+        ),
+        (
+            root / "templates/precision/pipeline_spec.yaml",
+            root / "schemas/precision/pipeline_spec.schema.json",
+        ),
+        (
             root / "templates/precision/model_spec.yaml",
             root / "schemas/precision/model_spec.schema.json",
         ),

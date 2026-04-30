@@ -1,0 +1,73 @@
+schema_version: "0.1"
+
+source_prompt: >
+  Create a stylized humanoid character with a cropped jacket, layered short hair,
+  expressive eyes, and animation-ready rigging.
+
+normalized_character_spec:
+  ref: character_spec.yaml
+  character_type: humanoid
+
+shape_stage:
+  inputs: [body_proportions, parts, shape_template]
+  outputs: [mesh_objects, shape_snapshot]
+  dependencies: []
+  validators: [shape_silhouette, shape_ratio, shape_symmetry]
+  retry_policy:
+    max_attempts: 3
+
+look_stage:
+  inputs: [look_spec, uv_layout, mesh_objects]
+  outputs: [materials, textures, review_images]
+  dependencies: [shape_stage]
+  validators: [look_color, look_pattern, look_texture_uv]
+  retry_policy:
+    max_attempts: 2
+
+rig_stage:
+  inputs: [rig_spec, rig_template, mesh_objects]
+  outputs: [armature, bone_map]
+  dependencies: [shape_stage]
+  validators: [rig_hierarchy, rig_naming, rig_fit]
+  retry_policy:
+    max_attempts: 2
+
+expression_stage:
+  inputs: [expression_spec, armature, face_topology]
+  outputs: [shape_keys, expression_preview]
+  dependencies: [shape_stage, rig_stage]
+  validators: [expression_coverage, expression_restore]
+  retry_policy:
+    max_attempts: 2
+
+weight_stage:
+  inputs: [pose_test_spec, armature, mesh_objects]
+  outputs: [weight_data, pose_test_report]
+  dependencies: [shape_stage, rig_stage, expression_stage]
+  validators: [weight_joint_deform, weight_clipping, weight_symmetry]
+  retry_policy:
+    max_attempts: 3
+
+validation_plan:
+  final_validators:
+    - shape_final
+    - look_final
+    - rig_final
+    - expression_final
+    - weight_final
+
+artifact_plan:
+  run_directory: outputs/auto-character/example-run
+  required_artifacts:
+    - prompt.txt
+    - character_spec.yaml
+    - pipeline_spec.yaml
+    - validation/final_validation_report.json
+    - validation/object_list.json
+    - review/front.png
+    - exports/final.blend
+
+fallback_plan:
+  live_execution_route: blender_background
+  alternate_routes:
+    - official_mcp_scene_snapshot

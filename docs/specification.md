@@ -187,6 +187,336 @@ v2 で標準化する主なデータ:
 - `validation_report`: 検証結果、警告、失敗理由、レビュー画像、修正提案
 - `addon_registry`: 承認済み add-on、operator、property map、context 条件、破壊的操作フラグ
 
+### 8.3.1 全自動キャラクター生成の schema
+
+`model_spec` の前段として、prompt から内部生成する `character_spec` と、工程間受け渡し用の `pipeline_spec` を定義する。
+
+#### `character_spec`
+
+`character_spec` は、利用者 prompt を 5 要件完全自動のために正規化した論理仕様とする。少なくとも次を持つ。
+
+- `character_type`
+  - `humanoid`
+  - `chibi`
+  - `creature`
+- `body_proportions`
+  - 頭身
+  - 肩幅
+  - 胴体長
+  - 腕長
+  - 脚長
+  - 手足サイズ
+- `parts`
+  - 頭
+  - 胴
+  - 腕
+  - 脚
+  - 手
+  - 足
+  - 髪
+  - 衣装主要部位
+- `look_spec`
+  - 部位別色
+  - 模様
+  - 材質
+  - UV / texture 要件
+- `rig_spec`
+  - 骨格類型
+  - 必須骨一覧
+  - 類型別拡張骨
+- `expression_spec`
+  - 必須表情セット
+  - 口形状
+  - まばたき
+- `pose_test_spec`
+  - 基準ポーズ
+  - 必須検証ポーズ
+
+初期仕様では、見た目再現に UV と画像テクスチャを含める。
+
+#### `pipeline_spec`
+
+`pipeline_spec` は、`character_spec` を各工程へ落とした実行仕様とする。少なくとも次を持つ。
+
+- `source_prompt`
+- `normalized_character_spec`
+- `shape_stage`
+- `look_stage`
+- `rig_stage`
+- `expression_stage`
+- `weight_stage`
+- `validation_plan`
+- `artifact_plan`
+- `fallback_plan`
+
+各 stage は、最低でも次を含む。
+
+- `inputs`
+- `outputs`
+- `dependencies`
+- `validators`
+- `retry_policy`
+
+#### 類型別差分
+
+- `humanoid` は標準的な二足人型骨格と顔表情を前提にする
+- `chibi` は短い四肢、強い頭身差、簡略化された手足形状を前提にする
+- `creature` は追加肢、尾、非人型頭部などの拡張部位を許容する
+
+類型差分は `character_spec.character_type` によって切り替え、`pipeline_spec` 側では stage ごとのテンプレート選択に変換する。
+
+### 8.3.2 工程 API 契約
+
+5 要件完全自動の工程 API は、少なくとも `dry_run`、`live`、`validation` の 3 種類の呼び出し文脈を区別する。
+
+#### shape_stage
+
+- 入力
+  - `character_spec.body_proportions`
+  - `character_spec.parts`
+  - 類型別 shape template
+- 出力
+  - mesh object 群
+  - shape validation 用 snapshot
+- 依存
+  - `character_type`
+- 再実行条件
+  - silhouette failed
+  - 部位比率 failed
+
+#### look_stage
+
+- 入力
+  - `character_spec.look_spec`
+  - UV / texture 要件
+  - shape_stage 出力 mesh
+- 出力
+  - material 設定
+  - texture asset
+  - look validation 用 review data
+- 依存
+  - shape_stage
+- 再実行条件
+  - 色味 failed
+  - 模様位置 failed
+  - texture / UV 破綻 failed
+
+#### rig_stage
+
+- 入力
+  - `character_spec.rig_spec`
+  - 類型別 rig template
+  - shape_stage 出力 mesh
+- 出力
+  - armature
+  - bone mapping
+  - rig validation 用 report
+- 依存
+  - shape_stage
+- 再実行条件
+  - 骨命名 failed
+  - 親子関係 failed
+  - 寸法フィット failed
+
+#### expression_stage
+
+- 入力
+  - `character_spec.expression_spec`
+  - face topology
+  - rig_stage 出力
+- 出力
+  - shape key 群
+  - expression validation 用 preview
+- 依存
+  - shape_stage
+  - rig_stage
+- 再実行条件
+  - 左右破綻 failed
+  - neutral 復帰 failed
+  - 表情干渉 failed
+
+#### weight_stage
+
+- 入力
+  - `character_spec.pose_test_spec`
+  - rig_stage 出力 armature
+  - shape_stage 出力 mesh
+- 出力
+  - weight data
+  - pose test report
+- 依存
+  - shape_stage
+  - rig_stage
+  - expression_stage の顔まわり要件
+- 再実行条件
+  - 関節潰れ failed
+  - 食い込み failed
+  - 左右差 failed
+
+#### validation 呼び出し
+
+- 各 stage は個別 validator を持つ
+- 最終 validation は shape、look、rig、expression、weight を束ねた集約 report を返す
+- failed がある場合は、どの stage を再実行すべきかを返さなければならない
+
+#### dry-run / live 境界
+
+- `dry_run` は、structured spec 解決、template 選択、予定 artifact、予定 validator を返す
+- `live` は、Blender 実行コンテキストまたは公式 MCP 接続を必要とする処理を含む
+- `live` が sidecar 単独で完結しない stage は、fallback で Blender 側実行経路へ切り替える
+
+### 8.3.3 validation と auto-fix 契約
+
+各 validator は、少なくとも次を返す。
+
+- `status`
+  - `pass`
+  - `warning`
+  - `failed`
+- `stage`
+- `check_name`
+- `evidence`
+- `suggested_fix`
+- `retryable`
+
+#### validator の粒度
+
+- shape validator
+  - silhouette
+  - ratio
+  - symmetry
+- look validator
+  - color
+  - pattern placement
+  - texture / UV integrity
+- rig validator
+  - hierarchy
+  - naming
+  - fit
+- expression validator
+  - key coverage
+  - deformation correctness
+  - neutral restore
+- weight validator
+  - joint deformation
+  - clipping
+  - left-right consistency
+
+#### auto-fix ループ
+
+- failed が `retryable=true` の場合、auto-fix ループ対象とする
+- auto-fix は、validator の `stage` と `suggested_fix` を根拠に、対応 stage の再実行または spec 補正を行う
+- 1 回の failed で複数 stage を同時再実行するのではなく、最小影響の stage から再実行する
+- auto-fix の各反復では、少なくとも次を artifact に残す
+  - 対象 stage
+  - 失敗 validator
+  - 適用した補正
+  - 再実行結果
+
+#### 停止条件
+
+- 同一 validator が連続で閾値改善しない
+- 再試行上限に達する
+- 非 retryable failed が出る
+- 上流 stage を壊す補正しか残らない
+
+#### 最終失敗契約
+
+- auto-fix で解消できなかった場合は、最終 report に次を残す
+  - failed stage
+  - failed validator
+  - 最終 evidence
+  - 試行回数
+  - 失敗時 fallback 経路の有無
+
+### 8.3.4 artifact と export 形式
+
+作業ディレクトリは、少なくとも次の artifact を同一 run 単位で管理する。
+
+- `prompt.txt`
+- `character_spec.json` または `character_spec.yaml`
+- `pipeline_spec.json` または `pipeline_spec.yaml`
+- `stage_reports/`
+- `validation/`
+- `review/`
+- `exports/`
+- `run_manifest.json`
+
+#### 必須 artifact
+
+- `prompt.txt`
+  - 元入力 prompt
+- `character_spec`
+  - 正規化後仕様
+- `pipeline_spec`
+  - 工程別実行仕様
+- `stage_reports`
+  - 工程ごとの結果
+- `validation/final_validation_report.json`
+  - 最終集約 report
+- `validation/object_list.json`
+  - object 一覧
+- `review/`
+  - front / side / back / perspective などの review 画像
+- `exports/`
+  - `.blend`
+  - 必要に応じて `.glb`
+
+#### `run_manifest.json`
+
+`run_manifest.json` は、少なくとも次を持つ。
+
+- `run_id`
+- `source_prompt_hash`
+- `character_type`
+- `stages_executed`
+- `fallbacks_used`
+- `final_status`
+- `exported_files`
+- `artifact_paths`
+
+#### traceability
+
+- 各 artifact は `run_id` で相互参照できなければならない
+- stage report には、対応する validator 結果と再試行履歴を紐付けなければならない
+- export manifest から、どの prompt / spec / validation に対応する成果物か逆引きできなければならない
+
+### 8.3.5 類型別テンプレートと初期ライブラリ境界
+
+初期ライブラリは、少なくとも次の 4 系統で構成する。
+
+- shape template
+- rig template
+- expression library
+- pose test library
+
+#### humanoid
+
+- 標準二足人型の shape template
+- 標準人型 rig template
+- 基本表情セット
+- 標準 pose test
+
+#### chibi
+
+- 短頭身特化 shape template
+- chibi 比率の簡略 rig template
+- 簡略化された基本表情セット
+- chibi 体型向け pose test
+
+#### creature
+
+- 非人型部位を許容する shape template
+- 追加肢、尾、翼などを含む拡張 rig template
+- 類型別表情差分を持つ expression library
+- creature 向け pose test
+
+#### 共通化と差分
+
+- 色味・材質・artifact 契約・validation 出力形式は共通化対象とする
+- 部位構成、骨格構成、表情辞書、pose test は類型別差分対象とする
+- 類型ごとの template は共通 schema に従うが、必須部位と必須骨の集合は異なってよい
+
 ### 8.4 add-on integration
 
 Blender add-on は、登録済み operator、Python API、batch 実行、context 準備の可否を確認できるものだけを自動化対象にする。
