@@ -4,6 +4,10 @@ from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
+from .addons import get_addon_status as get_addon_status_impl
+from .addons import inspect_addon_capabilities as inspect_addon_capabilities_impl
+from .addons import list_blender_addons as list_blender_addons_impl
+from .addons import list_registered_operators as list_registered_operators_impl
 from .config import ResolvedPrecisionConfig
 from .tool_catalog import not_implemented_payload
 from .tool_catalog import resolve_public_tool_definitions
@@ -39,6 +43,34 @@ def create_mcp_server(resolved: ResolvedPrecisionConfig) -> FastMCP:
         if tool_definition.name == "capture_review_views":
             mcp_server.add_tool(
                 capture_review_views,
+                name=tool_definition.name,
+                description=tool_definition.description,
+            )
+            continue
+        if tool_definition.name == "list_blender_addons":
+            mcp_server.add_tool(
+                list_blender_addons,
+                name=tool_definition.name,
+                description=tool_definition.description,
+            )
+            continue
+        if tool_definition.name == "get_addon_status":
+            mcp_server.add_tool(
+                get_addon_status,
+                name=tool_definition.name,
+                description=tool_definition.description,
+            )
+            continue
+        if tool_definition.name == "inspect_addon_capabilities":
+            mcp_server.add_tool(
+                inspect_addon_capabilities,
+                name=tool_definition.name,
+                description=tool_definition.description,
+            )
+            continue
+        if tool_definition.name == "list_registered_operators":
+            mcp_server.add_tool(
+                list_registered_operators,
                 name=tool_definition.name,
                 description=tool_definition.description,
             )
@@ -87,3 +119,29 @@ def capture_review_views(
         "success": result["status"] == "captured",
         "data": result,
     }
+
+
+def list_blender_addons(
+    registry_path: str = "templates/precision/addon_registry.yaml",
+) -> dict[str, Any]:
+    return list_blender_addons_impl(registry_path)
+
+
+def get_addon_status(
+    module: str,
+    registry_path: str = "templates/precision/addon_registry.yaml",
+) -> dict[str, Any]:
+    return get_addon_status_impl(module=module, registry_path=registry_path)
+
+
+def inspect_addon_capabilities(
+    module: str | None = None,
+    registry_path: str = "templates/precision/addon_registry.yaml",
+) -> dict[str, Any]:
+    return inspect_addon_capabilities_impl(module=module, registry_path=registry_path)
+
+
+def list_registered_operators(
+    registry_path: str = "templates/precision/addon_registry.yaml",
+) -> dict[str, Any]:
+    return list_registered_operators_impl(registry_path=registry_path)
