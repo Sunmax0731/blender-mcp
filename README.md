@@ -211,6 +211,7 @@ uv sync --python 3.11 --extra dev
 - [v2 precision template / schema](docs/precision-templates.md)
 - [検証計画](docs/validation-plan.md)
 - [リリース計画](docs/release-plan.md)
+- [v0.1.0 release scope](docs/release-scope-v0.1.0.md)
 - [v2 release validation](docs/release-validation-v2.md)
 - [Blender MCP 実行例](docs/examples.md)
 - [配布用 Skill](docs/skills.md)

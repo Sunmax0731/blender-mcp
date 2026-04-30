@@ -128,3 +128,5 @@ v2 初期 release は、以下を満たす場合に候補とする。
 - template / schema validation が成功している
 - installer plan に precision profile step が表示される
 - known limitations が release docs に明記されている
+
+v0.1.0 全体の Go / No-Go 条件は [v0.1.0 release scope](release-scope-v0.1.0.md) を正とする。

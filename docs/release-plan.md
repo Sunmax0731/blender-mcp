@@ -6,6 +6,8 @@
 
 ## 2. リリース対象
 
+v0.1.0 の詳細な scope と Go / No-Go 条件は [v0.1.0 release scope](release-scope-v0.1.0.md) で管理する。
+
 ### 2.0 初回 Release 版数
 
 - このリポジトリの初回 GitHub Release 版数は `v0.1.0` とする
@@ -52,6 +54,12 @@
 - 公式 `mcp` 有効化
 - 導入ログの保存
 - 導入後の確認項目表示
+- 任意導入の v2 precision profile foundation
+  - precision template / schema
+  - sidecar MCP scaffold
+  - static validation / visual QA dry-run
+  - add-on registry inspection
+  - Skill / AGENTS / subagent template
 
 ### 2.3 初回リリースに含めないもの
 - Blender 本体の自動インストール
@@ -59,6 +67,9 @@
 - macOS / Linux 向け同時配布
 - 公式 `blender_mcp` 自体の fork 改造
 - 公開ネットワーク越しの常設運用
+- v2 precision の全 tool 実装完了保証
+- 任意 add-on operator 実行
+- 公式 Blender MCP zip の Release asset としての再配布
 
 ## 3. リリース前チェック
 
@@ -101,6 +112,7 @@
 - 初回利用者向けのセットアップ手順が不足なく書かれている
 - 既知制約が明文化されている
 - 1 クリック導入アプリの配布方法が利用者に分かる形で整理されている
+- Go / No-Go 条件は [v0.1.0 release scope](release-scope-v0.1.0.md) と一致している
 
 ## 7. リリース後の扱い
 - 初回リリース後に見つかった制約や改善要望は GitHub Issue に分離して管理する

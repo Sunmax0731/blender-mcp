@@ -11,6 +11,7 @@ v0.1.0 Release までの工程を GitHub Milestone と Issue で追跡する。�
 - GitHub Milestone: [v0.1.0 M1: Release scope freeze](https://github.com/Sunmax0731/blender-mcp/milestone/1)
 - 目的: Release 対象範囲、既知制約、利用者向け docs、release notes を確定する
 - 完了条件: Release 判定条件、docs、release notes、asset 境界が確定している
+- Scope / Go-No-Go: [v0.1.0 release scope](release-scope-v0.1.0.md)
 
 Issues:
 
