@@ -37,7 +37,6 @@
 ### 3.1.1 Blender 側の前提
 
 - `Edit > Preferences > Get Extensions` で `MCP` を確認し有効化する
-- legacy `blender_mcp` add-on が有効なら無効化する
 - Blender の `Online Access` を有効化する
 - host / port / autostart は add-on 設定に従う
 - 背景実行では `--online-mode` が必要になる
@@ -76,7 +75,7 @@
 2. Blender add-on 配置先へ導入する
 3. 公式 MCP server を専用仮想環境へ導入する
 4. Codex 設定へ `mcp_servers.blender-official` を登録する
-5. Blender 側で公式 `mcp` を有効化し、legacy `blender_mcp` を無効化する
+5. Blender 側で公式 `mcp` を有効化する
 6. 導入後の確認項目を表示する
 
 ### 4.3 UI 要素
@@ -97,7 +96,7 @@
 ### 4.5 確認フロー
 
 - 既存 Codex 設定の変更前に、変更対象ファイルとバックアップ作成を利用者へ示す
-- legacy `blender_mcp` 無効化を含む設定変更前に、何を切り替えるかを利用者へ示す
+- Blender 側の設定変更前に、何を切り替えるかを利用者へ示す
 - 危険操作は `preview -> confirm -> execute` を守る
 
 ## 5. 独自構成の扱い
@@ -111,7 +110,7 @@
 - 公式配布物が取得できること
 - Blender へ導入できること
 - Blender 側で add-on が有効化できること
-- legacy add-on と競合せず公式 `mcp` が主経路になること
+- 公式 `mcp` が主経路として有効化されること
 - 公式 MCP server が専用仮想環境へ導入できること
 - Codex 設定へ `mcp_servers.blender-official` を登録できること
 - 公式構成を前提に docs が一致していること

@@ -10,7 +10,7 @@
 直近の Release 成果物は、1 クリックで次を進められる Windows 向け導入アプリです。
 - Codex への `blender-official` MCP server 登録
 - Blender への公式 `mcp` add-on 導入
-- 公式 `mcp` の有効化と legacy `blender_mcp` の無効化補助
+- 公式 `mcp` の有効化
 
 ## 基本方針
 
@@ -89,10 +89,8 @@ cd D:\Claude\MCP
 ```
 
 - 公式 `mcp` add-on を有効化する
-- legacy `blender_mcp` add-on が有効なら無効化する
 - Blender 5.1 extension key `bl_ext.*.mcp` にも対応する
 - `host=localhost` `port=9876` `autostart=True` を確認できる
-- 旧独自 add-on 更新や旧 UI スモークは `scripts/legacy/` 配下へ隔離している
 
 ### 3. テスト
 
@@ -118,7 +116,7 @@ scripts\install_official_blender_mcp_server.cmd
 ```
 
 - 公式 server は repo の `.venv` ではなく `D:\Claude\MCP\.official-mcp-venv` に導入する
-- これにより、repo 内の legacy 実装依存と競合させない
+- これにより、repo 内の開発用 Python 依存と競合させない
 
 ### 5. Codex App への登録
 
@@ -195,6 +193,5 @@ uv sync --python 3.11 --extra dev
 - [リリース計画](D:/Claude/MCP/docs/release-plan.md)
 - [Blender MCP 実行例](D:/Claude/MCP/docs/examples.md)
 - [初回 Release ノート案](D:/Claude/MCP/docs/release-notes-v0.1.0.md)
-- [旧独自構成の在庫](D:/Claude/MCP/docs/legacy-inventory.md)
 - [運用ルール](D:/Claude/MCP/AGENTS.md)
 - [必要スキル](D:/Claude/MCP/Skill.md)

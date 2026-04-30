@@ -57,7 +57,7 @@ def default_steps(root: Path | None = None, include_launch_blender: bool = True)
         InstallerStep(
             name="enable-addon",
             script_path=scripts_dir / "enable_official_blender_mcp_addon.ps1",
-            description="Enable official mcp and disable the legacy add-on in Blender.",
+            description="Enable the official mcp add-on in Blender.",
         ),
     ]
     if include_launch_blender:

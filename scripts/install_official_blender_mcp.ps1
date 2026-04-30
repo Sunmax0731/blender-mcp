@@ -54,7 +54,6 @@ $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot = Split-Path -Parent $scriptDir
 $tmpRoot = Join-Path $repoRoot 'tmp\official-blender-mcp'
 $distRoot = Join-Path $repoRoot 'dist\official-blender-mcp'
-$legacyInstallRoot = Join-Path $env:APPDATA 'Blender Foundation\Blender\5.1\scripts\addons\mcp'
 
 $zipName = "mcp-$($Version.TrimStart('v')).zip"
 $downloadUrl = "https://projects.blender.org/lab/blender_mcp/releases/download/$Version/$zipName"
@@ -72,11 +71,6 @@ else {
 }
 
 $resolvedBlenderExe = Resolve-BlenderExe -ExplicitPath $BlenderExe
-
-if (Test-Path $legacyInstallRoot) {
-    Remove-Item -LiteralPath $legacyInstallRoot -Recurse -Force
-    Write-Host "Removed legacy add-on path: $legacyInstallRoot"
-}
 
 & $resolvedBlenderExe --command extension remove mcp | Out-Null
 

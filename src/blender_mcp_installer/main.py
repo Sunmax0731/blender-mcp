@@ -61,7 +61,7 @@ class InstallerApp:
             "1. Install the official Blender MCP add-on\n"
             "2. Install the official Blender MCP server\n"
             "3. Register blender-official in Codex config\n"
-            "4. Enable official mcp and disable legacy blender_mcp"
+            "4. Enable the official mcp add-on in Blender"
         )
         tk.Label(container, text=intro, justify=tk.LEFT, anchor="w").pack(fill=tk.X)
 

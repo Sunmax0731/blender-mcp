@@ -22,7 +22,7 @@
 - ローカル展開できる
 - Blender extension 管理経路へ導入できる
 - Blender の `Get Extensions` で `MCP` が認識される
-- legacy `blender_mcp` ではなく公式 `mcp` が有効化される
+- 公式 `mcp` が有効化される
 - 公式 MCP server を `.official-mcp-venv` へ導入できる
 - `blender-mcp --help` が実行できる
 - Codex 設定へ `mcp_servers.blender-official` を追記できる
@@ -39,7 +39,7 @@
 
 - 公式構成を前提にした docs が読み替え不要で使える
 - 導入・更新手順が PowerShell / コマンドプロンプトで実行できる
-- 旧独自構成との混同が起きにくい
+- 利用者向け導線が公式 `mcp` 前提として読める
 - `start_official_blender_mcp.ps1` から Blender 実行パスを解決できる
 - Codex App から Blender ワークスペース切替や状態取得が実行できる
 - 1 クリック導入アプリのログから失敗箇所を追跡できる

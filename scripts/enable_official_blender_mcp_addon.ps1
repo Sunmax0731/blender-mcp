@@ -74,10 +74,8 @@ def resolve_official_keys():
 
 
 official_keys = resolve_official_keys()
-legacy_key = "blender_mcp"
 
 before_states = {key: addon_utils.check(key) for key in official_keys}
-legacy_before = addon_utils.check(legacy_key)
 
 enabled_key = None
 for key in official_keys:
@@ -86,19 +84,14 @@ for key in official_keys:
         enabled_key = key
         break
 
-if addon_utils.check(legacy_key)[1]:
-    addon_utils.disable(legacy_key, default_set=True)
-
 bpy.ops.wm.save_userpref()
 
 after_states = {key: addon_utils.check(key) for key in official_keys}
 
 print(f"OFFICIAL_KEYS={official_keys}")
 print(f"OFFICIAL_BEFORE={before_states}")
-print(f"LEGACY_BEFORE={legacy_before}")
 print(f"ENABLED_KEY={enabled_key}")
 print(f"OFFICIAL_AFTER={after_states}")
-print(f"LEGACY_AFTER={addon_utils.check(legacy_key)}")
 
 if enabled_key is not None:
     prefs = bpy.context.preferences.addons[enabled_key].preferences

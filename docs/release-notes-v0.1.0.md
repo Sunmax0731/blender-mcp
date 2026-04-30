@@ -8,7 +8,7 @@ Windows 環境で、Blender 5.1 系と Codex App を前提に、公式 Blender M
 - `blender-mcp-installer.exe`
   - Codex への `blender-official` MCP server 登録
   - Blender への公式 `mcp` extension 導入
-  - 公式 `mcp` の有効化と legacy `blender_mcp` の無効化補助
+  - 公式 `mcp` の有効化
   - 導入完了後の Blender 自動起動
 
 ## 前提条件

@@ -64,6 +64,15 @@ def test_default_steps_can_skip_launch_blender() -> None:
     ]
 
 
+def test_default_steps_do_not_surface_legacy_context() -> None:
+    steps = default_steps(Path("D:/Claude/MCP"))
+
+    descriptions = "\n".join(step.description for step in steps).lower()
+
+    assert "legacy" not in descriptions
+    assert "disable" not in descriptions
+
+
 def test_main_py_can_run_as_script_for_plan_mode() -> None:
     repo_root = Path(__file__).resolve().parents[1]
     main_py = repo_root / "src" / "blender_mcp_installer" / "main.py"
