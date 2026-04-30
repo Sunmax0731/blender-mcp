@@ -73,9 +73,16 @@ Blender 側では公式 `MCP` add-on の Preferences を確認し、モデリン
 現在の M5 テスト Issue:
 
 1. [#158](https://github.com/Sunmax0731/blender-mcp/issues/158) M5: 全自動キャラクターモデル生成の総合テストを進める
-2. [#159](https://github.com/Sunmax0731/blender-mcp/issues/159) テスト: dry-run 入力経路の regression matrix を固定する
-3. [#160](https://github.com/Sunmax0731/blender-mcp/issues/160) テスト: live Blender build と strict validation を固定する
-4. [#161](https://github.com/Sunmax0731/blender-mcp/issues/161) テスト: hair preset と retry traceability の回帰を固定する
+2. [#159](https://github.com/Sunmax0731/blender-mcp/issues/159) テスト: dry-run 入力経路の regression matrix を固定する 完了
+3. [#160](https://github.com/Sunmax0731/blender-mcp/issues/160) テスト: live Blender build と strict validation を固定する 完了
+4. [#161](https://github.com/Sunmax0731/blender-mcp/issues/161) テスト: hair preset と retry traceability の回帰を固定する 完了
+
+次の手動テスト Issue:
+
+1. [#163](https://github.com/Sunmax0731/blender-mcp/issues/163) 手動テスト: live 生成の基本確認を行う
+2. [#162](https://github.com/Sunmax0731/blender-mcp/issues/162) 手動テスト: 見た目品質を目視確認する
+3. [#164](https://github.com/Sunmax0731/blender-mcp/issues/164) 手動テスト: base asset 流用経路を確認する
+4. [#165](https://github.com/Sunmax0731/blender-mcp/issues/165) 手動テスト: image reference 反映を確認する
 
 ## セットアップ
 

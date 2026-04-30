@@ -47,3 +47,36 @@ def test_build_model_spec_adds_type_specific_parts():
     assert "RoundBuddy_Cheek_R" in chibi_names
     assert "RoundBuddy_Hair_TwinTail_L" in chibi_names
     assert "RoundBuddy_Hair_TwinTail_R" in chibi_names
+
+
+def test_build_model_spec_covers_all_supported_hair_presets():
+    cases = [
+        (
+            "Create a stylized human character with blue jacket and short hair.",
+            "short",
+            {"RoundBuddy_Hair_Cap", "RoundBuddy_Hair_Bang"},
+        ),
+        (
+            "Create a stylized human character with blue jacket and bob cut hair.",
+            "bob",
+            {"RoundBuddy_Hair_Cap", "RoundBuddy_Hair_Bob_L", "RoundBuddy_Hair_Bob_R"},
+        ),
+        (
+            "Create a chibi hero with pink cape, expressive talking face, and twin tail hair.",
+            "twin_tail",
+            {"RoundBuddy_Hair_Cap", "RoundBuddy_Hair_TwinTail_L", "RoundBuddy_Hair_TwinTail_R"},
+        ),
+        (
+            "Create a humanoid hero with blue jacket and long layered hair.",
+            "long",
+            {"RoundBuddy_Hair_Cap", "RoundBuddy_Hair_Back"},
+        ),
+    ]
+
+    for prompt, expected_preset, expected_objects in cases:
+        character_spec = normalize_prompt_to_character_spec(prompt)
+        model_spec = build_model_spec_from_character_spec(character_spec)
+        names = {obj["name"] for obj in model_spec["objects"]}
+
+        assert model_spec["hair"]["preset"] == expected_preset
+        assert expected_objects.issubset(names)

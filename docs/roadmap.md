@@ -98,9 +98,11 @@ M4 で実装済みの主な範囲:
 M5 では次の Issue 群で総合テストを進める。
 
 1. [#158](https://github.com/Sunmax0731/blender-mcp/issues/158) M5: 全自動キャラクターモデル生成の総合テストを進める
-2. [#159](https://github.com/Sunmax0731/blender-mcp/issues/159) テスト: dry-run 入力経路の regression matrix を固定する
-3. [#160](https://github.com/Sunmax0731/blender-mcp/issues/160) テスト: live Blender build と strict validation を固定する
-4. [#161](https://github.com/Sunmax0731/blender-mcp/issues/161) テスト: hair preset と retry traceability の回帰を固定する
+2. [#159](https://github.com/Sunmax0731/blender-mcp/issues/159) テスト: dry-run 入力経路の regression matrix を固定する 完了
+3. [#160](https://github.com/Sunmax0731/blender-mcp/issues/160) テスト: live Blender build と strict validation を固定する 完了
+4. [#161](https://github.com/Sunmax0731/blender-mcp/issues/161) テスト: hair preset と retry traceability の回帰を固定する 完了
+
+次の手動テストは `#163 -> #162 -> #164 -> #165` の順で進める。
 
 ## テスト工程の入口条件
 
