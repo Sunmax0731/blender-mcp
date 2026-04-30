@@ -236,6 +236,7 @@ prompt のみを入力として、次の 5 要件をすべて自動で満たす�
   - shape key の既存有無
   - texture path の解決可否
 - ベースデータがある場合でも、どの要件を流用し、どの要件を再生成するかを artifact に残さなければならない
+- `.blend` の流用可能資産検査では、少なくとも `base_asset_manifest.json` と `adaptation_plan.json` を生成しなければならない
 
 #### 9.2.2 内部工程
 

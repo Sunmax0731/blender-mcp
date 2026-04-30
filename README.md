@@ -144,6 +144,15 @@ uv run python .\scripts\convert_vrm_to_blend.py
 - 最新の `VRM Add-on for Blender` release zip を取得し、Blender background で install と import を行う
 - `artifacts/vrm-base-character-convert/` に `.blend`、conversion report、object list を保存する
 
+#### 変換済み `.blend` から base asset manifest を生成
+
+```powershell
+uv run python .\scripts\analyze_base_character_blend.py
+```
+
+- 既定では `artifacts/vrm-base-character-convert/exports/BaseAvatar.blend` を入力に使う
+- `artifacts/base-character-analysis/` に `base_asset_manifest.json`、`adaptation_plan.json`、`object_list.json` を保存する
+
 #### 公式 Blender MCP add-on の導入
 
 PowerShell:

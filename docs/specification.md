@@ -598,6 +598,23 @@ v2 で標準化する主なデータ:
   - どの要件を再生成するか
   - どの object / armature / material を対象にするか
 
+#### `.blend` 流用可能資産検査
+
+- 変換済み `.blend` を Blender background で開き、object / material / image / shape key / UV を抽出する
+- `base_asset_manifest.json` には、初期実装として少なくとも次を残す
+  - `main_mesh_object`
+  - `face_mesh_object`
+  - `reusable_uv`
+  - `reusable_face_topology`
+  - `reusable_rig`
+  - `reusable_shape_keys`
+  - `reusable_hair_objects`
+  - `texture_paths_resolved`
+- `adaptation_plan.json` には、初期実装として少なくとも次を残す
+  - `reuse_targets`
+  - `regenerate_targets`
+  - `target_objects`
+
 ### 8.3.7 画像入力補強契約
 
 画像入力は、次のパッケージ構成を推奨する。
