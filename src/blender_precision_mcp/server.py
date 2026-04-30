@@ -104,8 +104,15 @@ def _make_pending_tool(tool_name: str):
 def validate_scene_against_spec(
     spec_path: str = "templates/precision/model_spec.yaml",
     output_path: str | None = None,
+    live_scene: bool = False,
+    live_scene_snapshot: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    report = validate_model_spec(spec_path=spec_path, output_path=output_path)
+    report = validate_model_spec(
+        spec_path=spec_path,
+        output_path=output_path,
+        live_scene=live_scene,
+        live_scene_snapshot=live_scene_snapshot,
+    )
     return {
         "success": report["status"] != "failed",
         "data": report,

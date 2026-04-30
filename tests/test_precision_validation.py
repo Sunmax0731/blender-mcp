@@ -55,3 +55,71 @@ def test_validate_model_spec_reports_failures(tmp_path):
     assert report["status"] == "failed"
     assert report["failures"]
     assert "suggestion" in report["failures"][0]
+
+
+def test_validate_model_spec_checks_live_scene_snapshot():
+    snapshot = {
+        "available": True,
+        "scene_name": "Scene",
+        "objects": [
+            {
+                "name": "example_body",
+                "type": "MESH",
+                "dimensions": [1.2, 0.4, 0.8],
+                "location": [0.0, 0.0, 0.4],
+                "materials": ["mat_default"],
+                "visible": True,
+            }
+        ],
+        "materials": ["mat_default"],
+        "camera": "Camera",
+        "lights": ["Key_Light"],
+    }
+
+    report = validate_model_spec(MODEL_SPEC, live_scene=True, live_scene_snapshot=snapshot)
+
+    assert report["status"] == "ok"
+    assert report["live_scene"]["available"] is True
+    assert any(check["name"] == "live_scene.objects.example_body.dimensions" for check in report["checks"])
+    assert any(check["name"] == "live_scene.camera" for check in report["checks"])
+    assert any(check["name"] == "live_scene.lights" for check in report["checks"])
+
+
+def test_validate_model_spec_reports_live_scene_measurement_failures():
+    snapshot = {
+        "available": True,
+        "scene_name": "Scene",
+        "objects": [
+            {
+                "name": "example_body",
+                "type": "MESH",
+                "dimensions": [1.5, 0.4, 0.8],
+                "location": [0.2, 0.0, 0.4],
+                "materials": ["wrong_material"],
+                "visible": True,
+            }
+        ],
+        "materials": ["wrong_material"],
+        "camera": None,
+        "lights": [],
+    }
+
+    report = validate_model_spec(MODEL_SPEC, live_scene=True, live_scene_snapshot=snapshot)
+
+    assert report["status"] == "failed"
+    failure_names = {failure["name"] for failure in report["failures"]}
+    assert "live_scene.objects.example_body.dimensions" in failure_names
+    assert "live_scene.objects.example_body.location" in failure_names
+    assert "live_scene.objects.example_body.material" in failure_names
+    assert "live_scene.materials.mat_default" in failure_names
+    assert "live_scene.camera" in failure_names
+    assert "live_scene.lights" in failure_names
+
+
+def test_validate_model_spec_returns_structured_error_when_blender_is_unavailable():
+    report = validate_model_spec(MODEL_SPEC, live_scene=True)
+
+    assert report["status"] == "failed"
+    assert report["live_scene"]["available"] is False
+    assert report["live_scene"]["error"]["code"] == "BLENDER_NOT_AVAILABLE"
+    assert any(failure["name"] == "live_scene" for failure in report["failures"])

@@ -13,5 +13,16 @@
     "This is a sample report. Run scene validation against Blender before release evidence."
   ],
   "failures": [],
-  "artifacts": []
+  "artifacts": [],
+  "live_scene": {
+    "available": false,
+    "error": {
+      "code": "BLENDER_NOT_AVAILABLE",
+      "message": "Blender Python is not available in this sample report."
+    },
+    "objects": [],
+    "materials": [],
+    "camera": null,
+    "lights": []
+  }
 }
