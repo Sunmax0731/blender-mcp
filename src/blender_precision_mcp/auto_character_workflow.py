@@ -10,6 +10,7 @@ import yaml
 
 from .auto_character import build_pipeline_spec
 from .auto_character import normalize_prompt_to_character_spec
+from .auto_character_validation import run_auto_fix_retry_loop
 from .auto_character_validation import validate_auto_character
 from .image_reference_analysis import analyze_image_reference_package
 from .image_reference_analysis import apply_image_reference_to_character_spec
@@ -86,7 +87,10 @@ def run_auto_character_workflow(
     character_spec_path = resolved_output_dir / "character_spec.yaml"
     pipeline_spec_path = resolved_output_dir / "pipeline_spec.yaml"
     validation_report_path = validation_dir / "final_validation_report.json"
+    retry_trace_path = validation_dir / "retry_trace.json"
     run_manifest_path = resolved_output_dir / "run_manifest.json"
+
+    character_spec, pipeline_spec, retry_trace = run_auto_fix_retry_loop(character_spec, pipeline_spec)
 
     prompt_path.write_text(normalized_prompt + "\n", encoding="utf-8")
     character_spec_path.write_text(
@@ -105,6 +109,10 @@ def run_auto_character_workflow(
         image_reference_manifest=image_reference_manifest,
         validation_dir=validation_dir,
     )
+    retry_trace_path.write_text(
+        json.dumps(retry_trace, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
 
     execution = _resolve_execution_context(live=live, pipeline_spec=pipeline_spec)
     artifact_index = _artifact_index(
@@ -118,6 +126,7 @@ def run_auto_character_workflow(
         run_manifest_path=run_manifest_path,
         base_asset_inputs=base_asset_inputs,
         image_reference_manifest=image_reference_manifest,
+        retry_trace_path=retry_trace_path,
     )
     artifact_paths = list(artifact_index.values())
 
@@ -149,6 +158,7 @@ def run_auto_character_workflow(
         execution=execution,
         base_asset_inputs=base_asset_inputs,
         image_reference_manifest=image_reference_manifest,
+        retry_trace=retry_trace,
     )
     run_manifest_path.write_text(
         json.dumps(run_manifest, ensure_ascii=False, indent=2) + "\n",
@@ -168,6 +178,7 @@ def run_auto_character_workflow(
         "run_manifest_path": str(run_manifest_path),
         "base_asset_enabled": base_asset_inputs is not None,
         "image_reference_enabled": image_reference_manifest is not None,
+        "retry_trace_path": str(retry_trace_path),
     }
     summary_path = resolved_output_dir / "dry_run_summary.json"
     summary_path.write_text(
@@ -241,6 +252,7 @@ def _artifact_index(
     run_manifest_path: Path,
     base_asset_inputs: dict[str, Any] | None,
     image_reference_manifest: dict[str, Any] | None,
+    retry_trace_path: Path,
 ) -> dict[str, str]:
     artifacts = {
         "prompt": str(prompt_path),
@@ -251,6 +263,7 @@ def _artifact_index(
         "review_dir": str(review_dir),
         "exports_dir": str(exports_dir),
         "run_manifest": str(run_manifest_path),
+        "retry_trace": str(retry_trace_path),
     }
     if base_asset_inputs is not None:
         artifacts["base_asset_manifest"] = str(validation_report_path.parent / "base_asset_manifest.json")
@@ -272,6 +285,7 @@ def _build_run_manifest(
     execution: dict[str, Any],
     base_asset_inputs: dict[str, Any] | None,
     image_reference_manifest: dict[str, Any] | None,
+    retry_trace: dict[str, Any],
 ) -> dict[str, Any]:
     exported_files: list[str] = []
     final_status = validation_report["status"]
@@ -289,9 +303,11 @@ def _build_run_manifest(
             "validation_report": artifact_index["validation_report"],
             "stage_summary_ref": artifact_index["validation_report"],
             "validator_results_ref": artifact_index["validation_report"],
+            "retry_trace_ref": artifact_index["retry_trace"],
             "final_check_count": len(validation_report.get("checks", [])),
         },
         "execution": execution,
+        "retry_trace_summary": retry_trace,
         "timestamp": datetime.now().isoformat(timespec="seconds"),
     }
     if base_asset_inputs is not None:

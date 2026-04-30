@@ -107,6 +107,8 @@ def build_pipeline_spec(
     pipeline["artifact_plan"]["required_artifacts"] = _required_artifacts_for_type(
         character_spec["character_type"]
     )
+    if "validation/retry_trace.json" not in pipeline["artifact_plan"]["required_artifacts"]:
+        pipeline["artifact_plan"]["required_artifacts"].append("validation/retry_trace.json")
     if base_asset_inputs:
         pipeline["artifact_plan"]["required_artifacts"].extend(
             [

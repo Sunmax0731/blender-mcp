@@ -79,7 +79,9 @@ def test_run_auto_character_workflow_writes_run_manifest_for_traceability(tmp_pa
     )
     assert manifest["validation_trace"]["stage_summary_ref"] == manifest["artifact_paths"]["validation_report"]
     assert manifest["validation_trace"]["validator_results_ref"] == manifest["artifact_paths"]["validation_report"]
+    assert manifest["validation_trace"]["retry_trace_ref"] == manifest["artifact_paths"]["retry_trace"]
     assert manifest["fallbacks_used"] == []
+    assert (output_dir / "validation" / "retry_trace.json").exists()
 
 
 def test_run_auto_character_workflow_copies_base_asset_artifacts_and_traceability(tmp_path):

@@ -75,6 +75,7 @@ def test_build_pipeline_spec_matches_schema_and_adds_type_specific_inputs():
     assert "creature_pose_library" in pipeline_spec["weight_stage"]["inputs"]
     assert "creature_balance_final" in pipeline_spec["validation_plan"]["final_validators"]
     assert "review/back.png" in pipeline_spec["artifact_plan"]["required_artifacts"]
+    assert "validation/retry_trace.json" in pipeline_spec["artifact_plan"]["required_artifacts"]
 
 
 def test_build_pipeline_spec_adds_base_asset_branching_when_manifest_is_present():
