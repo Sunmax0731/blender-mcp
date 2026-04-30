@@ -174,6 +174,36 @@ prompt のみを入力として、次の 5 要件をすべて自動で満たす�
 - 初期対象類型は `humanoid`、`chibi`、`creature` の 3 類型とする
 - 見た目再現の初期要件には、マテリアル、UV、画像テクスチャを含める
 
+#### 9.2.1a ベースキャラクターデータ受け渡し要件
+
+- 利用者がベースデータを提供する場合、最優先の受け取り形式は `.blend` とする
+- `.blend` が難しい場合の代替は `.fbx` または `.glb` とし、texture 一式と補足 metadata を必須とする
+- ベースデータには、少なくとも次の補足情報を付与できなければならない
+  - main mesh object 名
+  - armature object 名
+  - face topology を流用してよいか
+  - UV を流用してよいか
+  - shape key の有無
+  - texture の同梱有無
+  - 改変許可範囲
+  - 禁止事項
+- ベースデータ受け渡しでは、少なくとも次の同梱物を推奨する
+  - `notes.md`
+  - `previews/front.png`
+  - `previews/side.png`
+  - `previews/back.png`
+  - 必要に応じて `previews/face_closeup.png`
+  - `textures/`
+- ベースデータを受け取った場合、pipeline は完全新規生成より先に流用可能資産の検査を行わなければならない
+- 流用可能資産の検査では、少なくとも次を確認しなければならない
+  - object / armature / material 命名の把握可能性
+  - UV の有無と破綻有無
+  - face topology の再利用可否
+  - rig の再利用可否
+  - shape key の既存有無
+  - texture path の解決可否
+- ベースデータがある場合でも、どの要件を流用し、どの要件を再生成するかを artifact に残さなければならない
+
 #### 9.2.2 内部工程
 
 - 自動生成パイプラインは、少なくとも次の工程に分割されなければならない

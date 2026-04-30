@@ -517,6 +517,71 @@ v2 で標準化する主なデータ:
 - 部位構成、骨格構成、表情辞書、pose test は類型別差分対象とする
 - 類型ごとの template は共通 schema に従うが、必須部位と必須骨の集合は異なってよい
 
+### 8.3.6 ベースキャラクターデータ受け渡し契約
+
+ベースキャラクターデータは、次の優先順位で受け取る。
+
+- 第 1 優先
+  - `base_character.blend`
+- 第 2 優先
+  - `base_character.fbx`
+  - `base_character.glb`
+- 補助ファイル
+  - `notes.md`
+  - `previews/front.png`
+  - `previews/side.png`
+  - `previews/back.png`
+  - `previews/face_closeup.png`
+  - `textures/`
+
+#### `notes.md` 必須項目
+
+`notes.md` は、少なくとも次を含む。
+
+- main mesh object 名
+- armature object 名
+- face 用 object 名
+- hair 用 object / collection 名
+- 利用する texture directory
+- UV 再利用可否
+- face topology 再利用可否
+- rig 再利用可否
+- shape key 既存有無
+- 改変許可範囲
+- 改変禁止事項
+- 目標キャラとの差分メモ
+
+#### import 前 validation
+
+ベースデータ import 前には、少なくとも次を確認する。
+
+- main mesh object が特定できる
+- armature object が特定できる、または未所持であることが明示されている
+- UV が存在するか
+- texture file path を解決できるか
+- face topology を表情生成に流用できるか
+- shape key が既にある場合、上書きか共存かを選べるか
+- hair object / collection を本体と分離して扱えるか
+
+#### 再利用範囲の記録
+
+ベースデータ利用時の artifact には、少なくとも次を残す。
+
+- `base_asset_manifest.json`
+  - source file path
+  - imported object list
+  - imported armature list
+  - imported material list
+  - reusable_uv
+  - reusable_face_topology
+  - reusable_rig
+  - reusable_shape_keys
+  - reusable_hair_objects
+- `adaptation_plan.json`
+  - どの要件を流用するか
+  - どの要件を再生成するか
+  - どの object / armature / material を対象にするか
+
 ### 8.4 add-on integration
 
 Blender add-on は、登録済み operator、Python API、batch 実行、context 準備の可否を確認できるものだけを自動化対象にする。
