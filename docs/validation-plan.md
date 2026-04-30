@@ -23,7 +23,7 @@
 - Blender extension 管理経路へ導入できる
 - Blender の `Get Extensions` で `MCP` が認識される
 - 公式 `mcp` が有効化される
-- 公式 MCP server を `.official-mcp-venv` へ導入できる
+- 公式 MCP server を専用仮想環境へ導入できる
 - `blender-mcp --help` が実行できる
 - Codex 設定へ `mcp_servers.blender-official` を追記できる
 - `blender-mcp-installer --plan` で実行予定ステップを確認できる
@@ -58,7 +58,7 @@
 - 展開済みファイル一覧
 - Blender add-on 配置結果
 - 公式 `mcp` 有効化ログ
-- `.official-mcp-venv` の作成結果
+- 公式 MCP server 専用仮想環境の作成結果
 - Codex 設定更新結果
 - Codex App からの接続結果
 - Blender UI プロンプト導線の Preview / Confirm / Execute 確認結果

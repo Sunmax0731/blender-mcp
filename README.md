@@ -65,6 +65,7 @@ cd /d <repo>
 ### 1. 1クリック導入アプリ
 
 Release 版を使う場合は、GitHub Release から `blender-mcp-installer.exe` を取得して実行します。
+導入前後の確認項目は [v0.1.0 setup checklist](docs/setup-checklist-v0.1.0.md) を参照してください。
 開発版をリポジトリから起動する場合:
 
 ```powershell
@@ -94,6 +95,14 @@ uv run blender-mcp-installer --headless --no-launch-blender
 ```
 
 headless 実行では `artifacts/one-click-installer/` 配下へログを残せます。
+
+v2 precision profile を任意で導入する場合:
+
+```powershell
+uv run blender-mcp-installer --headless --include-precision-profile
+```
+
+precision profile は、Codex 用 template、Skill、subagent template を追加する任意導線です。通常の公式 Blender MCP 導入だけを使う場合は有効にする必要はありません。
 
 ### 2. 導入後の確認
 
@@ -212,6 +221,7 @@ uv sync --python 3.11 --extra dev
 - [検証計画](docs/validation-plan.md)
 - [リリース計画](docs/release-plan.md)
 - [v0.1.0 release scope](docs/release-scope-v0.1.0.md)
+- [v0.1.0 setup checklist](docs/setup-checklist-v0.1.0.md)
 - [v2 release validation](docs/release-validation-v2.md)
 - [Blender MCP 実行例](docs/examples.md)
 - [配布用 Skill](docs/skills.md)

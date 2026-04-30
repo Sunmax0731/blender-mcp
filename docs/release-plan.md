@@ -99,7 +99,7 @@ v0.1.0 の詳細な scope と Go / No-Go 条件は [v0.1.0 release scope](releas
 
 ## 5. リリース手順
 1. `uv sync --python 3.11 --extra dev`
-2. `.venv\Scripts\python.exe -m pytest`
+2. `uv run pytest`
 3. `uv run blender-mcp-installer --plan`
 4. Blender 実機で 1 クリック導入アプリの手動確認を行う
 5. Codex App から公式 MCP tool の live 接続確認を行う
