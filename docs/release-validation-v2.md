@@ -43,6 +43,8 @@ v2 precision profile の release 前に、導入、sidecar MCP server、validati
 - `scripts/inspect_precision_addons.py --mode capabilities` が approved operator metadata を返す
 - registry にない operator は execution wrapper で拒否される
 - destructive operator は `backup_required` を要求する
+- destructive operator は `confirm=true` なしでは `confirmation_required` を返す
+- `backup_required=true` の operator は実行前に target / active object を duplicate し、backup object 名を result に残す
 - Blender Python がない環境では structured failure を返す
 
 ### 1.6 Blender UI prompt flow
@@ -121,9 +123,36 @@ uv run python scripts\capture_precision_review_views.py --dry-run --views front,
 
 実 screenshot は Blender Python または公式 Blender MCP から Blender 側の render / screenshot API を実行し、生成された PNG を `analyze_review_image` で確認する。
 
-## 5. Examples
+## 5. Issue #92 Approved Operator Live Integration Smoke
 
-### 5.1 Scene Analysis
+approved add-on operator は `preview -> confirm -> execute` と backup を必須条件として扱う。
+
+確認項目:
+
+- `dry_run=true` は operator、mapped parameter、context、`safety_actions` を返す
+- destructive operator は `confirm=true` なしでは `confirmation_required` を返す
+- `backup_required=true` の operator は実行前に target object または active object を duplicate する
+- operator 実行結果、backup object 名、context error を structured result に残す
+- Blender 内 Python で registry JSON を使った representative operator smoke が通る
+
+最小 smoke:
+
+```powershell
+uv run pytest tests\test_precision_operator_execution.py
+uv run python scripts\inspect_precision_addons.py --mode operators
+```
+
+live smoke では公式 Blender MCP から一時 operator `object.codex_smoke_backup` を登録し、次を確認した。
+
+- preview: `success=true`
+- confirm なし execute: `confirmation_required`
+- confirm あり execute: `success=true`
+- backup: `CodexSmokeTarget_backup_before_object_codex_smoke_backup`
+- result: `FINISHED`
+
+## 6. Examples
+
+### 6.1 Scene Analysis
 
 目的: Blender scene を確認し、現在の構成、検証結果、改善点を把握する。
 
@@ -139,7 +168,7 @@ uv run python scripts\capture_precision_review_views.py --dry-run --views front,
 
 v2 precision profile では、必要に応じて `get_scene_snapshot`、`validate_scene_against_spec`、`capture_review_views` を使い、validation report と review artifact を残す。
 
-### 5.2 Various Prompts
+### 6.2 Various Prompts
 
 目的: 利用者が自然言語で複数種類のモデリング依頼を試せるようにする。
 
@@ -157,15 +186,16 @@ v2 precision profile では、必要に応じて `get_scene_snapshot`、`validat
 approved add-on registry を確認し、利用可能な retopology operator と実行前に必要な context を説明してください。
 ```
 
-## 6. Known Limitations
+## 7. Known Limitations
 
 - v2 sidecar の一部 tool は公開制御と structured `not_implemented` までの初期実装である
 - visual QA の実 screenshot 保存は Blender Python または公式 Blender MCP から Blender render / screenshot API を実行する必要がある
 - visual QA の自動判定は blank / bounding box の最低限チェックであり、意味的な見た目評価は人の review が必要である
-- add-on operator の live 実行は Blender Python と対象 add-on が導入済みの環境で検証する必要がある
+- 実 add-on operator の live 実行は Blender Python と対象 add-on が導入済みの環境で検証する必要がある
+- 現時点の live smoke は一時登録 operator による統合経路確認であり、外部 retopology add-on 固有の品質評価は別途必要である
 - precision profile installer は Codex home へ template / Skill / subagent をコピーする。v1 系では `blender_precision` MCP server の自動登録は行わない
 
-## 7. v2 初期 Release 判断
+## 8. v2 初期 Release 判断
 
 v2 初期 Release は、以下を満たす場合に候補とする。
 

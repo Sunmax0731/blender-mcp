@@ -117,3 +117,32 @@ uv run python scripts\capture_precision_review_views.py --dry-run --views front,
 - `bounding_box_check`: 背景と異なる pixel の bounding box が小さすぎる場合に failed
 
 現在の自動チェックは最低限の破綻検知です。キャラクターらしさ、意図した表情、構図の良し悪しは `captures[]` の画像を人が確認します。
+
+## approved add-on operator
+
+`addon_registry.yaml` に登録した operator は、`run_approved_addon_operator` または `apply_retopology` から実行します。
+
+安全導線:
+
+1. `dry_run=true` で preview し、operator、parameter、context、`safety_actions` を確認する
+2. destructive operator は `confirm=true` がない限り実行しない
+3. `backup_required=true` の operator は、実行前に target object または active object を duplicate する
+4. 実行結果には backup object 名、operator result、structured error を残す
+
+主な error code:
+
+- `not_approved`: registry に登録されていない operator
+- `confirmation_required`: destructive operator に `confirm=true` がない
+- `backup_policy_violation`: destructive operator が backup 必須になっていない
+- `backup_failed`: backup 作成に失敗
+- `context_not_ready`: active object / selected object / mode などの context が不足
+- `operator_missing`: Blender に operator が登録されていない
+- `operator_execution_failed`: operator 実行時例外
+
+実行例:
+
+```powershell
+uv run python scripts\inspect_precision_addons.py --mode operators
+```
+
+実 operator の live 実行は Blender 内 Python または公式 Blender MCP から行います。まず `dry_run=true`、次に `confirm=true` の順で実行し、backup が作成されたことを確認します。

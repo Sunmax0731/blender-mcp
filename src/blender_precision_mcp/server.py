@@ -168,12 +168,14 @@ def apply_retopology(
     target_face_count: int,
     registry_path: str = "templates/precision/addon_registry.yaml",
     dry_run: bool = True,
+    confirm: bool = False,
 ) -> dict[str, Any]:
     return apply_retopology_impl(
         target_object=target_object,
         target_face_count=target_face_count,
         registry_path=registry_path,
         dry_run=dry_run,
+        confirm=confirm,
     )
 
 
@@ -182,10 +184,12 @@ def run_approved_addon_operator(
     parameters: dict[str, Any] | None = None,
     registry_path: str = "templates/precision/addon_registry.yaml",
     dry_run: bool = True,
+    confirm: bool = False,
 ) -> dict[str, Any]:
     return run_approved_addon_operator_impl(
         operator_idname=operator_idname,
         parameters=parameters,
         registry_path=registry_path,
         dry_run=dry_run,
+        confirm=confirm,
     )
