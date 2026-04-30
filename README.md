@@ -42,6 +42,40 @@
 
 v1 系では、Blender の N メニューに独自の補助 Prompt UI は表示しません。
 Blender 側では公式 `MCP` add-on の Preferences を確認し、モデリング指示は Codex App から行います。
+旧補助 Prompt UI は新規導線の仕様から削除済みで、現在 repo に残しているのは過去環境を片付けるための cleanup script だけです。
+
+## 現在地
+
+2026-04-30 時点で、全自動キャラクタートラックは次の状態です。
+
+- M1 要件定義: 完了
+- M2 仕様検討: 完了
+- M3 設計: 完了
+- M4 実装: 進行中
+- M5 テスト: 未着手
+- M6 リリース: 未着手
+
+実装済みの主な範囲:
+
+- `character_spec` / `pipeline_spec` の正規化
+- 類型別 template / library
+- dry-run workflow と validator 骨格
+- live scene build と strict validation
+- live rig / shape key / weight bridge
+- `BaseAvatar.vrm -> BaseAvatar.blend` 変換
+- `base_character_package/BaseAvatar.blend` への同期保存
+- `.blend` から `base_asset_manifest.json` / `adaptation_plan.json` 生成
+
+テスト工程へ入る前に必要な実装:
+
+1. [#151](https://github.com/Sunmax0731/blender-mcp/issues/151) base asset manifest を auto character pipeline に接続する
+2. [#156](https://github.com/Sunmax0731/blender-mcp/issues/156) 画像入力から `character_spec` 補強と `image_reference_manifest` を生成する
+3. [#153](https://github.com/Sunmax0731/blender-mcp/issues/153) hair preset library と live hair build を追加する
+4. [#154](https://github.com/Sunmax0731/blender-mcp/issues/154) auto-fix retry loop と stage retry traceability を追加する
+
+判断の残件:
+
+- [#148](https://github.com/Sunmax0731/blender-mcp/issues/148) hair preset と外部 add-on 方針
 
 ## セットアップ
 
