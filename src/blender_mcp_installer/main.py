@@ -44,6 +44,7 @@ class InstallerApp:
         self.confirm_var = tk.BooleanVar(value=False)
         self.status_var = tk.StringVar(value="Ready.")
         self.log_path_var = tk.StringVar(value="Log not created")
+        self.install_succeeded = False
 
         self.root_window.title("Blender MCP One-Click Installer")
         self.root_window.geometry("900x700")
@@ -87,6 +88,14 @@ class InstallerApp:
         self.start_button = tk.Button(controls, text="Start Install", command=self._start_install)
         self.start_button.pack(side=tk.LEFT)
 
+        self.finish_button = tk.Button(
+            controls,
+            text="Finish",
+            command=self._finish_install,
+            state=tk.DISABLED,
+        )
+        self.finish_button.pack(side=tk.LEFT, padx=(8, 0))
+
         tk.Label(controls, textvariable=self.status_var, anchor="w").pack(side=tk.LEFT, padx=(12, 0))
 
         tk.Label(container, text="Log").pack(anchor="w")
@@ -96,10 +105,13 @@ class InstallerApp:
         tk.Label(container, textvariable=self.log_path_var, anchor="w", pady=8).pack(fill=tk.X)
 
     def _update_start_button(self) -> None:
-        self.start_button.configure(state=tk.NORMAL if self.confirm_var.get() else tk.DISABLED)
+        can_start = self.confirm_var.get() and not self.install_succeeded
+        self.start_button.configure(state=tk.NORMAL if can_start else tk.DISABLED)
 
     def _start_install(self) -> None:
+        self.install_succeeded = False
         self.start_button.configure(state=tk.DISABLED)
+        self.finish_button.configure(state=tk.DISABLED)
         self.log_text.configure(state=tk.NORMAL)
         self.log_text.delete("1.0", tk.END)
         self.log_text.configure(state=tk.DISABLED)
@@ -143,13 +155,17 @@ class InstallerApp:
                 success, log_path = event.payload  # type: ignore[misc]
                 self.log_path_var.set(f"Log path: {log_path}")
                 if success:
+                    self.install_succeeded = True
                     self.status_var.set("Install completed. Restart Codex App before live validation.")
+                    self.finish_button.configure(state=tk.NORMAL)
                     messagebox.showinfo(
                         "Completed",
-                        "Install completed.\nRestart Codex App and validate while Blender is running.",
+                        "Install completed.\nClick Finish to close this installer.",
                     )
                 else:
+                    self.install_succeeded = False
                     self.status_var.set("Install failed. Check the log and try again.")
+                    self.finish_button.configure(state=tk.DISABLED)
                     messagebox.showerror(
                         "Failed",
                         "Install failed.\nCheck the log output and retry.",
@@ -157,6 +173,9 @@ class InstallerApp:
                 self._update_start_button()
 
         self.root_window.after(150, self._drain_events)
+
+    def _finish_install(self) -> None:
+        self.root_window.destroy()
 
     def _append_log(self, message: str) -> None:
         self.log_text.configure(state=tk.NORMAL)
