@@ -80,6 +80,7 @@ v2 完成時点で、利用者は次を実行できる状態を目指す。
 - modal / UI 専用 operator は structured failure として扱う
 - 破壊的 operator は backup 後にだけ実行する
 - `scripts/inspect_precision_addons.py` で registry と導入済み add-on 状態を確認する
+- approved operator wrapper は registry、context、poll、backup policy を通過した operator だけを実行対象にする
 
 ### Phase v2-6: Blender UI prompt flow 統合
 

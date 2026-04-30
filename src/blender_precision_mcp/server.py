@@ -9,6 +9,8 @@ from .addons import inspect_addon_capabilities as inspect_addon_capabilities_imp
 from .addons import list_blender_addons as list_blender_addons_impl
 from .addons import list_registered_operators as list_registered_operators_impl
 from .config import ResolvedPrecisionConfig
+from .operator_execution import apply_retopology as apply_retopology_impl
+from .operator_execution import run_approved_addon_operator as run_approved_addon_operator_impl
 from .tool_catalog import not_implemented_payload
 from .tool_catalog import resolve_public_tool_definitions
 from .validation import validate_model_spec
@@ -71,6 +73,13 @@ def create_mcp_server(resolved: ResolvedPrecisionConfig) -> FastMCP:
         if tool_definition.name == "list_registered_operators":
             mcp_server.add_tool(
                 list_registered_operators,
+                name=tool_definition.name,
+                description=tool_definition.description,
+            )
+            continue
+        if tool_definition.name == "apply_retopology":
+            mcp_server.add_tool(
+                apply_retopology,
                 name=tool_definition.name,
                 description=tool_definition.description,
             )
@@ -145,3 +154,31 @@ def list_registered_operators(
     registry_path: str = "templates/precision/addon_registry.yaml",
 ) -> dict[str, Any]:
     return list_registered_operators_impl(registry_path=registry_path)
+
+
+def apply_retopology(
+    target_object: str,
+    target_face_count: int,
+    registry_path: str = "templates/precision/addon_registry.yaml",
+    dry_run: bool = True,
+) -> dict[str, Any]:
+    return apply_retopology_impl(
+        target_object=target_object,
+        target_face_count=target_face_count,
+        registry_path=registry_path,
+        dry_run=dry_run,
+    )
+
+
+def run_approved_addon_operator(
+    operator_idname: str,
+    parameters: dict[str, Any] | None = None,
+    registry_path: str = "templates/precision/addon_registry.yaml",
+    dry_run: bool = True,
+) -> dict[str, Any]:
+    return run_approved_addon_operator_impl(
+        operator_idname=operator_idname,
+        parameters=parameters,
+        registry_path=registry_path,
+        dry_run=dry_run,
+    )
