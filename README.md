@@ -26,7 +26,7 @@
 - 公式リリース: [blender_mcp releases](https://projects.blender.org/lab/blender_mcp/releases)
 
 このリポジトリの初期対応版は、2026-04-30 時点で確認した公式 Blender MCP `v1.0.0` です。
-このリポジトリの初回 GitHub Release 版数は `v0.1.0` を予定しています。
+このリポジトリの初回 GitHub Release は [`v0.1.0`](https://github.com/Sunmax0731/blender-mcp/releases/tag/v0.1.0) です。
 
 ## 現在の構成方針
 
@@ -64,7 +64,7 @@ cd /d <repo>
 
 ### 1. 1クリック導入アプリ
 
-Release 版を使う場合は、GitHub Release から `blender-mcp-installer.exe` を取得して実行します。
+Release 版を使う場合は、[`v0.1.0` Release](https://github.com/Sunmax0731/blender-mcp/releases/tag/v0.1.0) から `blender-mcp-installer.exe` を取得して実行します。
 導入前後の確認項目は [v0.1.0 setup checklist](docs/setup-checklist-v0.1.0.md) を参照してください。
 開発版をリポジトリから起動する場合:
 
@@ -206,7 +206,7 @@ uv sync --python 3.11 --extra dev
 
 - `exe` は `dist/one-click-installer/` 配下へ生成する
 
-初回 GitHub Release では、主配布物として `blender-mcp-installer.exe` を添付します。
+初回 GitHub Release では、[`v0.1.0`](https://github.com/Sunmax0731/blender-mcp/releases/tag/v0.1.0) に主配布物として `blender-mcp-installer.exe` を添付しています。
 公式 Blender MCP の `mcp-1.0.0.zip` は、このリポジトリの Release asset としては再配布しません。
 
 ## ドキュメント
@@ -227,6 +227,6 @@ uv sync --python 3.11 --extra dev
 - [v2 release validation](docs/release-validation-v2.md)
 - [Blender MCP 実行例](docs/examples.md)
 - [配布用 Skill](docs/skills.md)
-- [初回 Release ノート案](docs/release-notes-v0.1.0.md)
+- [v0.1.0 Release notes](docs/release-notes-v0.1.0.md)
 - [運用ルール](AGENTS.md)
 - [必要スキル](Skill.md)
