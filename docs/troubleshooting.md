@@ -61,6 +61,14 @@ precision profile は optional experimental 機能です。
 
 通常の Blender MCP 導入だけを使う場合は、precision profile を導入しなくても構いません。高品質モデリング支援用の template、Skill、subagent template を試したい場合だけ有効にしてください。
 
+config 追記予定を確認する場合:
+
+```powershell
+.\scripts\install_precision_profile.ps1 -PlanConfigMerge
+```
+
+precision profile 導入後に Codex App 側の挙動が不安定な場合は、`config.toml.backup-<timestamp>` 形式のバックアップを確認してください。
+
 ## 6. Blender UI prompt が実行できない
 
 確認すること:

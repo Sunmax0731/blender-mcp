@@ -78,6 +78,69 @@ def test_default_steps_can_include_precision_profile() -> None:
         "enable-addon",
         "precision-profile",
     ]
+    assert steps[-1].extra_args == ("-MergeCodexConfig",)
+
+
+def test_precision_profile_script_can_plan_config_merge(tmp_path: Path) -> None:
+    repo_root = Path(__file__).resolve().parents[1]
+    script_path = repo_root / "scripts" / "install_precision_profile.ps1"
+    codex_home = tmp_path / "codex-home"
+
+    result = subprocess.run(
+        [
+            "powershell",
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(script_path),
+            "-CodexHome",
+            str(codex_home),
+            "-PlanConfigMerge",
+        ],
+        cwd=repo_root,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0
+    assert "Codex config merge preview" in result.stdout
+    assert "[mcp_servers.blender_precision]" in result.stdout
+    assert not (codex_home / "config.toml").exists()
+
+
+def test_precision_profile_script_merges_config_with_backup(tmp_path: Path) -> None:
+    repo_root = Path(__file__).resolve().parents[1]
+    script_path = repo_root / "scripts" / "install_precision_profile.ps1"
+    codex_home = tmp_path / "codex-home"
+    codex_home.mkdir()
+    config_path = codex_home / "config.toml"
+    config_path.write_text('[mcp_servers.existing]\ncommand = "tool"\n', encoding="utf-8")
+
+    result = subprocess.run(
+        [
+            "powershell",
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(script_path),
+            "-CodexHome",
+            str(codex_home),
+            "-MergeCodexConfig",
+        ],
+        cwd=repo_root,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0
+    merged = config_path.read_text(encoding="utf-8")
+    assert "[mcp_servers.existing]" in merged
+    assert "[mcp_servers.blender_precision]" in merged
+    assert list(codex_home.glob("config.toml.backup-*"))
 
 
 def test_default_steps_do_not_surface_legacy_context() -> None:

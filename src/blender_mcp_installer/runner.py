@@ -70,6 +70,7 @@ def default_steps(
                 name="precision-profile",
                 script_path=scripts_dir / "install_precision_profile.ps1",
                 description="Install optional precision profile templates, Skill, and subagent files.",
+                extra_args=("-MergeCodexConfig",),
             )
         )
     if include_launch_blender:
