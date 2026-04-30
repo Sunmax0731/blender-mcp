@@ -105,3 +105,14 @@
 ## 7. リリース後の扱い
 - 初回リリース後に見つかった制約や改善要望は GitHub Issue に分離して管理する
 - 配布形態の改善と追加自動化は次フェーズ課題とする
+
+## 8. Release milestone
+
+v0.1.0 Release までの工程と Issue は [Release milestone plan](release-milestones.md) で管理する。
+
+工程:
+
+1. M1: Release scope freeze
+2. M2: Packaging and installer validation
+3. M3: Blender and Codex live validation
+4. M4: Release publication
