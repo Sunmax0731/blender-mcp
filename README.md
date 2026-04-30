@@ -26,7 +26,7 @@
 - 公式リリース: [blender_mcp releases](https://projects.blender.org/lab/blender_mcp/releases)
 
 このリポジトリの初期対応版は、2026-04-30 時点で確認した公式 Blender MCP `v1.0.0` です。
-このリポジトリの初回 GitHub Release は [`v0.1.0`](https://github.com/Sunmax0731/blender-mcp/releases/tag/v0.1.0) です。次期正式 Release は `v1.0.0` として準備しています。
+このリポジトリの正式 Release は [`v1.0.1`](https://github.com/Sunmax0731/blender-mcp/releases/tag/v1.0.1) です。
 
 ## 現在の構成方針
 
@@ -64,7 +64,7 @@ cd /d <repo>
 
 ### 1. 1クリック導入アプリ
 
-Release 版を使う場合は、[`v0.1.0` Release](https://github.com/Sunmax0731/blender-mcp/releases/tag/v0.1.0) から `blender-mcp-installer.exe` を取得して実行します。
+Release 版を使う場合は、[`v1.0.1` Release](https://github.com/Sunmax0731/blender-mcp/releases/tag/v1.0.1) から `blender-mcp-installer.exe` を取得して実行します。
 導入手順は [利用者向け導入手順](docs/user-installation.md)、使い方は [利用者向け利用方法](docs/user-guide.md) を参照してください。
 開発版をリポジトリから起動する場合:
 
@@ -225,6 +225,8 @@ v1.0.0 Release 準備:
 - [v1.0.0 installer safety checklist](docs/installer-safety-v1.0.0.md)
 - [v1.0.0 release manifest](docs/release-manifest-v1.0.0.md)
 - [v1.0.0 Release notes](docs/release-notes-v1.0.0.md)
+- [v1.0.1 release manifest](docs/release-manifest-v1.0.1.md)
+- [v1.0.1 Release notes](docs/release-notes-v1.0.1.md)
 
 設計・開発者向け:
 
