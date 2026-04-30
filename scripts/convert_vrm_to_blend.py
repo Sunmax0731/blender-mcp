@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import shutil
 import subprocess
 import sys
 import urllib.request
@@ -30,6 +31,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
         type=Path,
         default=ROOT / "artifacts" / "vrm-base-character-convert",
     )
+    parser.add_argument("--package-blend-path", type=Path, default=None)
     parser.add_argument("--blender-exe", type=Path, default=None)
     return parser
 
@@ -60,6 +62,11 @@ def main() -> int:
     report_path = validation_dir / "vrm_conversion_report.json"
     object_list_path = validation_dir / "object_list.json"
     blend_path = export_dir / f"{vrm_path.stem}.blend"
+    package_blend_path = (
+        args.package_blend_path.resolve()
+        if args.package_blend_path is not None
+        else vrm_path.with_suffix(".blend")
+    )
     summary_path = output_dir / "conversion_summary.json"
 
     blender_script_path.write_text(
@@ -104,11 +111,15 @@ def main() -> int:
     if result.returncode == 0 and report_path.exists():
         report = json.loads(report_path.read_text(encoding="utf-8"))
         summary["success"] = report.get("status") == "ok" and blend_path.exists()
+        if summary["success"]:
+            package_blend_path.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(blend_path, package_blend_path)
         summary["results"] = {
             "object_count": report.get("object_count"),
             "armatures": report.get("armatures", []),
             "materials": len(report.get("materials", [])),
         }
+        summary["artifacts"]["package_blend"] = str(package_blend_path)
     else:
         summary["error"] = {
             "code": "blender_vrm_import_failed",

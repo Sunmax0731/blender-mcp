@@ -143,6 +143,7 @@ uv run python .\scripts\convert_vrm_to_blend.py
 - `templates/precision/base_character_package/BaseAvatar.vrm` を既定入力に使う
 - 最新の `VRM Add-on for Blender` release zip を取得し、Blender background で install と import を行う
 - `artifacts/vrm-base-character-convert/` に `.blend`、conversion report、object list を保存する
+- あわせて `templates/precision/base_character_package/BaseAvatar.blend` にも同じ `.blend` を保存する
 
 #### 変換済み `.blend` から base asset manifest を生成
 
