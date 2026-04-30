@@ -1,3 +1,4 @@
-﻿[mcp_servers.blender-official]
+[mcp_servers.blender-official]
 command = "powershell"
-args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "D:\\Claude\\MCP\\scripts\\start_official_blender_mcp.ps1"]
+# C:\\path\\to\\blender-mcp は、このリポジトリを clone したパスに置き換える。
+args = ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "C:\\path\\to\\blender-mcp\\scripts\\start_official_blender_mcp.ps1"]

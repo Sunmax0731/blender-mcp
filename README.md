@@ -25,7 +25,7 @@
 - 公式リポジトリ: [lab/blender_mcp](https://projects.blender.org/lab/blender_mcp)
 - 公式リリース: [blender_mcp releases](https://projects.blender.org/lab/blender_mcp/releases)
 
-2026-04-30 時点で確認した最新安定版は `v1.0.0` です。
+このリポジトリの初期対応版は、2026-04-30 時点で確認した公式 Blender MCP `v1.0.0` です。
 このリポジトリの初回 GitHub Release 版数は `v0.1.0` を予定しています。
 
 ## 現在の構成方針
@@ -48,43 +48,97 @@
 
 ## セットアップ
 
-### 1. Python 依存
+以下のコマンドは、clone したリポジトリのルートで実行してください。
 
 ```powershell
-cd D:\Claude\MCP
+Set-Location <repo>
+```
+
+コマンドプロンプトを使う場合:
+
+```bat
+cd /d <repo>
+```
+
+`<repo>` は、このリポジトリを clone または展開したディレクトリに置き換えてください。
+
+### 1. 1クリック導入アプリ
+
+Release 版を使う場合は、GitHub Release から `blender-mcp-installer.exe` を取得して実行します。
+開発版をリポジトリから起動する場合:
+
+```powershell
+uv run blender-mcp-installer
+```
+
+- GUI から導入開始、進捗確認、ログ確認ができる
+- Codex 設定、公式 Blender MCP server、Blender add-on の導入を順番に実行する
+- 導入完了後は Blender を自動起動して、そのまま手動確認へ移れる
+
+実行予定ステップだけ確認する場合:
+
+```powershell
+uv run blender-mcp-installer --plan
+```
+
+GUI を使わず導入ログを採取する場合:
+
+```powershell
+uv run blender-mcp-installer --headless
+```
+
+GUI を使わず導入し、最後の Blender 起動だけ抑止する場合:
+
+```powershell
+uv run blender-mcp-installer --headless --no-launch-blender
+```
+
+headless 実行では `artifacts/one-click-installer/` 配下へログを残せます。
+
+### 2. 導入後の確認
+
+Blender 側:
+
+1. `Edit > Preferences > Get Extensions` を開く
+2. `MCP` が導入済みで有効になっていることを確認する
+3. Blender の `Online Access` が有効になっていることを確認する
+4. add-on 設定で host / port / autostart を確認する
+
+Codex App 側:
+
+1. Codex App を再起動する
+2. `blender-official` MCP server が利用できることを確認する
+3. Blender を起動した状態で、MCP tool から状態取得やスクリーンショット取得を試す
+
+公式 add-on はローカル TCP bridge server を使うため、`Online Access` が無効だと起動できません。
+
+### 3. 手動導入
+
+1クリック導入アプリを使わずに個別ステップを実行したい場合の手順です。
+
+#### Python 依存
+
+```powershell
 uv sync --python 3.11 --extra dev
 ```
 
-### 2. 公式 Blender MCP add-on の導入
+#### 公式 Blender MCP add-on の導入
 
 PowerShell:
 
 ```powershell
-cd D:\Claude\MCP
 .\scripts\install_official_blender_mcp.ps1
 ```
 
 コマンドプロンプト:
 
 ```bat
-cd /d D:\Claude\MCP
 scripts\install_official_blender_mcp.cmd
 ```
-
-導入後の Blender 側確認:
-
-1. `Edit > Preferences > Get Extensions` を開く
-2. `MCP` を検索して表示されることを確認する
-3. Blender の `Online Access` を有効にする
-4. add-on 設定で host / port / autostart を確認する
-
-公式 add-on はローカル TCP bridge server を使うため、`Online Access` が無効だと起動できません。
-このスクリプトは Blender 5.1 の extension 管理経路 `user_default` へ導入します。
 
 有効化を自動化したい場合:
 
 ```powershell
-cd D:\Claude\MCP
 .\scripts\enable_official_blender_mcp_addon.ps1
 ```
 
@@ -92,92 +146,55 @@ cd D:\Claude\MCP
 - Blender 5.1 extension key `bl_ext.*.mcp` にも対応する
 - `host=localhost` `port=9876` `autostart=True` を確認できる
 
-### 3. テスト
-
-```powershell
-cd D:\Claude\MCP
-uv run pytest
-```
-
-### 4. 公式 Blender MCP server の導入
+#### 公式 Blender MCP server の導入
 
 PowerShell:
 
 ```powershell
-cd D:\Claude\MCP
 .\scripts\install_official_blender_mcp_server.ps1
 ```
 
 コマンドプロンプト:
 
 ```bat
-cd /d D:\Claude\MCP
 scripts\install_official_blender_mcp_server.cmd
 ```
 
-- 公式 server は repo の `.venv` ではなく `D:\Claude\MCP\.official-mcp-venv` に導入する
+- 公式 server は repo の `.venv` ではなく `.official-mcp-venv/` に導入する
 - これにより、repo 内の開発用 Python 依存と競合させない
 
-### 5. Codex App への登録
+#### Codex App への登録
 
 PowerShell:
 
 ```powershell
-cd D:\Claude\MCP
 .\scripts\register_official_blender_mcp_in_codex.ps1
 ```
 
-- `C:\Users\gkkjh\.codex\config.toml` に `mcp_servers.blender-official` を追記する
+- `%USERPROFILE%\.codex\config.toml` に `mcp_servers.blender-official` を追記する
 - 実行前にバックアップを作成する
 - 反映には Codex App の再起動が必要
 - 起動スクリプト側で `BLENDER_PATH` を自動解決するため、Steam 配置や通常配置でも使いやすい
 
 設定例:
 
-- [Codex MCP 設定例](D:/Claude/MCP/docs/codex-mcp-config-example.toml)
+- [Codex MCP 設定例](docs/codex-mcp-config-example.toml)
 
-### 6. 1クリック導入アプリ
+### 4. 開発者向け
 
-開発版アプリを起動する場合:
-
-```powershell
-cd D:\Claude\MCP
-uv run blender-mcp-installer
-```
-
-実行予定ステップだけ確認する場合:
+テスト:
 
 ```powershell
-cd D:\Claude\MCP
-uv run blender-mcp-installer --plan
-```
-
-GUI を使わず導入ログを採取する場合:
-
-```powershell
-cd D:\Claude\MCP
-uv run blender-mcp-installer --headless
-```
-
-GUI を使わず導入し、最後の Blender 起動だけ抑止する場合:
-
-```powershell
-cd D:\Claude\MCP
-uv run blender-mcp-installer --headless --no-launch-blender
+uv run pytest
 ```
 
 `exe` を生成する場合:
 
 ```powershell
-cd D:\Claude\MCP
 uv sync --python 3.11 --extra dev
 .\scripts\build_installer_exe.ps1
 ```
 
-- GUI から導入開始、進捗確認、ログ確認ができる
-- 内部では既存 PowerShell スクリプトを順番に実行する
-- 導入完了後は Blender を自動起動して、そのまま手動確認へ移れる
-- headless 実行では `artifacts/one-click-installer/` 配下へログを残せる
 - `exe` は `dist/one-click-installer/` 配下へ生成する
 
 初回 GitHub Release では、主配布物として `blender-mcp-installer.exe` を添付します。
@@ -185,13 +202,13 @@ uv sync --python 3.11 --extra dev
 
 ## ドキュメント
 
-- [要件定義](D:/Claude/MCP/docs/requirements.md)
-- [設計](D:/Claude/MCP/docs/design.md)
-- [仕様](D:/Claude/MCP/docs/specification.md)
-- [ロードマップ](D:/Claude/MCP/docs/roadmap.md)
-- [検証計画](D:/Claude/MCP/docs/validation-plan.md)
-- [リリース計画](D:/Claude/MCP/docs/release-plan.md)
-- [Blender MCP 実行例](D:/Claude/MCP/docs/examples.md)
-- [初回 Release ノート案](D:/Claude/MCP/docs/release-notes-v0.1.0.md)
-- [運用ルール](D:/Claude/MCP/AGENTS.md)
-- [必要スキル](D:/Claude/MCP/Skill.md)
+- [要件定義](docs/requirements.md)
+- [設計](docs/design.md)
+- [仕様](docs/specification.md)
+- [ロードマップ](docs/roadmap.md)
+- [検証計画](docs/validation-plan.md)
+- [リリース計画](docs/release-plan.md)
+- [Blender MCP 実行例](docs/examples.md)
+- [初回 Release ノート案](docs/release-notes-v0.1.0.md)
+- [運用ルール](AGENTS.md)
+- [必要スキル](Skill.md)

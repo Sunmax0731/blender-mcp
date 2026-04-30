@@ -47,7 +47,7 @@
 
 - 公式 add-on 配布物を取得し、Blender add-on 配置先へ導入する
 - 公式 MCP server を専用仮想環境へ導入する
-- `C:\Users\gkkjh\.codex\config.toml` 相当の Codex 設定へ `mcp_servers.blender-official` を追記する
+- `%USERPROFILE%\.codex\config.toml` 相当の Codex 設定へ `mcp_servers.blender-official` を追記する
 - Blender 側で公式 `mcp` add-on を有効化する
 - 導入後の確認項目とログ保存先を利用者へ提示する
 

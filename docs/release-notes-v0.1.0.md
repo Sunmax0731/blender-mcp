@@ -48,7 +48,7 @@ Windows 環境で、Blender 5.1 系と Codex App を前提に、公式 Blender M
 
 ## 証跡
 
-- 検証計画: [docs/validation-plan.md](D:/Claude/MCP/docs/validation-plan.md)
-- リリース計画: [docs/release-plan.md](D:/Claude/MCP/docs/release-plan.md)
+- 検証計画: [docs/validation-plan.md](validation-plan.md)
+- リリース計画: [docs/release-plan.md](release-plan.md)
 - テスト完了 milestone: [#15](https://github.com/Sunmax0731/blender-mcp/issues/15)
 - Release 完了 milestone: [#16](https://github.com/Sunmax0731/blender-mcp/issues/16)
