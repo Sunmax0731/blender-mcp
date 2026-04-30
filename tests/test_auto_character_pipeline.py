@@ -1,0 +1,77 @@
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+import jsonschema
+
+from blender_precision_mcp.auto_character import build_pipeline_spec
+from blender_precision_mcp.auto_character import normalize_prompt_to_character_spec
+
+
+ROOT = Path(__file__).resolve().parents[1]
+CHARACTER_SPEC_SCHEMA = ROOT / "schemas" / "precision" / "character_spec.schema.json"
+PIPELINE_SPEC_SCHEMA = ROOT / "schemas" / "precision" / "pipeline_spec.schema.json"
+
+
+def _load_json(path: Path) -> object:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def test_normalize_prompt_defaults_to_humanoid_and_matches_schema():
+    character_spec = normalize_prompt_to_character_spec(
+        "Create a stylized human character with blue jacket and short hair."
+    )
+
+    schema = _load_json(CHARACTER_SPEC_SCHEMA)
+    jsonschema.Draft202012Validator.check_schema(schema)
+    jsonschema.validate(instance=character_spec, schema=schema)
+
+    assert character_spec["character_type"] == "humanoid"
+    assert character_spec["rig_spec"]["template"] == "humanoid_standard"
+    assert any(part["name"] == "jacket" for part in character_spec["parts"])
+    assert character_spec["look_spec"]["materials"][1]["base_color"] == [0.12, 0.24, 0.68, 1.0]
+
+
+def test_normalize_prompt_builds_chibi_variant():
+    character_spec = normalize_prompt_to_character_spec(
+        "Create a chibi hero with pink cape and expressive talking face."
+    )
+
+    assert character_spec["character_type"] == "chibi"
+    assert character_spec["body_proportions"]["head_count"] == 2.5
+    assert character_spec["rig_spec"]["template"] == "chibi_standard"
+    assert "mouth_o" in character_spec["expression_spec"]["required_expressions"]
+    assert character_spec["pose_test_spec"]["base_pose"] == "t_pose"
+
+
+def test_normalize_prompt_builds_creature_variant():
+    character_spec = normalize_prompt_to_character_spec(
+        "Create a green creature beast with striped tail for animation."
+    )
+
+    assert character_spec["character_type"] == "creature"
+    assert character_spec["rig_spec"]["template"] == "creature_quadruped"
+    assert any(part["name"] == "tail" for part in character_spec["parts"])
+    assert "tail" in character_spec["rig_spec"]["required_bones"]
+    assert character_spec["pose_test_spec"]["base_pose"] == "a_pose"
+
+
+def test_build_pipeline_spec_matches_schema_and_adds_type_specific_inputs():
+    prompt = "Create a creature beast with green patterned skin and talking face."
+    character_spec = normalize_prompt_to_character_spec(prompt)
+    pipeline_spec = build_pipeline_spec(
+        prompt,
+        character_spec,
+        run_directory="outputs/auto-character/creature-run",
+    )
+
+    schema = _load_json(PIPELINE_SPEC_SCHEMA)
+    jsonschema.Draft202012Validator.check_schema(schema)
+    jsonschema.validate(instance=pipeline_spec, schema=schema)
+
+    assert pipeline_spec["normalized_character_spec"]["character_type"] == "creature"
+    assert "creature_shape_template" in pipeline_spec["shape_stage"]["inputs"]
+    assert "creature_pose_library" in pipeline_spec["weight_stage"]["inputs"]
+    assert "creature_balance_final" in pipeline_spec["validation_plan"]["final_validators"]
+    assert "review/back.png" in pipeline_spec["artifact_plan"]["required_artifacts"]

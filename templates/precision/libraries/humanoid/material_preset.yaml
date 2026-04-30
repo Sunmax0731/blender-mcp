@@ -1,0 +1,10 @@
+schema_version: "0.1"
+preset_name: humanoid_default_materials
+character_type: humanoid
+materials:
+  - part: skin
+    base_color: [0.92, 0.78, 0.70, 1.0]
+    roughness: 0.55
+  - part: accent
+    base_color: [0.12, 0.18, 0.32, 1.0]
+    roughness: 0.70

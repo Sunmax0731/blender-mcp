@@ -1,0 +1,21 @@
+schema_version: "0.1"
+template_name: creature_quadruped
+character_type: creature
+required_bones:
+  - root
+  - hips
+  - spine
+  - neck
+  - head
+  - foreleg_l
+  - foreleg_r
+  - hindleg_l
+  - hindleg_r
+  - tail
+bone_groups:
+  front:
+    - foreleg_l
+    - foreleg_r
+  rear:
+    - hindleg_l
+    - hindleg_r

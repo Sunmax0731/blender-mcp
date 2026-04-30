@@ -1,0 +1,24 @@
+schema_version: "0.1"
+template_name: humanoid_standard
+character_type: humanoid
+required_bones:
+  - root
+  - hips
+  - spine
+  - chest
+  - neck
+  - head
+  - arm_l
+  - arm_r
+  - leg_l
+  - leg_r
+bone_groups:
+  upper_body:
+    - spine
+    - chest
+    - neck
+    - head
+  lower_body:
+    - hips
+    - leg_l
+    - leg_r

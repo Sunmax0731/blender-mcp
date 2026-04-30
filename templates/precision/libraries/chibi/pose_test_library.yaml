@@ -1,0 +1,9 @@
+schema_version: "0.1"
+library_name: chibi_pose_tests
+character_type: chibi
+base_pose: t_pose
+pose_tests:
+  - name: arms_raise
+  - name: knees_bend
+  - name: neck_turn
+  - name: balance_hop

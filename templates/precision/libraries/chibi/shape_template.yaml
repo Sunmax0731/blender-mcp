@@ -1,0 +1,15 @@
+schema_version: "0.1"
+template_name: chibi_base_shape
+character_type: chibi
+required_parts:
+  - head
+  - torso
+  - arm_l
+  - arm_r
+  - leg_l
+  - leg_r
+  - face
+shape_guides:
+  silhouette: short_head_large_face
+  symmetry_axis: x
+  default_head_count: 2.5

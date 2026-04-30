@@ -1,0 +1,14 @@
+schema_version: "0.1"
+library_name: humanoid_basic_expressions
+character_type: humanoid
+expressions:
+  - name: smile
+    target_area: mouth
+  - name: angry
+    target_area: brows
+  - name: surprised
+    target_area: eyes_mouth
+  - name: blink
+    target_area: eyelids
+  - name: mouth_a
+    target_area: mouth

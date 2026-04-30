@@ -1,0 +1,9 @@
+schema_version: "0.1"
+library_name: creature_pose_tests
+character_type: creature
+base_pose: a_pose
+pose_tests:
+  - name: foreleg_bend
+  - name: hindleg_bend
+  - name: neck_turn
+  - name: tail_swing

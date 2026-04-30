@@ -1,0 +1,10 @@
+schema_version: "0.1"
+preset_name: chibi_default_materials
+character_type: chibi
+materials:
+  - part: skin
+    base_color: [0.96, 0.82, 0.76, 1.0]
+    roughness: 0.58
+  - part: accent
+    base_color: [0.92, 0.56, 0.70, 1.0]
+    roughness: 0.65

@@ -1,0 +1,15 @@
+schema_version: "0.1"
+template_name: creature_base_shape
+character_type: creature
+required_parts:
+  - head
+  - torso
+  - foreleg_l
+  - foreleg_r
+  - hindleg_l
+  - hindleg_r
+  - tail
+shape_guides:
+  silhouette: non_humanoid_balance
+  symmetry_axis: x
+  default_head_count: 4.0

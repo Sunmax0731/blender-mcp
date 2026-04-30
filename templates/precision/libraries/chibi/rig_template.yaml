@@ -1,0 +1,21 @@
+schema_version: "0.1"
+template_name: chibi_standard
+character_type: chibi
+required_bones:
+  - root
+  - hips
+  - spine
+  - neck
+  - head
+  - arm_l
+  - arm_r
+  - leg_l
+  - leg_r
+bone_groups:
+  face:
+    - head
+  limbs:
+    - arm_l
+    - arm_r
+    - leg_l
+    - leg_r

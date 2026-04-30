@@ -1,0 +1,14 @@
+schema_version: "0.1"
+template_name: humanoid_base_shape
+character_type: humanoid
+required_parts:
+  - head
+  - torso
+  - arm_l
+  - arm_r
+  - leg_l
+  - leg_r
+shape_guides:
+  silhouette: balanced_biped
+  symmetry_axis: x
+  default_head_count: 6.5

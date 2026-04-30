@@ -1,0 +1,12 @@
+schema_version: "0.1"
+library_name: creature_basic_expressions
+character_type: creature
+expressions:
+  - name: snarl
+    target_area: mouth
+  - name: calm
+    target_area: eyes
+  - name: blink
+    target_area: eyelids
+  - name: mouth_a
+    target_area: mouth
