@@ -104,6 +104,7 @@ v2 完成時点で、利用者は次を実行できる状態を目指す。
 - 導入後の Finish 操作と次の確認手順を表示する
 - release checklist に v2 検証項目を追加する
 - examples と validation evidence を release docs に残す
+- headless / plan mode では `--include-precision-profile` で任意導入ステップを追跡する
 
 ## 5. 完成までの Issue 分解
 

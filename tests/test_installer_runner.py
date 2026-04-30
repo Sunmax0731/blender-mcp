@@ -64,6 +64,22 @@ def test_default_steps_can_skip_launch_blender() -> None:
     ]
 
 
+def test_default_steps_can_include_precision_profile() -> None:
+    steps = default_steps(
+        Path("D:/Claude/MCP"),
+        include_launch_blender=False,
+        include_precision_profile=True,
+    )
+
+    assert [step.name for step in steps] == [
+        "official-addon",
+        "official-server",
+        "codex-config",
+        "enable-addon",
+        "precision-profile",
+    ]
+
+
 def test_default_steps_do_not_surface_legacy_context() -> None:
     steps = default_steps(Path("D:/Claude/MCP"))
 
@@ -87,6 +103,22 @@ def test_main_py_can_run_as_script_for_plan_mode() -> None:
 
     assert result.returncode == 0
     assert "official-addon" in result.stdout
+
+
+def test_plan_mode_can_include_precision_profile() -> None:
+    repo_root = Path(__file__).resolve().parents[1]
+    main_py = repo_root / "src" / "blender_mcp_installer" / "main.py"
+
+    result = subprocess.run(
+        [sys.executable, str(main_py), "--plan", "--include-precision-profile", "--no-launch-blender"],
+        cwd=repo_root,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0
+    assert "precision-profile" in result.stdout
 
 
 def test_source_repo_root_points_to_workspace_repo() -> None:

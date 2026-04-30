@@ -35,7 +35,11 @@ def powershell_command(script_path: Path, extra_args: Iterable[str] | None = Non
     return command
 
 
-def default_steps(root: Path | None = None, include_launch_blender: bool = True) -> list[InstallerStep]:
+def default_steps(
+    root: Path | None = None,
+    include_launch_blender: bool = True,
+    include_precision_profile: bool = False,
+) -> list[InstallerStep]:
     base = root or repo_root()
     scripts_dir = base / "scripts"
     steps = [
@@ -60,6 +64,14 @@ def default_steps(root: Path | None = None, include_launch_blender: bool = True)
             description="Enable the official mcp add-on in Blender.",
         ),
     ]
+    if include_precision_profile:
+        steps.append(
+            InstallerStep(
+                name="precision-profile",
+                script_path=scripts_dir / "install_precision_profile.ps1",
+                description="Install optional precision profile templates, Skill, and subagent files.",
+            )
+        )
     if include_launch_blender:
         steps.append(
             InstallerStep(

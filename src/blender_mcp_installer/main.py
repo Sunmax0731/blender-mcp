@@ -42,6 +42,7 @@ class InstallerApp:
         self.output_dir: Path | None = None
 
         self.confirm_var = tk.BooleanVar(value=False)
+        self.precision_profile_var = tk.BooleanVar(value=False)
         self.status_var = tk.StringVar(value="Ready.")
         self.log_path_var = tk.StringVar(value="Log not created")
         self.install_succeeded = False
@@ -62,7 +63,8 @@ class InstallerApp:
             "1. Install the official Blender MCP add-on\n"
             "2. Install the official Blender MCP server\n"
             "3. Register blender-official in Codex config\n"
-            "4. Enable the official mcp add-on in Blender"
+            "4. Enable the official mcp add-on in Blender\n"
+            "Optional: Install precision profile templates, Skill, and subagents"
         )
         tk.Label(container, text=intro, justify=tk.LEFT, anchor="w").pack(fill=tk.X)
 
@@ -82,6 +84,13 @@ class InstallerApp:
             command=self._update_start_button,
         )
         check.pack(anchor="w", pady=(0, 12))
+
+        precision_check = tk.Checkbutton(
+            container,
+            text="Also install v2 precision profile templates, Skill, and subagent files.",
+            variable=self.precision_profile_var,
+        )
+        precision_check.pack(anchor="w", pady=(0, 12))
 
         controls = tk.Frame(container)
         controls.pack(fill=tk.X, pady=(0, 12))
@@ -116,6 +125,10 @@ class InstallerApp:
         self.log_text.delete("1.0", tk.END)
         self.log_text.configure(state=tk.DISABLED)
         self.output_dir = default_log_dir(self.repo_root)
+        self.steps = default_steps(
+            self.repo_root,
+            include_precision_profile=self.precision_profile_var.get(),
+        )
         self.log_path_var.set(f"Log path: {self.output_dir}")
         self.status_var.set("Starting install...")
 
@@ -206,12 +219,25 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Skip the final Blender launch step.",
     )
+    parser.add_argument(
+        "--include-precision-profile",
+        action="store_true",
+        help="Install optional precision profile templates, Skill, and subagent files.",
+    )
     return parser.parse_args()
 
 
-def run_headless(output_dir: Path | None = None, include_launch_blender: bool = True) -> int:
+def run_headless(
+    output_dir: Path | None = None,
+    include_launch_blender: bool = True,
+    include_precision_profile: bool = False,
+) -> int:
     root = repo_root()
-    steps = default_steps(root, include_launch_blender=include_launch_blender)
+    steps = default_steps(
+        root,
+        include_launch_blender=include_launch_blender,
+        include_precision_profile=include_precision_profile,
+    )
     runner = InstallerRunner(root)
     resolved_output_dir = output_dir or default_log_dir(root)
 
@@ -237,13 +263,21 @@ def main() -> None:
     prepare_runtime_root()
     args = parse_args()
     if args.plan:
-        for step in default_steps(repo_root(), include_launch_blender=not args.no_launch_blender):
+        for step in default_steps(
+            repo_root(),
+            include_launch_blender=not args.no_launch_blender,
+            include_precision_profile=args.include_precision_profile,
+        ):
             print(f"{step.name}: {step.description}")
         return
 
     if args.headless:
         raise SystemExit(
-            run_headless(args.output_dir, include_launch_blender=not args.no_launch_blender)
+            run_headless(
+                args.output_dir,
+                include_launch_blender=not args.no_launch_blender,
+                include_precision_profile=args.include_precision_profile,
+            )
         )
 
     root_window = tk.Tk()

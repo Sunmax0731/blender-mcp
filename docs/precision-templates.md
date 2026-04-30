@@ -47,3 +47,19 @@ uv run --with pyyaml --with jsonschema python scripts\validate_precision_templat
 - `addon_registry.yaml` が `addon_registry.schema.json` に一致する
 - `validation_report.example.json` が `validation_report.schema.json` に一致する
 - `codex_config.toml` に `mcp_servers.blender_precision` と基本 timeout / disabled tool が含まれる
+
+## installer からの任意導入
+
+headless で precision profile を含める場合:
+
+```powershell
+uv run blender-mcp-installer --headless --include-precision-profile
+```
+
+実行予定ステップだけ確認する場合:
+
+```powershell
+uv run blender-mcp-installer --plan --include-precision-profile
+```
+
+GUI では `Also install v2 precision profile templates, Skill, and subagent files.` を有効にすると、precision profile 配布物を Codex home 配下へコピーする。
