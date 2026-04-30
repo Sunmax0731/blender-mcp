@@ -62,6 +62,7 @@ v2 完成時点で、利用者は次を実行できる状態を目指す。
 - scene / mesh / material validation を実装する
 - `validation_report` を structured result とファイル出力の両方で残す
 - 失敗時に修正候補を返す
+- 初期実装では Blender live 接続に依存しない schema / static validation を先に提供し、scene 実測値との差分検証は後続で拡張する
 
 ### Phase v2-4: visual QA
 
