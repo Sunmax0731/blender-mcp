@@ -17,7 +17,7 @@
 
 - Blender 5.1 系を使っているか
 - Blender の `Online Access` が有効か
-- `Edit > Preferences > Get Extensions` に `MCP` が表示されるか
+- `Edit > Preferences > Get Extensions` または `Add-ons` に `MCP` が表示されるか
 - installer の add-on 導入 step が成功しているか
 
 公式 add-on はローカル TCP bridge server を使うため、`Online Access` が無効だと動作しない場合があります。
@@ -49,7 +49,7 @@ Blender を起動した状態で、Codex App から screenshot 取得や状態�
 uv run blender-mcp-installer --plan
 ```
 
-GUI を使わずログを採取する場合:
+GUI を使わずログを取得する場合:
 
 ```powershell
 uv run blender-mcp-installer --headless --output-dir <log-dir>
@@ -59,11 +59,23 @@ uv run blender-mcp-installer --headless --output-dir <log-dir>
 
 precision profile は optional experimental 機能です。
 
-通常の Blender MCP 導入だけを使う場合、precision profile を導入しなくても構いません。高品質モデリング支援用の template、Skill、subagent template を試したい場合だけ有効にしてください。
+通常の Blender MCP 導入だけを使う場合、precision profile を導入しなくても構いません。高品質モデリング支援用の template、Skill、subagent template、`blender_precision` MCP server を試したい場合だけ有効にしてください。
 
-v1 系では precision profile は template / Skill / subagent 配布に留め、`blender_precision` MCP server は自動登録しません。
+導入すると、installer-managed venv に `blender-precision-mcp` package をインストールし、Codex App に `blender_precision` MCP server を登録します。`uvx` package として公開されている前提ではありません。
 
-## 6. 旧開発版の登録を cleanup したい
+## 6. `blender_precision` が Codex App に表示されない
+
+確認すること:
+
+- precision profile のチェックを有効にして installer を実行したか
+- installer ログで `precision-profile` step が成功しているか
+- Codex App を再起動したか
+- `%USERPROFILE%\.codex\config.toml` に `[mcp_servers.blender_precision]` があるか
+- `%LOCALAPPDATA%\BlenderMcpInstaller\.precision-mcp-venv` または開発 repo の `.precision-mcp-venv` が存在するか
+
+`config.toml` に過去の `uvx` 前提 section が残っている場合は、precision profile を再導入してください。installer がバックアップを作成したうえで現在の powershell 起動方式へ置き換えます。
+
+## 7. 不要な補助 UI 登録を cleanup したい
 
 過去の開発版で `blender_mcp` add-on の不要な Preferences 登録が残っている場合は、次を実行してください。
 
@@ -72,13 +84,3 @@ v1 系では precision profile は template / Skill / subagent 配布に留め�
 ```
 
 この script は公式 `MCP` add-on を残し、旧 `blender_mcp` の不要な Preferences 登録だけを削除します。実行後は Blender を再起動してください。
-
-## 7. 再導入したい
-
-再導入前に `--plan` で変更予定を確認してください。
-
-```powershell
-uv run blender-mcp-installer --plan
-```
-
-Codex App の設定を変更した後は Codex App を再起動してください。Blender 側の add-on 状態が不安定な場合は、Blender の再起動も行ってください。

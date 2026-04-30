@@ -108,7 +108,8 @@ def test_precision_profile_script_can_plan_config_merge(tmp_path: Path) -> None:
     )
 
     assert result.returncode == 0
-    assert "Precision MCP server auto-registration is disabled" in result.stdout
+    assert "Plan only: would create/update precision MCP venv" in result.stdout
+    assert "Codex config merge preview: append [mcp_servers.blender_precision]" in result.stdout
     assert "Codex config not found" in result.stdout
     assert not (codex_home / "config.toml").exists()
 
@@ -152,6 +153,7 @@ def test_precision_profile_script_removes_generated_config_with_backup(tmp_path:
             "-CodexHome",
             str(codex_home),
             "-MergeCodexConfig",
+            "-SkipVenvInstall",
         ],
         cwd=repo_root,
         check=False,
@@ -162,7 +164,10 @@ def test_precision_profile_script_removes_generated_config_with_backup(tmp_path:
     assert result.returncode == 0
     merged = config_path.read_text(encoding="utf-8")
     assert "[mcp_servers.existing]" in merged
-    assert "[mcp_servers.blender_precision]" not in merged
+    assert "[mcp_servers.blender_precision]" in merged
+    assert 'command = "powershell"' in merged
+    assert "start_precision_blender_mcp.ps1" in merged
+    assert 'command = "uvx"' not in merged
     assert "[plugins.example]" in merged
     assert list(codex_home.glob("config.toml.backup-*"))
 
@@ -246,3 +251,31 @@ def test_prepare_runtime_root_copies_templates_for_frozen_runtime(
     assert runtime_root == support_parent / "BlenderMcpInstaller"
     assert (runtime_root / "scripts" / "install_precision_profile.ps1").exists()
     assert (runtime_root / "templates" / "precision" / "codex_config.toml").exists()
+
+
+def test_prepare_runtime_root_copies_precision_package_for_frozen_runtime(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    from blender_mcp_installer import runtime
+
+    bundle_root = tmp_path / "bundle"
+    support_parent = tmp_path / "local-appdata"
+    (bundle_root / "src" / "blender_precision_mcp").mkdir(parents=True)
+    (bundle_root / "src" / "blender_precision_mcp" / "main.py").write_text(
+        "def main(): return 0",
+        encoding="utf-8",
+    )
+    (bundle_root / "pyproject.toml").write_text(
+        "[project]\nname='example'\nversion='0.0.0'\n",
+        encoding="utf-8",
+    )
+
+    monkeypatch.setenv("LOCALAPPDATA", str(support_parent))
+    monkeypatch.setattr(sys, "frozen", True, raising=False)
+    monkeypatch.setattr(sys, "_MEIPASS", str(bundle_root), raising=False)
+
+    runtime_root = runtime.prepare_runtime_root()
+
+    assert (runtime_root / "src" / "blender_precision_mcp" / "main.py").exists()
+    assert (runtime_root / "pyproject.toml").exists()

@@ -1,7 +1,9 @@
 param(
     [string]$CodexHome = "$env:USERPROFILE\.codex",
     [switch]$MergeCodexConfig,
-    [switch]$PlanConfigMerge
+    [switch]$PlanConfigMerge,
+    [string]$UvExe = "uv",
+    [switch]$SkipVenvInstall
 )
 
 $ErrorActionPreference = "Stop"
@@ -13,6 +15,8 @@ $ProfileRoot = Join-Path $CodexRoot "blender-precision"
 $SkillRoot = Join-Path $CodexRoot "skills\precise-blender-modeling"
 $SubagentRoot = Join-Path $CodexRoot "subagents"
 $CodexConfigPath = Join-Path $CodexRoot "config.toml"
+$VenvDir = Join-Path $RepoRoot ".precision-mcp-venv"
+$PythonExe = Join-Path $VenvDir "Scripts\python.exe"
 
 if (-not (Test-Path $TemplateRoot)) {
     throw "Precision template root not found: $TemplateRoot"
@@ -32,23 +36,91 @@ Copy-Item -Recurse -Force (Join-Path $TemplateRoot "plugin.json") $ProfileRoot
 Copy-Item -Recurse -Force (Join-Path $TemplateRoot "skills\precise-blender-modeling\*") $SkillRoot
 Copy-Item -Recurse -Force (Join-Path $TemplateRoot "subagents\*") $SubagentRoot
 
-function Get-PrecisionMcpConfigBlock {
+function Escape-TomlString {
     param(
-        [string]$TemplateConfigPath
+        [string]$Value
     )
 
-    $lines = Get-Content -Encoding UTF8 $TemplateConfigPath
-    $start = -1
-    for ($i = 0; $i -lt $lines.Count; $i++) {
-        if ($lines[$i].Trim() -eq "[mcp_servers.blender_precision]") {
-            $start = $i
-            break
+    return $Value.Replace('\', '\\').Replace('"', '\"')
+}
+
+function Install-PrecisionMcpVenv {
+    param(
+        [switch]$PlanOnly
+    )
+
+    if ($PlanOnly -or $SkipVenvInstall) {
+        Write-Output "Plan only: would create/update precision MCP venv: $VenvDir"
+        Write-Output "Plan only: would install local package from: $RepoRoot"
+        return
+    }
+
+    if (-not (Test-Path $PythonExe)) {
+        & $UvExe venv $VenvDir --python 3.11
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to create precision MCP virtual environment: $VenvDir"
         }
     }
-    if ($start -lt 0) {
-        throw "Precision MCP config block not found in template: $TemplateConfigPath"
+
+    & $UvExe pip install --python $PythonExe --upgrade $RepoRoot
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to install blender-precision-mcp package into: $VenvDir"
     }
-    return ($lines[$start..($lines.Count - 1)] -join [Environment]::NewLine)
+
+    Write-Output "Precision MCP venv: $VenvDir"
+    Write-Output "Installed blender-precision-mcp package from: $RepoRoot"
+}
+
+function Get-ManagedPrecisionMcpConfigBlock {
+    $startScriptPath = Join-Path $RepoRoot "scripts\start_precision_blender_mcp.ps1"
+    $configPath = Join-Path $ProfileRoot "blender_precision_config.yaml"
+    $escapedStartScriptPath = Escape-TomlString $startScriptPath
+    $escapedConfigPath = Escape-TomlString $configPath
+    $escapedCwd = Escape-TomlString $ProfileRoot
+
+    return @"
+[mcp_servers.blender_precision]
+command = "powershell"
+args = [
+  "-NoProfile",
+  "-ExecutionPolicy",
+  "Bypass",
+  "-File",
+  "$escapedStartScriptPath",
+  "-ConfigPath",
+  "$escapedConfigPath",
+  "-Profile",
+  "precise",
+  "-ToolPack",
+  "modeling,validation,visual_qa,addon_inspection"
+]
+cwd = "$escapedCwd"
+startup_timeout_sec = 30
+tool_timeout_sec = 180
+required = true
+enabled = true
+
+enabled_tools = [
+  "get_scene_snapshot",
+  "create_parametric_object",
+  "create_or_update_scene_from_spec",
+  "assign_materials_from_spec",
+  "validate_scene_against_spec",
+  "analyze_mesh_quality",
+  "apply_mesh_cleanup",
+  "validate_retopology_result",
+  "capture_review_views",
+  "list_blender_addons",
+  "inspect_addon_capabilities",
+  "export_scene"
+]
+
+disabled_tools = [
+  "execute_blender_code",
+  "run_unapproved_addon_operator",
+  "delete_all_objects_without_backup"
+]
+"@
 }
 
 function Remove-GeneratedPrecisionMcpConfig {
@@ -72,9 +144,14 @@ function Remove-GeneratedPrecisionMcpConfig {
 
     $section = $match.Value
     $looksGenerated = (
-        $section -match 'command\s*=\s*"uvx"' -and
-        $section -match '"blender-precision-mcp"' -and
-        $section -match 'templates/precision/blender_precision_config\.yaml'
+        (
+            $section -match 'command\s*=\s*"uvx"' -and
+            $section -match '"blender-precision-mcp"' -and
+            $section -match 'templates/precision/blender_precision_config\.yaml'
+        ) -or (
+            $section -match 'command\s*=\s*"powershell"' -and
+            $section -match 'start_precision_blender_mcp\.ps1'
+        )
     )
 
     if (-not $looksGenerated) {
@@ -101,10 +178,29 @@ function Remove-GeneratedPrecisionMcpConfig {
 }
 
 if ($MergeCodexConfig -or $PlanConfigMerge) {
-    Write-Output "Precision MCP server auto-registration is disabled in this release because blender-precision-mcp is an experimental scaffold and is not published as a standalone uvx package."
+    Install-PrecisionMcpVenv -PlanOnly:$PlanConfigMerge
     Remove-GeneratedPrecisionMcpConfig `
         -ConfigPath $CodexConfigPath `
         -PlanOnly:$PlanConfigMerge
+
+    $configBlock = Get-ManagedPrecisionMcpConfigBlock
+    Write-Output "Codex config merge preview: append [mcp_servers.blender_precision] to $CodexConfigPath"
+    Write-Output $configBlock.Trim()
+
+    if (-not $PlanConfigMerge) {
+        if (-not (Test-Path $CodexRoot)) {
+            New-Item -ItemType Directory -Force $CodexRoot | Out-Null
+        }
+        if (-not (Test-Path $CodexConfigPath)) {
+            New-Item -ItemType File -Force $CodexConfigPath | Out-Null
+        }
+        $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
+        $backupPath = "$CodexConfigPath.backup-$timestamp"
+        Copy-Item -Force $CodexConfigPath $backupPath
+        Add-Content -Encoding UTF8 -Path $CodexConfigPath -Value "`r`n$configBlock`r`n"
+        Write-Output "Codex config backup created: $backupPath"
+        Write-Output "Codex config merged: [mcp_servers.blender_precision]"
+    }
 } else {
     Write-Output "Codex config merge skipped. Template copied to: $(Join-Path $ProfileRoot 'codex_config.toml')"
 }

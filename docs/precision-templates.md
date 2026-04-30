@@ -64,6 +64,14 @@ uv run blender-mcp-installer --plan --include-precision-profile
 
 GUI では `Also install v2 precision profile templates, Skill, and subagent files.` を有効にすると、precision profile 配布物を Codex home 配下へコピーします。
 
+同時に installer-managed venv を作成し、`blender-precision-mcp` をローカル package としてインストールします。Codex config には `uvx` ではなく、installer runtime 内の `scripts/start_precision_blender_mcp.ps1` を `powershell` で起動する `[mcp_servers.blender_precision]` を登録します。
+
+Codex config の追記内容だけ確認する場合:
+
+```powershell
+.\scripts\install_precision_profile.ps1 -PlanConfigMerge
+```
+
 ## scene generation
 
 `create_or_update_scene_from_spec` は、`model_spec.yaml` の `objects` / `materials` / `validation` を読み込み、Blender scene を生成または更新する tool です。

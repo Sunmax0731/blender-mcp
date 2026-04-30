@@ -29,6 +29,8 @@ uv run pyinstaller `
     --paths (Join-Path $repoRoot "src") `
     --add-data "$repoRoot\scripts;scripts" `
     --add-data "$repoRoot\templates;templates" `
+    --add-data "$repoRoot\src;src" `
+    --add-data "$repoRoot\pyproject.toml;." `
     --distpath $OutputDir `
     --workpath $workPath `
     $mainScript

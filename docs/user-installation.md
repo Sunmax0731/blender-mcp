@@ -8,8 +8,6 @@
 
 ## 2. 事前準備
 
-導入前に次を確認してください。
-
 - Windows を利用している
 - Blender 5.1 系をインストール済み
 - Codex App をインストール済み
@@ -23,11 +21,12 @@
 2. `blender-mcp-installer.exe` を実行する
 3. 画面に表示される変更対象を確認する
 4. 確認チェックを有効にする
-5. `Start Install` を押す
-6. ログに失敗がないことを確認する
-7. 導入完了後、`Finish` を押して installer を閉じる
-8. Codex App を再起動する
-9. Blender を起動する
+5. 必要な場合だけ precision profile のチェックを有効にする
+6. `Start Install` を押す
+7. ログに失敗がないことを確認する
+8. 導入完了後、`Finish` を押して installer を閉じる
+9. Codex App を再起動する
+10. Blender を起動する
 
 installer は次を順番に実行します。
 
@@ -35,18 +34,16 @@ installer は次を順番に実行します。
 - 公式 Blender MCP server の導入
 - Codex App への `blender-official` MCP server 登録
 - Blender 側の公式 `mcp` add-on 有効化
+- 不要な補助 UI 登録の cleanup
+- 任意で precision profile、Skill、subagent template、`blender_precision` MCP server の導入
 
 ## 4. 任意導入: precision profile
 
 precision profile は、高品質モデリング支援のための optional experimental 機能です。
 
-通常の公式 Blender MCP 導入だけを使う場合は有効にする必要はありません。導入すると、Codex 用 template、Skill、subagent template が追加されます。
+通常の公式 Blender MCP 導入だけを使う場合は有効にする必要はありません。導入すると、Codex 用 template、Skill、subagent template に加えて、installer-managed venv で起動する `blender_precision` MCP server が Codex App に登録されます。
 
-precision profile 導入時は、既存の Codex `config.toml` を丸ごと置き換えません。v1 系では `blender-precision-mcp` を standalone MCP server として自動登録せず、template、Skill、subagent template の配布に留めます。
-
-過去の installer で生成された experimental な `[mcp_servers.blender_precision]` が残っている場合は、既存 `config.toml` をバックアップしたうえでその section を削除します。
-
-GUI では precision profile のチェックを有効にしてから導入します。
+precision profile 導入時は、既存の Codex `config.toml` を丸ごと置き換えません。既存 file をバックアップし、installer が生成した `[mcp_servers.blender_precision]` section を更新します。過去の `uvx` 前提の experimental section が残っている場合も、バックアップ後に現在の起動方式へ置き換えます。
 
 headless で導入する場合:
 
@@ -54,7 +51,7 @@ headless で導入する場合:
 uv run blender-mcp-installer --headless --include-precision-profile
 ```
 
-precision profile の config cleanup 予定だけ確認する場合:
+precision profile の config 追記予定だけ確認する場合:
 
 ```powershell
 .\scripts\install_precision_profile.ps1 -PlanConfigMerge
@@ -62,19 +59,20 @@ precision profile の config cleanup 予定だけ確認する場合:
 
 ## 5. 導入後の確認
 
-### Blender 側
+Blender 側:
 
 1. Blender を起動する
-2. `Edit > Preferences > Get Extensions` を開く
+2. `Edit > Preferences > Add-ons` または `Get Extensions` を開く
 3. `MCP` が導入済みで有効になっていることを確認する
 4. Blender の `Online Access` が有効であることを確認する
 5. add-on 設定で host / port / autostart を確認する
 
-### Codex App 側
+Codex App 側:
 
 1. Codex App を再起動する
 2. `blender-official` MCP server が利用できることを確認する
-3. Blender を起動した状態で、Blender の状態取得や screenshot 取得を試す
+3. precision profile を導入した場合は `blender_precision` MCP server が利用できることを確認する
+4. Blender を起動した状態で、状態取得や screenshot 取得を試す
 
 ## 6. headless / plan mode
 
@@ -101,8 +99,6 @@ uv run blender-mcp-installer --headless --no-launch-blender
 ```powershell
 uv run blender-mcp-installer --headless --output-dir <log-dir>
 ```
-
-`<log-dir>` は任意のログ保存先に置き換えてください。
 
 ## 7. 更新・再導入
 

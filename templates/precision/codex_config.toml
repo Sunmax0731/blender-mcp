@@ -8,14 +8,21 @@ max_threads = 4
 max_depth = 1
 
 [mcp_servers.blender_precision]
-command = "uvx"
+command = "powershell"
 args = [
-  "blender-precision-mcp",
-  "--config", "templates/precision/blender_precision_config.yaml",
-  "--profile", "precise",
-  "--tool-pack", "modeling,validation,visual_qa,addon_inspection"
+  "-NoProfile",
+  "-ExecutionPolicy",
+  "Bypass",
+  "-File",
+  "<installer-runtime>\\scripts\\start_precision_blender_mcp.ps1",
+  "-ConfigPath",
+  "<codex-home>\\blender-precision\\blender_precision_config.yaml",
+  "-Profile",
+  "precise",
+  "-ToolPack",
+  "modeling,validation,visual_qa,addon_inspection"
 ]
-cwd = "."
+cwd = "<codex-home>\\blender-precision"
 startup_timeout_sec = 30
 tool_timeout_sec = 180
 required = true
@@ -23,9 +30,13 @@ enabled = true
 
 enabled_tools = [
   "get_scene_snapshot",
+  "create_parametric_object",
   "create_or_update_scene_from_spec",
+  "assign_materials_from_spec",
   "validate_scene_against_spec",
   "analyze_mesh_quality",
+  "apply_mesh_cleanup",
+  "validate_retopology_result",
   "capture_review_views",
   "list_blender_addons",
   "inspect_addon_capabilities",

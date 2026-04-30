@@ -39,10 +39,14 @@ def prepare_runtime_root() -> Path:
     runtime_root = support_root()
     runtime_root.mkdir(parents=True, exist_ok=True)
 
-    for directory_name in ("scripts", "templates"):
+    for directory_name in ("scripts", "templates", "src"):
         bundled_directory = bundle_root / directory_name
         runtime_directory = runtime_root / directory_name
         if bundled_directory.exists():
             shutil.copytree(bundled_directory, runtime_directory, dirs_exist_ok=True)
+
+    bundled_pyproject = bundle_root / "pyproject.toml"
+    if bundled_pyproject.exists():
+        shutil.copy2(bundled_pyproject, runtime_root / "pyproject.toml")
 
     return runtime_root
