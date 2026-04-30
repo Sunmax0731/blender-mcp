@@ -65,7 +65,7 @@ cd /d <repo>
 ### 1. 1クリック導入アプリ
 
 Release 版を使う場合は、[`v0.1.0` Release](https://github.com/Sunmax0731/blender-mcp/releases/tag/v0.1.0) から `blender-mcp-installer.exe` を取得して実行します。
-導入前後の確認項目は [v0.1.0 setup checklist](docs/setup-checklist-v0.1.0.md) を参照してください。
+導入手順は [利用者向け導入手順](docs/user-installation.md)、使い方は [利用者向け利用方法](docs/user-guide.md) を参照してください。
 開発版をリポジトリから起動する場合:
 
 ```powershell
@@ -218,12 +218,15 @@ uv sync --python 3.11 --extra dev
 - [Release milestone plan](docs/release-milestones.md)
 - [v1.0.0 release scope](docs/release-scope-v1.0.0.md)
 - [v1.0.0 release milestone plan](docs/release-milestones-v1.0.0.md)
+- [利用者向け導入手順](docs/user-installation.md)
+- [利用者向け利用方法](docs/user-guide.md)
+- [機能説明](docs/features.md)
+- [トラブルシュート](docs/troubleshooting.md)
 - [v2 精密モデリング完成ロードマップ](docs/v2-precision-roadmap.md)
 - [v2 precision template / schema](docs/precision-templates.md)
 - [検証計画](docs/validation-plan.md)
 - [リリース計画](docs/release-plan.md)
 - [v0.1.0 release scope](docs/release-scope-v0.1.0.md)
-- [v0.1.0 setup checklist](docs/setup-checklist-v0.1.0.md)
 - [v0.1.0 release assets](docs/release-assets-v0.1.0.md)
 - [v0.1.0 release manifest](docs/release-manifest-v0.1.0.md)
 - [v2 release validation](docs/release-validation-v2.md)
