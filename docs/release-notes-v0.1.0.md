@@ -57,7 +57,7 @@ uv run blender-mcp-installer --headless --include-precision-profile
 
 ## 動作確認対象
 
-Release 前に次を確認します。
+Release 前に次を確認しました。
 
 - `uv run pytest`
 - `uv run blender-mcp-installer --plan`
@@ -96,8 +96,8 @@ Release 前に次を確認します。
 
 ## 関連ドキュメント
 
-- [v0.1.0 setup checklist](setup-checklist-v0.1.0.md)
-- [v0.1.0 release scope](release-scope-v0.1.0.md)
-- [v0.1.0 release assets](release-assets-v0.1.0.md)
-- [v2 release validation](release-validation-v2.md)
-- [Release milestone plan](release-milestones.md)
+- [v0.1.0 setup checklist](https://github.com/Sunmax0731/blender-mcp/blob/v0.1.0/docs/setup-checklist-v0.1.0.md)
+- [v0.1.0 release scope](https://github.com/Sunmax0731/blender-mcp/blob/v0.1.0/docs/release-scope-v0.1.0.md)
+- [v0.1.0 release assets](https://github.com/Sunmax0731/blender-mcp/blob/v0.1.0/docs/release-assets-v0.1.0.md)
+- [v2 release validation](https://github.com/Sunmax0731/blender-mcp/blob/v0.1.0/docs/release-validation-v2.md)
+- [Release milestone plan](https://github.com/Sunmax0731/blender-mcp/blob/v0.1.0/docs/release-milestones.md)
