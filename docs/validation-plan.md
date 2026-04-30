@@ -96,6 +96,7 @@
 - mesh cleanup、non-manifold、loose geometry、quad ratio などの結果を report に残せる
 - viewport screenshot を指定ビューで保存できる
 - 検証失敗時に修正候補が report に残る
+- Blender Python 外では visual QA manifest を dry-run で作成できる
 
 ### 5.4 add-on integration 検証
 

@@ -70,6 +70,7 @@ v2 完成時点で、利用者は次を実行できる状態を目指す。
 - 正面、側面、俯瞰、材質確認などの標準ビューを定義する
 - review screenshot と validation report を同じ成果物ディレクトリに保存する
 - 人が確認するレビュー観点を docs と Skill に反映する
+- `scripts/capture_precision_review_views.py` は Blender Python 内では画像を保存し、通常 Python では dry-run manifest を作成する
 
 ### Phase v2-5: add-on registry / approved operator
 
