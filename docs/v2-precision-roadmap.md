@@ -48,6 +48,7 @@ v2 完成時点で、利用者は次を実行できる状態を目指す。
 - config、profile、tool pack、policy の読み込みを実装する
 - `tools/list` で profile / tool pack に応じた公開 tool を返す
 - 危険 tool を policy と Codex `disabled_tools` の両方で抑止する
+- 最小 scaffold は `blender-precision-mcp --dry-run` で設定解決を確認できる
 
 ### Phase v2-3: model spec と validation
 
