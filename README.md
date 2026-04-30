@@ -26,7 +26,7 @@
 - 公式リリース: [blender_mcp releases](https://projects.blender.org/lab/blender_mcp/releases)
 
 このリポジトリの初期対応版は、2026-04-30 時点で確認した公式 Blender MCP `v1.0.0` です。
-このリポジトリの初回 GitHub Release は [`v0.1.0`](https://github.com/Sunmax0731/blender-mcp/releases/tag/v0.1.0) です。
+このリポジトリの初回 GitHub Release は [`v0.1.0`](https://github.com/Sunmax0731/blender-mcp/releases/tag/v0.1.0) です。次期正式 Release は `v1.0.0` として準備しています。
 
 ## 現在の構成方針
 
@@ -216,6 +216,8 @@ uv sync --python 3.11 --extra dev
 - [仕様](docs/specification.md)
 - [ロードマップ](docs/roadmap.md)
 - [Release milestone plan](docs/release-milestones.md)
+- [v1.0.0 release scope](docs/release-scope-v1.0.0.md)
+- [v1.0.0 release milestone plan](docs/release-milestones-v1.0.0.md)
 - [v2 精密モデリング完成ロードマップ](docs/v2-precision-roadmap.md)
 - [v2 precision template / schema](docs/precision-templates.md)
 - [検証計画](docs/validation-plan.md)
