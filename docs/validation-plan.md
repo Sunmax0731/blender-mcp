@@ -115,3 +115,67 @@
 - installer から precision profile / Skill / template の導入有無を選べる
 - 導入後に Codex App 再起動が必要な場合、その案内が表示される
 - `AGENTS.md` / `SKILL.md` / subagent template の配置先が docs と一致している
+
+## 6. 全自動キャラクタートラックの pre-test 検証
+
+M5 テスト工程へ入る前に、少なくとも次の実装完了と確認が必要である。
+
+### 6.1 base asset 経路
+
+- `BaseAvatar.vrm` から `.blend` を生成できる
+- `base_character_package` と artifact の両方に `.blend` を保存できる
+- `.blend` から `base_asset_manifest.json` と `adaptation_plan.json` を生成できる
+- pipeline が base asset あり / なしで分岐できる
+
+### 6.2 image reference 経路
+
+- `front / side / back / face_closeup / expression_*` を受理できる
+- `image_reference_manifest.json` を出力できる
+- prompt / image conflict を traceability に残せる
+
+### 6.3 hair preset 経路
+
+- 初期 hair preset を `character_spec` から選択できる
+- hair object を live build に反映できる
+- hair object を validation と artifact に反映できる
+
+### 6.4 retry / traceability 経路
+
+- retryable failed を stage 単位で再試行できる
+- retry 履歴と改善量を artifact に残せる
+- 非 retryable failed と停止条件を report に残せる
+
+## 7. 全自動キャラクタートラックの M5 テスト項目
+
+pre-test 実装が揃った後、M5 では次をテスト対象にする。
+
+### 7.1 dry-run regression
+
+- prompt だけで `character_spec` / `pipeline_spec` / validation artifact が出る
+- base asset 入力あり / なしで run manifest が整合する
+
+### 7.2 live Blender regression
+
+- live scene build が通る
+- rig / shape key / weight artifact が出る
+- strict validation と review artifact が残る
+
+### 7.3 base asset reuse regression
+
+- `BaseAvatar.blend` を入力にした pipeline 分岐が通る
+- reuse / regenerate 判定が期待どおり artifact に残る
+
+### 7.4 image reference regression
+
+- 画像入力が色、髪シルエット、顔特徴へ反映される
+- conflict ルールが artifact に残る
+
+### 7.5 hair preset regression
+
+- hair preset ごとに live build が通る
+- hair object の naming / material / validation が崩れない
+
+### 7.6 retry traceability regression
+
+- retryable failed の再実行が行われる
+- retry traceability が run manifest と stage report に残る

@@ -68,3 +68,46 @@ v2 の詳細な完成ロードマップは [v2 精密モデリング完成ロー
 6. M6: 全自動キャラクターモデル生成 リリース
 
 M1 では、形状、材質、ボーン、シェイプキー、ウェイト、prompt 駆動オーケストレーションの 6 Issue に分解して要件定義を開始する。
+
+## 現在地
+
+2026-04-30 時点の進捗は次のとおり。
+
+- M1 要件定義: 完了
+- M2 仕様検討: 完了
+- M3 設計: 完了
+- M4 実装: 進行中
+- M5 テスト: 未着手
+- M6 リリース: 未着手
+
+M4 で実装済みの主な範囲:
+
+- `character_spec` / `pipeline_spec` の正規化
+- 類型別 template / library
+- dry-run workflow と validator 骨格
+- live scene build と strict validation
+- live rig / shape key / weight bridge
+- `BaseAvatar.vrm -> BaseAvatar.blend` 変換
+- `.blend` から `base_asset_manifest.json` / `adaptation_plan.json` 生成
+
+## テスト工程前に必要な実装
+
+M5 へ入る前に必要な実装タスクは次のとおり。
+
+1. [#151](https://github.com/Sunmax0731/blender-mcp/issues/151) base asset manifest を auto character pipeline に接続する
+2. [#153](https://github.com/Sunmax0731/blender-mcp/issues/153) 画像入力から `character_spec` 補強と `image_reference_manifest` を生成する
+3. [#154](https://github.com/Sunmax0731/blender-mcp/issues/154) hair preset library と live hair build を追加する
+4. [#155](https://github.com/Sunmax0731/blender-mcp/issues/155) auto-fix retry loop と stage retry traceability を追加する
+
+実装判断の残件:
+
+- [#148](https://github.com/Sunmax0731/blender-mcp/issues/148) hair preset と外部 add-on 方針
+
+## テスト工程の入口条件
+
+次を満たしたら M5 テストへ進む。
+
+- base asset あり / なしの両経路で pipeline を分岐できる
+- image input を `character_spec` と artifact に反映できる
+- hair preset を live build に反映できる
+- retryable failed に対して stage retry と traceability を残せる
