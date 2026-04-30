@@ -11,6 +11,9 @@ from .addons import list_registered_operators as list_registered_operators_impl
 from .config import ResolvedPrecisionConfig
 from .operator_execution import apply_retopology as apply_retopology_impl
 from .operator_execution import run_approved_addon_operator as run_approved_addon_operator_impl
+from .scene_builder import assign_materials_from_spec as assign_materials_from_spec_impl
+from .scene_builder import create_or_update_scene_from_spec as create_or_update_scene_from_spec_impl
+from .scene_builder import create_parametric_object as create_parametric_object_impl
 from .tool_catalog import not_implemented_payload
 from .tool_catalog import resolve_public_tool_definitions
 from .validation import validate_model_spec
@@ -35,6 +38,27 @@ def create_mcp_server(resolved: ResolvedPrecisionConfig) -> FastMCP:
         }
 
     for tool_definition in resolve_public_tool_definitions(resolved.enabled_tools):
+        if tool_definition.name == "create_parametric_object":
+            mcp_server.add_tool(
+                create_parametric_object,
+                name=tool_definition.name,
+                description=tool_definition.description,
+            )
+            continue
+        if tool_definition.name == "create_or_update_scene_from_spec":
+            mcp_server.add_tool(
+                create_or_update_scene_from_spec,
+                name=tool_definition.name,
+                description=tool_definition.description,
+            )
+            continue
+        if tool_definition.name == "assign_materials_from_spec":
+            mcp_server.add_tool(
+                assign_materials_from_spec,
+                name=tool_definition.name,
+                description=tool_definition.description,
+            )
+            continue
         if tool_definition.name == "validate_scene_against_spec":
             mcp_server.add_tool(
                 validate_scene_against_spec,
@@ -117,6 +141,41 @@ def validate_scene_against_spec(
         "success": report["status"] != "failed",
         "data": report,
     }
+
+
+def create_parametric_object(
+    object_spec: dict[str, Any],
+    materials: list[dict[str, Any]] | None = None,
+    dry_run: bool = False,
+) -> dict[str, Any]:
+    return create_parametric_object_impl(
+        object_spec=object_spec,
+        materials=materials,
+        dry_run=dry_run,
+    )
+
+
+def create_or_update_scene_from_spec(
+    spec_path: str = "templates/precision/model_spec.yaml",
+    output_path: str | None = None,
+    dry_run: bool = False,
+    ensure_camera: bool = True,
+    ensure_lights: bool = True,
+) -> dict[str, Any]:
+    return create_or_update_scene_from_spec_impl(
+        spec_path=spec_path,
+        output_path=output_path,
+        dry_run=dry_run,
+        ensure_camera=ensure_camera,
+        ensure_lights=ensure_lights,
+    )
+
+
+def assign_materials_from_spec(
+    spec_path: str = "templates/precision/model_spec.yaml",
+    dry_run: bool = False,
+) -> dict[str, Any]:
+    return assign_materials_from_spec_impl(spec_path=spec_path, dry_run=dry_run)
 
 
 def capture_review_views(
