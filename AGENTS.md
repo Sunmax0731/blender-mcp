@@ -14,6 +14,10 @@
 - GitHub Issue / comment に日本語本文を投稿するときは、PowerShell のパイプで `gh ... --body-file -` へ直接流さない
 - 日本語本文は必ず UTF-8 で保存した一時ファイルを `--body-file <path>` で渡す
 - Issue / comment 投稿前に、PowerShell の `$OutputEncoding` と code page に依存した文字化け経路を避ける
+- GitHub の日本語更新は「新規投稿」だけでなく「Issue 本文更新」「コメント更新」でも同じ文字化け対策を適用する
+- `gh issue edit --body-file <path>`、`gh issue comment --body-file <path>`、必要なら `gh api ... --input <json>` を使い、PowerShell の埋め込み文字列で直接更新しない
+- パスに `\` を含む本文やコードブロックは文字化けや制御文字混入を招きやすいため、Issue 本文では `/` 区切りを優先する
+- GitHub 更新後は `gh issue view` または GitHub 画面で本文とコメントの両方を確認し、崩れていたらその場で API 経由で修正する
 - open Issue を進める前に、その Issue でユーザー判断が必要かを必ず点検する
 - ユーザー判断が必要な項目を見つけたら、実装を進め切る前に Issue コメントとユーザー向け回答の両方で候補案、判断基準、判断材料、推奨案を提示する
 
@@ -110,3 +114,5 @@ gh issue create --title '<title>' --body-file $bodyPath
 
 - `@' ... '@ | gh issue create --body-file -` のようなパイプ経路は使わない
 - コメント投稿や Issue 更新でも同じく UTF-8 ファイル経由に統一する
+- コメント更新は `gh api repos/<owner>/<repo>/issues/comments/<id> --method PATCH --input <json>` を優先する
+- 更新後確認で文字化けを見つけたら、崩れた本文を再利用せず、正しい UTF-8 ソースを作り直して再投稿する

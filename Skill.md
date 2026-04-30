@@ -39,6 +39,9 @@
 - `gh issue create` / `gh issue comment` に日本語本文を渡すときの PowerShell 文字コード差異を理解する
 - 標準入力パイプではなく UTF-8 without BOM のファイル経由で本文を渡す
 - 投稿後は GitHub 上で本文が文字化けしていないか確認する
+- `gh issue edit` による本文更新でも同じく UTF-8 ファイルを使う
+- 既存コメントの更新は `gh api` の comment patch を使い、PowerShell 文字列を直接渡さない
+- 本文中の Windows パスは `/` 区切りを優先し、`\` による制御文字混入を避ける
 
 ## 2. 実行方針
 
@@ -54,6 +57,9 @@
 - `gh ... --body-file -` に日本語本文をパイプすると、Windows code page 932 と組み合わさって文字化けすることがある
 - Issue 本文、Issue コメント、PR コメントの日本語本文は、一時 UTF-8 without BOM ファイルを作って `--body-file` に渡す
 - 投稿後は `gh issue view` か GitHub 画面で本文確認まで行って完了とする
+- 本文更新は `gh issue edit --body-file <path>`、コメント更新は `gh api repos/<owner>/<repo>/issues/comments/<id> --method PATCH --input <json>` を基本形とする
+- 文字化けを見つけたときは、崩れた本文をコピーして再利用せず、ローカルの正しい UTF-8 ソースから上書きする
+- Issue 本文とコメントの両方を確認し、片方だけ正常でも完了扱いにしない
 
 ## 2.1 判断提案スキル
 
