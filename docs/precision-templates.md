@@ -145,6 +145,51 @@ uv run python scripts\capture_precision_review_views.py --dry-run --views front,
 
 現在の自動チェックは最低限の破綻検知です。キャラクターらしさ、意図した表情、構図の良し悪しは `captures[]` の画像を人が確認します。
 
+## mesh quality / cleanup
+
+`analyze_mesh_quality` は Blender scene の mesh object を検査し、`model_spec.yaml` の `mesh_quality.defaults` と `mesh_quality.objects[]` の threshold に照合します。
+
+取得する主な値:
+
+- `vertex_count`
+- `edge_count`
+- `face_count`
+- `triangle_count`
+- `quad_count`
+- `ngon_count`
+- `triangle_ratio`
+- `quad_ratio`
+- `loose_vertices`
+- `loose_edges`
+- `non_manifold_edges`
+
+対応する主な threshold:
+
+- `max_non_manifold_edges`
+- `max_loose_vertices`
+- `max_loose_edges`
+- `max_face_count`
+- `min_quad_ratio`
+
+Blender Python が使えない環境では `error.code=blender_unavailable` を返します。
+
+cleanup は `apply_mesh_cleanup` から実行します。安全のため、通常はまず `dry_run=true` で予定操作を確認し、実行時は `confirm=true` と `create_backup=true` を必須にします。
+
+dry-run 例:
+
+```powershell
+uv run python -c "from blender_precision_mcp.mesh_quality import apply_mesh_cleanup; import json; print(json.dumps(apply_mesh_cleanup('example_body', dry_run=True), ensure_ascii=False, indent=2))"
+```
+
+live smoke 手順:
+
+1. Blender を起動し、公式 MCP add-on を接続する
+2. `create_or_update_scene_from_spec` で `model_spec.yaml` から scene を生成する
+3. `analyze_mesh_quality(target_objects=['example_body'])` を Blender 内 Python または公式 Blender MCP 経由で実行する
+4. cleanup が必要な場合は `apply_mesh_cleanup(target_object='example_body', dry_run=True)` を確認する
+5. 予定操作に問題がなければ `apply_mesh_cleanup(target_object='example_body', dry_run=False, confirm=True, create_backup=True)` を実行する
+6. `validate_retopology_result(target_object='example_body')` で threshold を再確認する
+
 ## approved add-on operator
 
 `addon_registry.yaml` に登録した operator は、`run_approved_addon_operator` または `apply_retopology` から実行します。

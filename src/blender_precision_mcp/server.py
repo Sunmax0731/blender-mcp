@@ -9,6 +9,9 @@ from .addons import inspect_addon_capabilities as inspect_addon_capabilities_imp
 from .addons import list_blender_addons as list_blender_addons_impl
 from .addons import list_registered_operators as list_registered_operators_impl
 from .config import ResolvedPrecisionConfig
+from .mesh_quality import analyze_mesh_quality as analyze_mesh_quality_impl
+from .mesh_quality import apply_mesh_cleanup as apply_mesh_cleanup_impl
+from .mesh_quality import validate_retopology_result as validate_retopology_result_impl
 from .operator_execution import apply_retopology as apply_retopology_impl
 from .operator_execution import run_approved_addon_operator as run_approved_addon_operator_impl
 from .scene_builder import assign_materials_from_spec as assign_materials_from_spec_impl
@@ -62,6 +65,27 @@ def create_mcp_server(resolved: ResolvedPrecisionConfig) -> FastMCP:
         if tool_definition.name == "validate_scene_against_spec":
             mcp_server.add_tool(
                 validate_scene_against_spec,
+                name=tool_definition.name,
+                description=tool_definition.description,
+            )
+            continue
+        if tool_definition.name == "analyze_mesh_quality":
+            mcp_server.add_tool(
+                analyze_mesh_quality,
+                name=tool_definition.name,
+                description=tool_definition.description,
+            )
+            continue
+        if tool_definition.name == "apply_mesh_cleanup":
+            mcp_server.add_tool(
+                apply_mesh_cleanup,
+                name=tool_definition.name,
+                description=tool_definition.description,
+            )
+            continue
+        if tool_definition.name == "validate_retopology_result":
+            mcp_server.add_tool(
+                validate_retopology_result,
                 name=tool_definition.name,
                 description=tool_definition.description,
             )
@@ -176,6 +200,48 @@ def assign_materials_from_spec(
     dry_run: bool = False,
 ) -> dict[str, Any]:
     return assign_materials_from_spec_impl(spec_path=spec_path, dry_run=dry_run)
+
+
+def analyze_mesh_quality(
+    target_objects: list[str] | None = None,
+    spec_path: str = "templates/precision/model_spec.yaml",
+    output_path: str | None = None,
+) -> dict[str, Any]:
+    return analyze_mesh_quality_impl(
+        target_objects=target_objects,
+        spec_path=spec_path,
+        output_path=output_path,
+    )
+
+
+def apply_mesh_cleanup(
+    target_object: str,
+    operations: list[str] | None = None,
+    output_path: str | None = None,
+    dry_run: bool = True,
+    confirm: bool = False,
+    create_backup: bool = True,
+) -> dict[str, Any]:
+    return apply_mesh_cleanup_impl(
+        target_object=target_object,
+        operations=operations,
+        output_path=output_path,
+        dry_run=dry_run,
+        confirm=confirm,
+        create_backup=create_backup,
+    )
+
+
+def validate_retopology_result(
+    target_object: str,
+    spec_path: str = "templates/precision/model_spec.yaml",
+    output_path: str | None = None,
+) -> dict[str, Any]:
+    return validate_retopology_result_impl(
+        target_object=target_object,
+        spec_path=spec_path,
+        output_path=output_path,
+    )
 
 
 def capture_review_views(
