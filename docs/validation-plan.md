@@ -23,6 +23,7 @@
 - Blender extension 管理経路へ導入できる
 - Blender の `Get Extensions` で `MCP` が認識される
 - 公式 `mcp` が有効化される
+- 旧 `blender_mcp` add-on の Preferences 登録が残っている場合に削除される
 - 公式 MCP server を専用仮想環境へ導入できる
 - `blender-mcp --help` が実行できる
 - Codex 設定へ `mcp_servers.blender-official` を追記できる
@@ -44,12 +45,12 @@
 - Codex App から Blender ワークスペース切替や状態取得が実行できる
 - 1 クリック導入アプリのログから失敗箇所を追跡できる
 
-### 2.5 Blender UI プロンプト導線確認
+### 2.5 Blender UI cleanup 確認
 
-- プロンプト入力、実行計画作成、Preview、Confirm、Execute の状態遷移が docs と一致している
-- 危険操作を含む計画は明示承認なしに実行できない
-- Codex CLI 未検出時、公式 MCP 未接続時、実行計画不備時のエラーが利用者に表示される
-- 実行結果とログが確認できる
+- v1 系では Blender N メニューに独自 Prompt UI が表示されない
+- 公式 `MCP` add-on は有効なまま残る
+- cleanup step は旧 `blender_mcp` 登録がない環境でも成功する
+- cleanup step のログから削除対象と公式 add-on 状態を確認できる
 
 ## 3. 証跡
 
@@ -61,7 +62,7 @@
 - 公式 MCP server 専用仮想環境の作成結果
 - Codex 設定更新結果
 - Codex App からの接続結果
-- Blender UI プロンプト導線の Preview / Confirm / Execute 確認結果
+- 旧補助 Prompt UI cleanup 結果
 - Issue コメント
 
 ## 4. 完了条件

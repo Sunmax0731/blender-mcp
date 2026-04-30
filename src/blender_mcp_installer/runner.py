@@ -63,6 +63,11 @@ def default_steps(
             script_path=scripts_dir / "enable_official_blender_mcp_addon.ps1",
             description="Enable the official mcp add-on in Blender.",
         ),
+        InstallerStep(
+            name="remove-prompt-ui",
+            script_path=scripts_dir / "remove_blender_prompt_ui.ps1",
+            description="Remove the supplemental Blender prompt UI.",
+        ),
     ]
     if include_precision_profile:
         steps.append(

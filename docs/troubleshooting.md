@@ -9,7 +9,7 @@
 - Codex 設定に `mcp_servers.blender-official` が登録されているか
 - installer のログに失敗がないか
 
-まず Codex App を再起動してください。設定変更は再起動後に反映されます。
+設定変更は Codex App の再起動後に反映されます。
 
 ## 2. Blender の `MCP` add-on が有効にならない
 
@@ -61,27 +61,19 @@ precision profile は optional experimental 機能です。
 
 通常の Blender MCP 導入だけを使う場合は、precision profile を導入しなくても構いません。高品質モデリング支援用の template、Skill、subagent template を試したい場合だけ有効にしてください。
 
-config 追記予定を確認する場合:
+v1 系では precision profile は template / Skill / subagent 配布に留め、`blender_precision` MCP server は自動登録しません。
+
+## 6. Blender の N メニューに `Blender MCP` パネルが残っている
+
+v1 系では、独自の補助 Prompt UI は利用者向け導線から外しています。
+
+過去の開発版で `blender_mcp` add-on の登録が残っている場合は、次を実行してください。
 
 ```powershell
-.\scripts\install_precision_profile.ps1 -PlanConfigMerge
+.\scripts\remove_blender_prompt_ui.ps1
 ```
 
-precision profile 導入後に Codex App 側の挙動が不安定な場合は、`blender_precision` MCP server が残っていないか確認してください。v1 系では precision profile は template / Skill / subagent 配布に留め、standalone MCP server としては自動登録しません。
-
-cleanup が行われた場合は、`config.toml.backup-<timestamp>` 形式のバックアップが作成されます。
-
-## 6. Blender UI prompt が実行できない
-
-確認すること:
-
-- prompt 入力後に `Plan` を実行したか
-- Preview の内容を確認したか
-- `Confirm` を実行したか
-- `Execute` 前にエラーが表示されていないか
-- Codex CLI / Codex App / Blender MCP の接続前提が整っているか
-
-この導線では、確認なしに変更を実行しない方針です。
+この script は公式 `MCP` add-on を残し、旧 `blender_mcp` の Preferences 登録だけを削除します。実行後は Blender を再起動してください。
 
 ## 7. 再導入したい
 
@@ -91,4 +83,4 @@ cleanup が行われた場合は、`config.toml.backup-<timestamp>` 形式のバ
 uv run blender-mcp-installer --plan
 ```
 
-Codex App の設定を変更した後は、Codex App を再起動してください。Blender 側の add-on 状態が不安定な場合は、Blender の再起動も行ってください。
+Codex App の設定を変更した後は Codex App を再起動してください。Blender 側の add-on 状態が不安定な場合は、Blender の再起動も行ってください。

@@ -16,6 +16,7 @@ def test_default_steps_reference_existing_scripts() -> None:
         "official-server",
         "codex-config",
         "enable-addon",
+        "remove-prompt-ui",
         "launch-blender",
     ]
     assert all(step.script_path.suffix == ".ps1" for step in steps)
@@ -61,6 +62,7 @@ def test_default_steps_can_skip_launch_blender() -> None:
         "official-server",
         "codex-config",
         "enable-addon",
+        "remove-prompt-ui",
     ]
 
 
@@ -76,6 +78,7 @@ def test_default_steps_can_include_precision_profile() -> None:
         "official-server",
         "codex-config",
         "enable-addon",
+        "remove-prompt-ui",
         "precision-profile",
     ]
     assert steps[-1].extra_args == ("-MergeCodexConfig",)

@@ -64,6 +64,7 @@ class InstallerApp:
             "2. Install the official Blender MCP server\n"
             "3. Register blender-official in Codex config\n"
             "4. Enable the official mcp add-on in Blender\n"
+            "5. Remove the supplemental Blender prompt UI\n"
             "Optional: Install precision profile templates, Skill, and subagents"
         )
         tk.Label(container, text=intro, justify=tk.LEFT, anchor="w").pack(fill=tk.X)
@@ -73,7 +74,8 @@ class InstallerApp:
             "- Blender add-on directory\n"
             f"- {self.repo_root / '.official-mcp-venv'}\n"
             f"- {Path.home() / '.codex' / 'config.toml'} and its backup\n"
-            "- Blender user preferences"
+            "- Blender user preferences\n"
+            "- Supplemental Blender prompt UI registration, if present"
         )
         tk.Label(container, text=preview, justify=tk.LEFT, anchor="w", pady=8).pack(fill=tk.X)
 

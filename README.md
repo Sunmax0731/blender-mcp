@@ -5,7 +5,7 @@
 このリポジトリの主目的は次の 3 点です。
 - 公式 `blender_mcp` add-on / MCP server を Windows 環境へ導入しやすくする
 - Codex App から公式 MCP server を使って Blender を操作できるようにする
-- Blender UI から Codex CLI に指示し、公式 add-on と干渉しない補助導線を整備する
+- v2 以降の高品質モデリング支援に向けた template / Skill / 検証方針を整理する
 
 直近の Release 成果物は、1 クリックで次を進められる Windows 向け導入アプリです。
 - Codex への `blender-official` MCP server 登録
@@ -26,7 +26,7 @@
 - 公式リリース: [blender_mcp releases](https://projects.blender.org/lab/blender_mcp/releases)
 
 このリポジトリの初期対応版は、2026-04-30 時点で確認した公式 Blender MCP `v1.0.0` です。
-このリポジトリの正式 Release は [`v1.0.2`](https://github.com/Sunmax0731/blender-mcp/releases/tag/v1.0.2) です。
+このリポジトリの正式 Release は [`v1.0.3`](https://github.com/Sunmax0731/blender-mcp/releases/tag/v1.0.3) です。
 
 ## 現在の構成方針
 
@@ -38,13 +38,10 @@
 - Blender 側では公式 add-on が TCP bridge server を提供する
 - 3D 操作、スクリーンショット、サマリー取得などは可能な限り公式 tool を使う
 
-### 2. Blender UI から使う経路
+### 2. Blender 側の画面
 
-`Blender UI -> 補助ブリッジ -> Codex CLI -> 公式 Blender MCP / Blender`
-
-- Blender の補助 UI は、公式 add-on を置き換えず補完する位置付けにする
-- 自然言語入力は `Codex CLI` を優先する
-- 補助 UI からの危険操作は `preview -> confirm -> execute` を守る
+v1 系では、Blender の N メニューに独自の補助 Prompt UI は表示しません。
+Blender 側では公式 `MCP` add-on の Preferences を確認し、モデリング指示は Codex App から行います。
 
 ## セットアップ
 
@@ -64,7 +61,7 @@ cd /d <repo>
 
 ### 1. 1クリック導入アプリ
 
-Release 版を使う場合は、[`v1.0.2` Release](https://github.com/Sunmax0731/blender-mcp/releases/tag/v1.0.2) から `blender-mcp-installer.exe` を取得して実行します。
+Release 版を使う場合は、[`v1.0.3` Release](https://github.com/Sunmax0731/blender-mcp/releases/tag/v1.0.3) から `blender-mcp-installer.exe` を取得して実行します。
 導入手順は [利用者向け導入手順](docs/user-installation.md)、使い方は [利用者向け利用方法](docs/user-guide.md) を参照してください。
 開発版をリポジトリから起動する場合:
 
@@ -74,6 +71,7 @@ uv run blender-mcp-installer
 
 - GUI から導入開始、進捗確認、ログ確認ができる
 - Codex 設定、公式 Blender MCP server、Blender add-on の導入を順番に実行する
+- 既存環境に残った旧補助 Prompt UI の登録を削除する
 - 導入完了後は Blender を自動起動して、そのまま手動確認へ移れる
 
 実行予定ステップだけ確認する場合:
@@ -155,6 +153,15 @@ scripts\install_official_blender_mcp.cmd
 - Blender 5.1 extension key `bl_ext.*.mcp` にも対応する
 - `host=localhost` `port=9876` `autostart=True` を確認できる
 
+旧補助 Prompt UI の登録だけを削除したい場合:
+
+```powershell
+.\scripts\remove_blender_prompt_ui.ps1
+```
+
+- 公式 `MCP` add-on は残す
+- 旧 `blender_mcp` add-on の Preferences 登録が残っている場合だけ削除する
+
 #### 公式 Blender MCP server の導入
 
 PowerShell:
@@ -229,6 +236,8 @@ v1.0.0 Release 準備:
 - [v1.0.1 Release notes](docs/release-notes-v1.0.1.md)
 - [v1.0.2 release manifest](docs/release-manifest-v1.0.2.md)
 - [v1.0.2 Release notes](docs/release-notes-v1.0.2.md)
+- [v1.0.3 release manifest](docs/release-manifest-v1.0.3.md)
+- [v1.0.3 Release notes](docs/release-notes-v1.0.3.md)
 
 設計・開発者向け:
 

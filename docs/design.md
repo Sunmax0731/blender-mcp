@@ -3,7 +3,7 @@
 ## 1. 設計方針
 
 - Blender 側の中核機能は公式 `blender_mcp` を採用する
-- 本リポジトリは、公式配布物の導入、Codex 統合、補助 UI、自動化を担当する
+- 本リポジトリは、公式配布物の導入、Codex 統合、自動化、検証を担当する
 - 既存独自実装は段階的に縮退し、公式構成との差分を最小化する
 
 ## 2. アーキテクチャ
@@ -19,16 +19,10 @@ Codex App
           -> Blender
 ```
 
-### 2.2 Blender UI 補助経路
+### 2.2 Blender 側の設定確認
 
-```text
-Blender UI
-  -> Prompt Panel
-    -> Preview / Confirm Controller
-      -> Codex CLI
-        -> 実行計画
-          -> 公式 Blender MCP または Blender 補助処理
-```
+v1 系では、Blender 側に独自 Prompt panel は置かない。
+Blender 内で利用者が確認する画面は公式 `MCP` add-on の Preferences とし、自然言語の制作指示は Codex App から行う。
 
 ## 3. コンポーネント責務
 
@@ -48,17 +42,16 @@ Blender UI
 
 - 公式配布物の取得と導入自動化
 - Codex App からの利用前提整理
-- Blender UI から Codex CLI を使う補助導線
+- 旧補助 UI 登録の cleanup
 - 検証、更新、移行手順の自動化
 - Blender MCP 作業品質を上げる配布用 Skill の管理
 
-### 3.4 Blender UI プロンプト補助レイヤー
+### 3.4 Blender UI 補助レイヤーの扱い
 
-- Blender 内の利用者入力を受け取り、Codex CLI へ実行計画作成を依頼する
-- 実行前に、変更内容、対象、危険操作、保存先を利用者へ表示する
-- 利用者の承認後に、公式 Blender MCP または安全な補助処理へ実行を渡す
-- 実行結果、ログ、失敗理由を Blender UI 上で確認できるようにする
-- 公式 `mcp` add-on の通信設定や tool 実装は持たない
+- v1 系では利用者向け機能に含めない
+- 過去の開発版で残った `blender_mcp` add-on の Preferences 登録は installer で cleanup する
+- 将来再開する場合は、公式 `MCP` add-on と混同しない名称、接続状態、責務境界を再設計する
+- 公式 `mcp` add-on の通信設定や tool 実装は独自 UI に持たせない
 
 ### 3.5 1クリック導入アプリ層
 
@@ -102,7 +95,8 @@ Blender UI
 3. 公式 MCP server を導入する
 4. Codex 設定をバックアップして更新する
 5. Blender 側 add-on 状態を公式寄りに切り替える
-6. ログ保存と完了表示を行う
+6. 旧補助 Prompt UI の登録が残っていれば削除する
+7. ログ保存と完了表示を行う
 
 ### 4.3 スクリプト統合方針
 
@@ -137,40 +131,22 @@ Blender UI
 
 - 独自 add-on / 独自 HTTP server を非推奨扱いにする
 - Codex App から公式 MCP を使う実行経路を確認する
-- Blender UI から Codex CLI を使う補助経路を、公式 add-on を置き換えない形で設計する
+- Blender UI 補助経路は、利用者に必要性が確認できるまで v1 利用者向け導線から外す
 
 ### 5.3 長期
 
 - 公式更新追従の自動化
 - 開発用の内部構成を利用者向け導線から分離する
 
-## 6. Blender UI プロンプト導線設計
+## 6. Blender UI 補助導線の将来設計
 
-### 6.1 推奨構成
+v1 系では独自 Prompt UI を提供しない。再開する場合は、次の条件を満たす設計を Issue で確定してから実装する。
 
-Blender の 3D View Sidebar に `Blender MCP Prompt` のような補助パネルを追加する。利用者はプロンプトを入力し、まず実行計画を生成する。実行計画を確認して承認した場合のみ、Blender 側へ変更を反映する。
-
-### 6.2 画面責務
-
-- プロンプト入力: 作りたいモデルや変更内容を自然言語で入力する
-- Plan: Codex CLI に実行計画を作らせる
-- Preview: 追加、変更、削除、保存などの予定を表示する
-- Confirm: 危険操作を含む場合に明示承認を要求する
-- Execute: 承認済み計画だけを実行する
-- Result: 作成結果、ログ、次の確認操作を表示する
-
-### 6.3 実行責務
-
-- Codex CLI はプロンプトを解釈し、実行計画を作る
-- 公式 Blender MCP は Blender との通信と操作実行を担う
-- 補助 UI は実行計画の表示、承認状態、ログ表示を担う
-
-### 6.4 失敗時の扱い
-
-- Codex CLI が見つからない場合は実行せず、設定確認を促す
-- 公式 Blender MCP に接続できない場合は実行せず、Blender 側の `MCP` 有効化と `Online Access` 確認を促す
-- 実行計画が危険操作を説明していない場合は実行ボタンを有効にしない
-- 実行中の例外は UI とログの両方に残す
+- 公式 `MCP` add-on と名称、表示位置、接続状態が混同されない
+- Codex App 経路と Blender UI 経路の責務が明確である
+- `preview -> confirm -> execute` を明示できる
+- 失敗時に公式 MCP の失敗なのか補助 UI の失敗なのか判別できる
+- 利用者向け docs と installer 表示が実装状態と一致している
 
 ## 7. リスク
 
@@ -178,7 +154,7 @@ Blender の 3D View Sidebar に `Blender MCP Prompt` のような補助パネル
 - Blender / add-on / MCP client の組み合わせ差で挙動差が出る
 - 既存独自構成との混在期間に誤接続が起こる
 - GUI 層と既存スクリプトの責務分離が曖昧だと保守が難しくなる
-- Blender UI 補助導線が公式 add-on の責務へ踏み込みすぎると、更新追従が難しくなる
+- Blender UI 補助導線を premature に出すと、公式 MCP の失敗と誤認される
 
 ## 8. 対応方針
 
@@ -186,7 +162,7 @@ Blender の 3D View Sidebar に `Blender MCP Prompt` のような補助パネル
 - 導入スクリプトは公式配布物のバージョンを明示する
 - docs と Issue に、どの構成を対象にしているか必ず記録する
 - GUI は薄く保ち、導入ロジックは既存スクリプト群へ寄せる
-- Blender UI 補助導線は、入力、確認、承認、ログ表示に責務を限定する
+- Blender UI 補助導線は v1 利用者向け導線から外し、再開時は責務を再定義する
 - 配布用 Skill は、品質チェックと作業手順を提供し、公式 MCP の tool 実装は持たない
 
 ## 9. v2 精密モデリング設計
