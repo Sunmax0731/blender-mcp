@@ -24,6 +24,7 @@ def test_list_blender_addons_falls_back_to_registry_without_blender():
 
     assert result["success"] is True
     assert "example_retopology_addon" in result["data"]["approved_modules"]
+    assert "VRM_Addon_for_Blender-release" in result["data"]["approved_modules"]
 
 
 def test_get_addon_status_reports_registry_approval():
@@ -44,4 +45,6 @@ def test_inspect_addon_capabilities_returns_operator_metadata():
 def test_list_registered_operators_returns_approved_operator_list():
     result = list_registered_operators(REGISTRY)
 
-    assert result["data"]["operators"][0]["idname"] == "object.example_retopology"
+    idnames = {operator["idname"] for operator in result["data"]["operators"]}
+    assert "object.example_retopology" in idnames
+    assert "import_scene.vrm" in idnames

@@ -134,6 +134,16 @@ Codex App 側:
 uv sync --python 3.11 --extra dev
 ```
 
+#### base-character-package の VRM を `.blend` へ変換
+
+```powershell
+uv run python .\scripts\convert_vrm_to_blend.py
+```
+
+- `templates/precision/base_character_package/BaseAvatar.vrm` を既定入力に使う
+- 最新の `VRM Add-on for Blender` release zip を取得し、Blender background で install と import を行う
+- `artifacts/vrm-base-character-convert/` に `.blend`、conversion report、object list を保存する
+
 #### 公式 Blender MCP add-on の導入
 
 PowerShell:

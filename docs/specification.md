@@ -526,6 +526,8 @@ v2 で標準化する主なデータ:
 - 第 2 優先
   - `base_character.fbx`
   - `base_character.glb`
+- 前処理変換対象
+  - `base_character.vrm`
 - 補助ファイル
   - `notes.md`
   - `previews/front.png`
@@ -555,6 +557,9 @@ v2 で標準化する主なデータ:
 
 ベースデータ import 前には、少なくとも次を確認する。
 
+- `.vrm` の場合、承認済み add-on registry に登録された VRM import 経路が利用可能か
+- `.vrm` の場合、先に `.blend` へ変換し、その conversion report を artifact として保存できるか
+
 - main mesh object が特定できる
 - armature object が特定できる、または未所持であることが明示されている
 - UV が存在するか
@@ -562,6 +567,17 @@ v2 で標準化する主なデータ:
 - face topology を表情生成に流用できるか
 - shape key が既にある場合、上書きか共存かを選べるか
 - hair object / collection を本体と分離して扱えるか
+
+#### `.vrm` 前処理変換
+
+- `.vrm` は直接適応対象ではなく、`.blend` へ正規化してから base asset 契約へ流す
+- 変換には承認済み add-on registry に登録された `VRM Add-on for Blender` を使う
+- Blender background 実行では、現行の自動化経路として extension zip ではなく release zip install を用いる
+- `.vrm` 変換時の artifact には、少なくとも次を残す
+  - `vrm_addon_release.json`
+  - `vrm_conversion_report.json`
+  - `object_list.json`
+  - `exports/<source_name>.blend`
 
 #### 再利用範囲の記録
 

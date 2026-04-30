@@ -20,3 +20,24 @@ approved_addons:
     validation:
       min_quad_ratio: 0.85
       max_non_manifold_edges: 0
+  - module: VRM_Addon_for_Blender-release
+    display_name: VRM Add-on for Blender
+    version_constraint: ">=3.26,<4.0"
+    license_status: verified
+    allowed_operations: [import_base_character_vrm]
+    operators:
+      - idname: import_scene.vrm
+        label: Import VRM
+        context:
+          mode: OBJECT
+          requires_active_object: false
+          requires_selected_objects: false
+          requires_view3d: false
+        destructive: false
+        backup_required: false
+        property_map:
+          filepath: filepath
+          extract_textures_into_folder: extract_textures_into_folder
+          make_new_texture_folder: make_new_texture_folder
+    validation:
+      required_object_types: [ARMATURE, MESH]
