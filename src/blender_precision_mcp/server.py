@@ -9,6 +9,7 @@ from .addons import inspect_addon_capabilities as inspect_addon_capabilities_imp
 from .addons import list_blender_addons as list_blender_addons_impl
 from .addons import list_registered_operators as list_registered_operators_impl
 from .config import ResolvedPrecisionConfig
+from .exporter import export_scene as export_scene_impl
 from .mesh_quality import analyze_mesh_quality as analyze_mesh_quality_impl
 from .mesh_quality import apply_mesh_cleanup as apply_mesh_cleanup_impl
 from .mesh_quality import validate_retopology_result as validate_retopology_result_impl
@@ -58,6 +59,13 @@ def create_mcp_server(resolved: ResolvedPrecisionConfig) -> FastMCP:
         if tool_definition.name == "assign_materials_from_spec":
             mcp_server.add_tool(
                 assign_materials_from_spec,
+                name=tool_definition.name,
+                description=tool_definition.description,
+            )
+            continue
+        if tool_definition.name == "export_scene":
+            mcp_server.add_tool(
+                export_scene,
                 name=tool_definition.name,
                 description=tool_definition.description,
             )
@@ -200,6 +208,22 @@ def assign_materials_from_spec(
     dry_run: bool = False,
 ) -> dict[str, Any]:
     return assign_materials_from_spec_impl(spec_path=spec_path, dry_run=dry_run)
+
+
+def export_scene(
+    spec_path: str = "templates/precision/model_spec.yaml",
+    output_manifest_path: str | None = None,
+    validation_artifacts: list[str] | None = None,
+    review_artifacts: list[str] | None = None,
+    dry_run: bool = False,
+) -> dict[str, Any]:
+    return export_scene_impl(
+        spec_path=spec_path,
+        output_manifest_path=output_manifest_path,
+        validation_artifacts=validation_artifacts,
+        review_artifacts=review_artifacts,
+        dry_run=dry_run,
+    )
 
 
 def analyze_mesh_quality(

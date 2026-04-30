@@ -190,6 +190,31 @@ live smoke 手順:
 5. 予定操作に問題がなければ `apply_mesh_cleanup(target_object='example_body', dry_run=False, confirm=True, create_backup=True)` を実行する
 6. `validate_retopology_result(target_object='example_body')` で threshold を再確認する
 
+## export manifest
+
+`export_scene` は `model_spec.yaml` の `exports[]` を読み込み、成果物を書き出して `export_manifest.json` を残します。
+
+初期対応 format:
+
+- `blend`
+- `glb`
+
+manifest に含める主な値:
+
+- `source_spec`: export 元の `model_spec`
+- `operations[]`: 実行予定または実行した export
+- `exports[]`: 実際に作成した file、format、size
+- `artifacts.validation[]`: validation report などの検証証跡
+- `artifacts.review[]`: review image manifest などの視覚確認証跡
+
+dry-run で manifest 形式だけ確認する場合:
+
+```powershell
+uv run python -c "from blender_precision_mcp.exporter import export_scene; import json; print(json.dumps(export_scene('templates/precision/model_spec.yaml', output_manifest_path='outputs/exports/export_manifest.json', dry_run=True), ensure_ascii=False, indent=2))"
+```
+
+Blender Python が使えない環境で `dry_run=false` を指定した場合は、`error.code=blender_unavailable` を返します。未対応 format は `error.code=unsupported_export_format` を返します。
+
 ## approved add-on operator
 
 `addon_registry.yaml` に登録した operator は、`run_approved_addon_operator` または `apply_retopology` から実行します。
