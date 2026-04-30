@@ -1,0 +1,4 @@
+interface:
+  display_name: "Blender Add-on Development"
+  short_description: "Build and validate Blender add-ons."
+  default_prompt: "Design or implement a Blender add-on with manifest, operators, panels, safe registration, and validation steps."

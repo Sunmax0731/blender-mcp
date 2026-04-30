@@ -14,14 +14,25 @@
   - マテリアルやライトの追加
   - ドキュメント掲載用のレンダー確認
 
+### blender-addon-development
+
+- パス: `skills/blender-addon-development/`
+- 目的: Blender アドオン / extension の設計、実装、検証、配布手順を整える
+- 主な対象:
+  - Blender Python add-on の作成
+  - Operator / Panel / Property / Preferences の設計
+  - `register()` / `unregister()` の確認
+  - add-on の手動 UI スモークと配布前チェック
+
 ## 2. インストール
 
-利用者の Codex 環境で Skill として使う場合は、`skills/blender-quality-modeling/` を Codex の skill ディレクトリへコピーします。
+利用者の Codex 環境で Skill として使う場合は、必要な Skill ディレクトリを Codex の skill ディレクトリへコピーします。
 
 PowerShell 例:
 
 ```powershell
 Copy-Item -Recurse -Force .\skills\blender-quality-modeling "$env:USERPROFILE\.codex\skills\blender-quality-modeling"
+Copy-Item -Recurse -Force .\skills\blender-addon-development "$env:USERPROFILE\.codex\skills\blender-addon-development"
 ```
 
 Codex App が起動中の場合は、コピー後に Codex App を再起動してください。
@@ -35,6 +46,14 @@ Blender MCP で高品質なロボットのモデルを作成してください�
 ```
 
 Skill は、モデルを部品に分ける、マテリアル名を付ける、ライトとカメラを置く、レンダー確認する、といった品質確認観点を Codex に与えます。
+
+Blender アドオン開発を依頼するとき:
+
+```text
+Blender 5.1 向けに、選択オブジェクトの情報を表示する Sidebar add-on を設計して実装してください。
+```
+
+Skill は、manifest、Operator、Panel、Property、登録解除、検証手順といったアドオン開発の確認観点を Codex に与えます。
 
 ## 4. 運用方針
 
