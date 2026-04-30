@@ -223,6 +223,7 @@ uv sync --python 3.11 --extra dev
 - [v0.1.0 release scope](docs/release-scope-v0.1.0.md)
 - [v0.1.0 setup checklist](docs/setup-checklist-v0.1.0.md)
 - [v0.1.0 release assets](docs/release-assets-v0.1.0.md)
+- [v0.1.0 release manifest](docs/release-manifest-v0.1.0.md)
 - [v2 release validation](docs/release-validation-v2.md)
 - [Blender MCP 実行例](docs/examples.md)
 - [配布用 Skill](docs/skills.md)

@@ -54,6 +54,8 @@ M2: Packaging and installer validation では、次を作成して Issue に記�
 - validation commands
 - upload 対象 asset 一覧
 
+現在の manifest は [v0.1.0 release manifest](release-manifest-v0.1.0.md) に記録する。
+
 ## 6. Release 前チェック
 
 - Release asset に添付しないものが混入していない
