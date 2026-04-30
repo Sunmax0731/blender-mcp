@@ -77,7 +77,7 @@ M1 では、形状、材質、ボーン、シェイプキー、ウェイト、pr
 - M2 仕様検討: 完了
 - M3 設計: 完了
 - M4 実装: 完了
-- M5 テスト: 進行中
+- M5 テスト: 完了
 - M6 リリース: 未着手
 
 M4 で実装済みの主な範囲:
@@ -97,12 +97,12 @@ M4 で実装済みの主な範囲:
 
 M5 では次の Issue 群で総合テストを進める。
 
-1. [#158](https://github.com/Sunmax0731/blender-mcp/issues/158) M5: 全自動キャラクターモデル生成の総合テストを進める
+1. [#158](https://github.com/Sunmax0731/blender-mcp/issues/158) M5: 全自動キャラクターモデル生成の総合テストを進める 完了
 2. [#159](https://github.com/Sunmax0731/blender-mcp/issues/159) テスト: dry-run 入力経路の regression matrix を固定する 完了
 3. [#160](https://github.com/Sunmax0731/blender-mcp/issues/160) テスト: live Blender build と strict validation を固定する 完了
 4. [#161](https://github.com/Sunmax0731/blender-mcp/issues/161) テスト: hair preset と retry traceability の回帰を固定する 完了
 
-次の手動テストは `#163 -> #162 -> #164 -> #165` の順で進める。
+手動テスト `#163 -> #162 -> #164 -> #165` も完了している。次は M6 リリース工程へ移る。
 
 ## テスト工程の入口条件
 
@@ -114,3 +114,12 @@ M5 では次の Issue 群で総合テストを進める。
 - retryable failed に対して stage retry と traceability を残せる
 
 現時点では入口条件を満たしており、以降は M5 の regression 固定を進める。
+
+## 次工程
+
+M5 は自動テスト、手動テストともに完了した。次は M6 の親 Issue を起点に、次を進める。
+
+- release scope の確定
+- release note / manifest 更新
+- 配布物と実行手順の最終確認
+- 既知制約と follow-up backlog の整理

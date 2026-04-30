@@ -156,10 +156,12 @@ pre-test 実装が揃った後、M5 では次をテスト対象にする。
 1. [#159](https://github.com/Sunmax0731/blender-mcp/issues/159) dry-run 入力経路 regression 完了
 2. [#160](https://github.com/Sunmax0731/blender-mcp/issues/160) live Blender build と strict validation regression 完了
 3. [#161](https://github.com/Sunmax0731/blender-mcp/issues/161) hair preset と retry traceability regression 完了
-4. [#163](https://github.com/Sunmax0731/blender-mcp/issues/163) 手動テスト: live 生成の基本確認
-5. [#162](https://github.com/Sunmax0731/blender-mcp/issues/162) 手動テスト: 見た目品質の目視確認
-6. [#164](https://github.com/Sunmax0731/blender-mcp/issues/164) 手動テスト: base asset 流用確認
-7. [#165](https://github.com/Sunmax0731/blender-mcp/issues/165) 手動テスト: image reference 反映確認
+4. [#163](https://github.com/Sunmax0731/blender-mcp/issues/163) 手動テスト: live 生成の基本確認 完了
+5. [#162](https://github.com/Sunmax0731/blender-mcp/issues/162) 手動テスト: 見た目品質の目視確認 完了
+6. [#164](https://github.com/Sunmax0731/blender-mcp/issues/164) 手動テスト: base asset 流用確認 完了
+7. [#165](https://github.com/Sunmax0731/blender-mcp/issues/165) 手動テスト: image reference 反映確認 完了
+
+現時点で M5 のテスト項目は完了しており、次は M6 リリース確認へ進む。
 
 ### 7.1 dry-run regression
 
