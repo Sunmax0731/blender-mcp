@@ -33,6 +33,9 @@ v2 precision profile の release 前に、導入、sidecar MCP server、validati
 - `scripts/capture_precision_review_views.py --dry-run` が review manifest を保存する
 - Blender Python 内では front / side / top / perspective の screenshot を保存できる
 - manifest は `views`、`resolution`、`artifacts`、`warnings` を含む
+- manifest は `target_objects`、`captures`、`quality_checks`、`errors` を含む
+- blank check / bounding box check が failed の場合、`status=failed` になる
+- Blender 未起動、対象 object 不在、未対応 view は `errors[].code` で区別する
 
 ### 1.5 add-on integration
 
@@ -96,9 +99,31 @@ Blender 外で structured error を確認する例:
 uv run python -c "from blender_precision_mcp.validation import validate_model_spec; import json; print(json.dumps(validate_model_spec('templates/precision/model_spec.yaml', live_scene=True), ensure_ascii=False, indent=2))"
 ```
 
-## 4. Examples
+## 4. Issue #91 Visual QA Smoke
 
-### 4.1 Scene Analysis
+`capture_review_views` は review image を保存し、`review_manifest.json` に撮影条件と画像 QA の結果を記録する。
+
+確認項目:
+
+- dry-run では image を保存せず、予定される `captures[]` と `artifacts[]` を manifest に残す
+- 実 capture では Blender scene から指定 view の PNG を保存する
+- `quality_checks[]` に `blank_check` と `bounding_box_check` を記録する
+- unsupported view は `errors[].code=VIEW_NOT_SUPPORTED` として返す
+- Blender Python が使えない場合は `errors[].code=BLENDER_NOT_AVAILABLE` として返す
+- spec に定義された object が scene にない場合は `errors[].code=TARGET_OBJECT_NOT_FOUND` として返す
+
+最小 smoke:
+
+```powershell
+uv run pytest tests\test_precision_visual_qa.py
+uv run python scripts\capture_precision_review_views.py --dry-run --views front,top --output-dir outputs\reviews\dry-run
+```
+
+実 screenshot は Blender Python または公式 Blender MCP から Blender 側の render / screenshot API を実行し、生成された PNG を `analyze_review_image` で確認する。
+
+## 5. Examples
+
+### 5.1 Scene Analysis
 
 目的: Blender scene を確認し、現在の構成、検証結果、改善点を把握する。
 
@@ -114,7 +139,7 @@ uv run python -c "from blender_precision_mcp.validation import validate_model_sp
 
 v2 precision profile では、必要に応じて `get_scene_snapshot`、`validate_scene_against_spec`、`capture_review_views` を使い、validation report と review artifact を残す。
 
-### 4.2 Various Prompts
+### 5.2 Various Prompts
 
 目的: 利用者が自然言語で複数種類のモデリング依頼を試せるようにする。
 
@@ -132,14 +157,15 @@ v2 precision profile では、必要に応じて `get_scene_snapshot`、`validat
 approved add-on registry を確認し、利用可能な retopology operator と実行前に必要な context を説明してください。
 ```
 
-## 5. Known Limitations
+## 6. Known Limitations
 
 - v2 sidecar の一部 tool は公開制御と structured `not_implemented` までの初期実装である
-- visual QA の実 screenshot 保存は Blender Python 内で実行する必要がある
+- visual QA の実 screenshot 保存は Blender Python または公式 Blender MCP から Blender render / screenshot API を実行する必要がある
+- visual QA の自動判定は blank / bounding box の最低限チェックであり、意味的な見た目評価は人の review が必要である
 - add-on operator の live 実行は Blender Python と対象 add-on が導入済みの環境で検証する必要がある
 - precision profile installer は Codex home へ template / Skill / subagent をコピーする。v1 系では `blender_precision` MCP server の自動登録は行わない
 
-## 6. v2 初期 Release 判断
+## 7. v2 初期 Release 判断
 
 v2 初期 Release は、以下を満たす場合に候補とする。
 

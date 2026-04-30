@@ -89,3 +89,31 @@ uv run python -c "from blender_precision_mcp.validation import validate_model_sp
 ```
 
 上記を通常 Python で実行した場合は `BLENDER_NOT_AVAILABLE` になります。Blender 内 Python または公式 Blender MCP から取得した snapshot を渡した場合は、現在の scene から object / material / camera / light の実測値を検証できます。
+
+## visual QA
+
+`capture_review_views` は `visual_qa.views` に定義された front / side / top / perspective の review image を保存し、`review_manifest.json` に撮影条件と品質チェック結果を残します。
+
+manifest に含める主な値:
+
+- `views`: 撮影した view 名
+- `resolution`: 出力画像サイズ
+- `target_objects`: `model_spec.yaml` に定義された確認対象 object
+- `captures[]`: view、画像パス、camera、対象 object
+- `quality_checks[]`: blank check と bounding box check の結果
+- `errors[]`: Blender 未起動、対象 object 不在、未対応 view などの structured error
+
+dry-run で manifest 形式だけ確認する場合:
+
+```powershell
+uv run python scripts\capture_precision_review_views.py --dry-run --views front,top --output-dir outputs\reviews\dry-run
+```
+
+実 screenshot を保存するには Blender Python から実行します。Blender bundled Python に PyYAML がない環境でも最低限 `objects` と `visual_qa` を読める fallback parser を使います。
+
+品質チェック:
+
+- `blank_check`: 画像が背景色だけに近い場合に failed
+- `bounding_box_check`: 背景と異なる pixel の bounding box が小さすぎる場合に failed
+
+現在の自動チェックは最低限の破綻検知です。キャラクターらしさ、意図した表情、構図の良し悪しは `captures[]` の画像を人が確認します。
