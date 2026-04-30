@@ -44,6 +44,7 @@ precision profile は、高品質モデリング支援のための optional expe
 通常の公式 Blender MCP 導入だけを使う場合は有効にする必要はありません。導入すると、Codex 用 template、Skill、subagent template に加えて、installer-managed venv で起動する `blender_precision` MCP server が Codex App に登録されます。
 
 precision profile 導入時は、既存の Codex `config.toml` を丸ごと置き換えません。既存 file をバックアップし、installer が生成した `[mcp_servers.blender_precision]` section を更新します。過去の `uvx` 前提の experimental section が残っている場合も、バックアップ後に現在の起動方式へ置き換えます。
+precision profile 導入直後の正常な確認順序は、`blender-official` 接続確認、`blender_precision` dry-run、最後に Blender 側 live 実行です。`blender_precision` で scene 生成や export を直接 live 実行したときに `blender_unavailable` が返る場合は、sidecar から `bpy` を直接保持していないだけなので、Blender 起動後の live 実行経路へ切り替えてください。
 
 headless で導入する場合:
 
@@ -72,7 +73,9 @@ Codex App 側:
 1. Codex App を再起動する
 2. `blender-official` MCP server が利用できることを確認する
 3. precision profile を導入した場合は `blender_precision` MCP server が利用できることを確認する
-4. Blender を起動した状態で、状態取得や screenshot 取得を試す
+4. Blender を起動した状態で、まず `blender-official` から状態取得や screenshot 取得を試す
+5. `blender_precision` では dry-run や static validation を試す
+6. live scene 生成、review image 保存、export が必要な場合は Blender 側実行経路で artifact を採取する
 
 ## 6. headless / plan mode
 

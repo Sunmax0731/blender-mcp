@@ -34,6 +34,12 @@
 - Blender 実機確認
 - add-on 更新、server 起動、スクリーンショット取得の自動化
 
+### 1.6 GitHub Issue 運用
+
+- `gh issue create` / `gh issue comment` に日本語本文を渡すときの PowerShell 文字コード差異を理解する
+- 標準入力パイプではなく UTF-8 without BOM のファイル経由で本文を渡す
+- 投稿後は GitHub 上で本文が文字化けしていないか確認する
+
 ## 2. 実行方針
 
 - まず公式構成へ寄せる
@@ -41,6 +47,13 @@
 - 人向け文書は日本語で整備する
 - 変更理由と判断は Issue に残す
 - ユーザー判断が必要な Issue は、候補案を並べるだけでなく、判断材料と推奨案まで含めて作る
+
+## 2.2 GitHub 投稿の再発防止
+
+- PowerShell では `[Console]::OutputEncoding` が UTF-8 でも `$OutputEncoding` が `US-ASCII` のままなことがある
+- `gh ... --body-file -` に日本語本文をパイプすると、Windows code page 932 と組み合わさって文字化けすることがある
+- Issue 本文、Issue コメント、PR コメントの日本語本文は、一時 UTF-8 without BOM ファイルを作って `--body-file` に渡す
+- 投稿後は `gh issue view` か GitHub 画面で本文確認まで行って完了とする
 
 ## 2.1 判断提案スキル
 

@@ -138,3 +138,6 @@ v2 では、公式 Blender MCP を土台に、より高品質なモデル制作�
 - 破壊的操作はバックアップ作成と `preview -> confirm -> execute` を必須にする
 - add-on 利用は承認済み registry、operator poll、context 準備、dry-run 可能性を確認してから実行する
 - `bpy.ops` / `bpy.context` / operator context override は add-on integration の設計領域として分離する
+- sidecar 単独では `bpy` 非依存の dry-run と static validation を正とし、`bpy` 必須の live 処理は Blender 側実行経路を用意する
+- precision profile 導入後の利用者は、`blender-official` 接続確認、`blender_precision` dry-run、live 実行の順に到達できなければならない
+- live 実行の完了条件には validation report、object list、review 画像などの artifact 採取を含める

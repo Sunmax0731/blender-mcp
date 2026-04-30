@@ -90,6 +90,7 @@
 - policy block された tool が公開または実行されない
 - `startup_timeout_sec` / `tool_timeout_sec` の設定例が導入手順と矛盾しない
 - structured result に成功、失敗、警告、証跡パスが含まれる
+- `bpy` 非接続時に `blender_unavailable` が期待どおり返り、docs の切り分け手順と一致する
 
 ### 5.3 Blender scene 検証
 
@@ -98,6 +99,8 @@
 - viewport screenshot を指定ビューで保存できる
 - 検証失敗時に修正候補が report に残る
 - Blender Python 外では visual QA manifest を dry-run で作成できる
+- 導入直後の正常系として、`blender-official` 接続確認、`blender_precision` dry-run、Blender 側 live 実行の順が docs と一致する
+- live 実行時に validation report、object list、review 画像を同じ artifact directory に残せる
 
 ### 5.4 add-on integration 検証
 

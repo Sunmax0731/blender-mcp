@@ -75,7 +75,27 @@ precision profile は optional experimental 機能です。
 
 `config.toml` に過去の `uvx` 前提 section が残っている場合は、precision profile を再導入してください。installer がバックアップを作成したうえで現在の powershell 起動方式へ置き換えます。
 
-## 7. 不要な補助 UI 登録を cleanup したい
+## 7. `blender_precision` で `blender_unavailable` が返る
+
+確認すること:
+
+- まず `blender-official` で Blender 接続と screenshot 取得が成功しているか
+- 実行している処理が dry-run ではなく `bpy` を必要とする live 処理か
+- `model_spec` の確認だけでなく、scene 生成や review image 保存を sidecar 単独で実行しようとしていないか
+
+`blender_unavailable` は、sidecar MCP server が `bpy` を直接保持していない実行コンテキストで live 処理を行ったときに返ります。これは precision profile 導入失敗とは限りません。`blender_precision` は dry-run と static validation に使い、live 処理は Blender background 実行または Blender 接続済み経路で実行してください。
+
+## 8. live validation report や object list が採れない
+
+確認すること:
+
+- Blender を起動したうえで `blender-official` 接続確認が済んでいるか
+- validation report、object list、review 画像を同じ artifact directory に保存する運用になっているか
+- scene snapshot を公式 MCP から取得して sidecar validation に渡すか、Blender 側で report を生成する経路を選んでいるか
+
+sidecar 単独で live validation が完結しない場合は、公式 MCP の scene snapshot を使うか、Blender background 実行で validation report と object list を生成してください。
+
+## 9. 不要な補助 UI 登録を cleanup したい
 
 過去の開発版で `blender_mcp` add-on の不要な Preferences 登録が残っている場合は、次を実行してください。
 

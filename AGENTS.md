@@ -11,6 +11,9 @@
 - 判断が必要な項目は Issue に候補 3 案、判断基準、判断材料、推奨案を書く
 - ユーザーの判断や決定が必要な Issue では、決定依頼だけで終わらせず、判断材料つきで候補案を提示する
 - 候補案には最低限、各案の長所、短所、影響範囲を書き、最後に推奨案と推奨理由を書く
+- GitHub Issue / comment に日本語本文を投稿するときは、PowerShell のパイプで `gh ... --body-file -` へ直接流さない
+- 日本語本文は必ず UTF-8 で保存した一時ファイルを `--body-file <path>` で渡す
+- Issue / comment 投稿前に、PowerShell の `$OutputEncoding` と code page に依存した文字化け経路を避ける
 
 ## 2. 工程順序
 
@@ -93,3 +96,14 @@ cd D:\Claude\MCP
 ### 5.4 既存自動化
 
 現時点の自動化スクリプトは独自実装前提のものを含む。今後は公式構成へ寄せて整理する。
+
+### 5.5 GitHub 投稿時の文字化け防止
+
+```powershell
+$bodyPath = Join-Path $env:TEMP 'gh-issue-body.md'
+[System.IO.File]::WriteAllText($bodyPath, $bodyText, [System.Text.UTF8Encoding]::new($false))
+gh issue create --title '<title>' --body-file $bodyPath
+```
+
+- `@' ... '@ | gh issue create --body-file -` のようなパイプ経路は使わない
+- コメント投稿や Issue 更新でも同じく UTF-8 ファイル経由に統一する

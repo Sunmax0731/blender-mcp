@@ -101,6 +101,7 @@ uv run blender-mcp-installer --headless --include-precision-profile
 ```
 
 precision profile は、Codex 用 template、Skill、subagent template を追加する任意導線です。通常の公式 Blender MCP 導入だけを使う場合は有効にする必要はありません。
+precision profile を導入した場合も、最初の確認は `blender-official` から始めます。`blender_precision` は dry-run、static validation、artifact 設計にはそのまま使えますが、scene 生成や review image 保存のように `bpy` を必要とする live 処理は Blender 側実行経路で行います。
 
 ### 2. 導入後の確認
 
@@ -116,8 +117,12 @@ Codex App 側:
 1. Codex App を再起動する
 2. `blender-official` MCP server が利用できることを確認する
 3. Blender を起動した状態で、MCP tool から状態取得やスクリーンショット取得を試す
+4. precision profile を導入した場合は `blender_precision` MCP server が利用できることを確認する
+5. `blender_precision` では、まず dry-run で `model_spec` と予定操作を確認する
+6. live 生成や validation artifact 採取が必要な場合は、Blender background 実行または Blender 接続済み経路で実行する
 
 公式 add-on はローカル TCP bridge server を使うため、`Online Access` が無効だと起動できません。
+`blender_precision` で `error.code=blender_unavailable` が返る場合は、sidecar プロセスから `bpy` へ直接は触れていません。Blender を起動したうえで、公式 MCP 接続確認後に live 実行経路へ切り替えてください。
 
 ### 3. 手動導入
 

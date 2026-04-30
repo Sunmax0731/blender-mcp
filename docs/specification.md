@@ -151,6 +151,13 @@ Blender 側では、公式 `MCP` add-on の Preferences を確認対象とする
 
 `args` は tool の実行時引数ではない。MCP tool の実行時引数は `tools/call` の `arguments` で受け取る。
 
+### 8.1.1 precision profile 導入後の正常系
+
+- 利用者は installer 完了後、まず `blender-official` で Blender 接続と screenshot 取得を確認する
+- その後 `blender_precision` で `model_spec` の dry-run、static validation、config 確認を行う
+- `bpy` を必要とする scene 生成、review image 保存、live export は Blender 側実行経路で行う
+- sidecar 側で `error.code=blender_unavailable` が返った場合は、Blender background 実行または official MCP scene snapshot 併用を案内する
+
 ### 8.2 tool 公開制御
 
 sidecar MCP server は、profile、tool pack、policy、approved add-on registry を読み込み、`tools/list` で公開する tool を切り替える。

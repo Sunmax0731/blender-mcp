@@ -175,6 +175,13 @@ sidecar は、公式 Blender MCP の tool を置き換えるのではなく、�
 - 公式 Blender MCP への低水準操作を集約する
 - validation report と review screenshot を保存する
 
+### 9.2.1 sidecar と Blender 実行の境界
+
+- sidecar は dry-run、static validation、artifact 設計、scene snapshot を使った検証のオーケストレーションを担当する
+- sidecar 自身が `bpy` を保持しているとは限らないため、`create_or_update_scene_from_spec(dry_run=false)` や `export_scene(dry_run=false)` は Blender 実行コンテキストが必要である
+- 利用者向け docs では、`blender_unavailable` を sidecar 不具合ではなく実行コンテキスト境界として説明する
+- live 成果物は `model_spec`、validation report、object list、review 画像、export manifest を同一 artifact directory にまとめる
+
 ### 9.3 Codex 設定の責務分離
 
 Codex の STDIO MCP 設定では、`command` / `args` は server 起動用とする。公開 tool の増減は、sidecar server の `tools/list` と Codex 側の `enabled_tools` / `disabled_tools` で扱う。

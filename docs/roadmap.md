@@ -40,8 +40,9 @@
 ## 直近優先
 
 1. 公式 MCP 導線と旧開発版 add-on 登録 cleanup の安定化
-2. 高品質モデル制作向け Skill / Agent 指示の整備
-3. 公式 Blender MCP Example の利用者向け掲載
+2. precision profile 導入直後の正常系と `blender_unavailable` 切り分けの docs 整備
+3. 高品質モデル制作向け Skill / Agent 指示の整備
+4. 公式 Blender MCP Example の利用者向け掲載
 
 ## v2: 精密モデリング完成ロードマップ
 

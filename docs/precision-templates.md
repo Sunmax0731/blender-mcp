@@ -107,6 +107,7 @@ uv run python -c "from blender_precision_mcp.scene_builder import create_or_upda
 ```
 
 Blender Python が使えない環境で `dry_run=false` を指定した場合は、`error.code=blender_unavailable` を返します。
+ここでいう `blender_unavailable` は、precision profile の sidecar プロセスが `bpy` を保持していないことを示します。installer 完了直後の正常系は、まず `blender-official` で Blender 接続確認を行い、その後 `blender_precision` では dry-run と static validation を使い、live scene 生成は Blender background 実行または Blender 側コンテキストで行います。
 
 ## live scene validation
 
@@ -124,6 +125,12 @@ Blender Python が使えない環境で `dry_run=false` を指定した場合は
 Blender Python が使えない環境では、report は `live_scene.available=false` と `error.code=BLENDER_NOT_AVAILABLE` を返します。
 
 公式 Blender MCP で scene snapshot を取得できる場合は、`live_scene_snapshot` として `validate_scene_against_spec` に渡せます。この場合、validation は sidecar 側の Python 依存で実行し、Blender 側は scene inspection だけを担当します。
+導入直後に live validation を再現したい場合は、次の順序を推奨します。
+
+1. `blender-official` で Blender 接続確認と screenshot 取得を行う
+2. `blender_precision` で `model_spec` の dry-run と static validation を行う
+3. 公式 MCP の scene snapshot を sidecar validation に渡すか、Blender background 実行で validation report を生成する
+4. object list、review 画像、validation report を同じ artifact directory に保存する
 
 ## visual QA
 
@@ -145,6 +152,7 @@ uv run python scripts\capture_precision_review_views.py --dry-run --views front,
 ```
 
 実 screenshot を保存するには Blender Python から実行します。Blender bundled Python に PyYAML がない環境でも最低限 `objects` と `visual_qa` を読める fallback parser を使います。
+sidecar 単独で review image を保存するのではなく、Blender 実行コンテキストで撮影し、その manifest を sidecar 側 artifact として扱う前提です。
 
 品質チェック:
 

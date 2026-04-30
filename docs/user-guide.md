@@ -57,6 +57,15 @@ precision profile は optional experimental 機能です。
 
 通常の公式 Blender MCP 導入だけを使う場合、precision profile を有効にする必要はありません。
 
+precision profile の正常系は次の順序です。
+
+1. `blender-official` で Blender 接続確認と screenshot 取得を行う
+2. `blender_precision` で `model_spec` の dry-run、static validation、review 計画を確認する
+3. scene 生成や review image 保存のような live 処理は Blender 側実行経路で行う
+4. validation report、object list、review 画像を同じ artifact directory にまとめる
+
+`blender_precision` で `blender_unavailable` が返る場合は、Blender が起動していないという意味とは限りません。sidecar プロセスに `bpy` がないだけなので、Blender 接続確認後に live 実行経路へ切り替えます。
+
 ## 5. 動かない場合の確認項目
 
 1. Blender が起動しているか
