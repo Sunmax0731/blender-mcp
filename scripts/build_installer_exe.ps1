@@ -28,6 +28,7 @@ uv run pyinstaller `
     --name blender-mcp-installer `
     --paths (Join-Path $repoRoot "src") `
     --add-data "$repoRoot\scripts;scripts" `
+    --add-data "$repoRoot\templates;templates" `
     --distpath $OutputDir `
     --workpath $workPath `
     $mainScript
