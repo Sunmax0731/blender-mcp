@@ -46,12 +46,12 @@
 
 - 公式構成の説明
 - Codex App からの利用前提
-- v1 系では Blender UI の独自 Prompt 導線を提供しないこと
+- Blender 側の確認対象を公式 `MCP` add-on Preferences に限定すること
 - 更新と検証の運用手順
 
 ### 3.3 補助機能
 
-- 旧補助 Prompt UI 登録を削除する補助スクリプト
+- 旧開発版の不要な add-on 登録を削除する補助スクリプト
 - 公式構成で不足する運用自動化
 
 ### 3.4 1クリック導入アプリ
@@ -76,7 +76,7 @@
 3. 公式 MCP server を専用仮想環境へ導入する
 4. Codex 設定へ `mcp_servers.blender-official` を登録する
 5. Blender 側で公式 `mcp` を有効化する
-6. 旧補助 Prompt UI の登録が残っていれば削除する
+6. 旧開発版の不要な add-on 登録が残っていれば削除する
 7. 導入後の確認項目を表示する
 
 ### 4.3 UI 要素
@@ -106,25 +106,21 @@
 - 新規主経路としては扱わない
 - 公式移行が完了するまで、比較・参考・退避対象として保持する
 
-## 6. Blender UI の扱い
+## 6. Blender 側の扱い
 
-v1 系では、Blender の N メニューに独自 Prompt UI を表示しない。
+Blender 側では、公式 `MCP` add-on の Preferences を確認対象とする。
 利用者が Blender 側で確認する画面は、公式 `MCP` add-on の Preferences とする。
 
 ### 6.1 cleanup 対象
 
 - 旧 `blender_mcp` add-on の Preferences 登録
-- 旧補助 Prompt UI の module がユーザー add-on 配下に残っている場合の退避
+- 旧開発版 module がユーザー add-on 配下に残っている場合の退避
 
 ### 6.2 cleanup 非対象
 
 - 公式 `bl_ext.user_default.mcp`
 - 公式 `mcp` extension directory
 - Blender 本体設定のうち、公式 add-on と無関係な項目
-
-### 6.3 将来再開条件
-
-Blender UI 補助導線を再開する場合は、公式 MCP と混同しない名称、接続状態、失敗表示、安全確認フローを仕様化してから実装する。
 
 ## 7. 検証観点
 
@@ -135,9 +131,9 @@ Blender UI 補助導線を再開する場合は、公式 MCP と混同しない�
 - 公式 MCP server が専用仮想環境へ導入できること
 - Codex 設定へ `mcp_servers.blender-official` を登録できること
 - 公式構成を前提に docs が一致していること
-- 旧補助 Prompt UI 登録が公式構成を壊さず削除できること
+- 旧開発版の不要な add-on 登録が公式構成を壊さず削除できること
 - GUI 導入アプリから実行順序とログが追跡できること
-- Blender N メニューに独自 Prompt UI が残らないこと
+- 利用者向け導線が Codex App と公式 MCP に一本化されていること
 
 ## 8. v2 精密モデリング仕様
 

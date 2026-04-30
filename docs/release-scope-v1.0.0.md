@@ -4,9 +4,9 @@
 
 `v1.0.0` は、このリポジトリの正式 Release として扱う。
 
-正式 Release の主対象は、Windows 利用者が公式 Blender MCP を導入し、Codex App から Blender を操作できる状態にすることである。配布物の中心は `blender-mcp-installer.exe` とし、公式 Blender MCP 本体や Blender 本体、Codex App 本体はこのリポジトリの Release asset として再配布しない。
+正式 Release の主対象は、Windows 利用者が公式 Blender MCP を導入し、Codex App から Blender を操作できる状態にすることである。配布物の中心は `blender-mcp-installer.exe` とし、公式 Blender MCP 本体、Blender 本体、Codex App 本体はこのリポジトリの Release asset として再配布しない。
 
-v2 precision profile は `optional experimental` として扱う。高品質モデリング支援の土台は同梱するが、live scene validation、visual QA、approved add-on operator integration は正式機能の必須条件にはしない。
+v2 precision profile は optional experimental として扱う。
 
 ## 2. 版数の扱い
 
@@ -55,11 +55,12 @@ v2 precision profile は `optional experimental` として扱う。高品質モ�
 - 公式 Blender MCP zip の Release asset としての再配布
 - 外部公開前提の常駐 server 構成
 - 任意 Python / `bpy` 実行の通常導線での許可
+- Blender 側から Codex を直接呼び出す独自操作導線
 - v2 precision の全 tool 実装完了保証
 - Blender live scene の完全自動品質保証
 - 任意 add-on operator の無制限実行
 
-## 5. Blocker / non-blocker
+## 5. Blocker / Non-blocker
 
 ### 5.1 Blocker
 
@@ -76,7 +77,7 @@ v2 precision profile は `optional experimental` として扱う。高品質モ�
 ### 5.2 Non-blocker
 
 - v2 precision の live scene validation 完成
-- visual QA の画像差分自動判定
+- visual QA の画像差分の自動判定
 - approved add-on operator の live integration
 - macOS / Linux 対応
 - Blender / Codex App 本体の自動導入
@@ -93,7 +94,6 @@ Non-blocker は Release 後 follow-up Issue として管理する。
 - Release asset の download / hash 検証が完了している
 - Blender 5.1 系で公式 `MCP` add-on 導入 / 有効化の証跡がある
 - Codex App から公式 Blender MCP tool の live 接続証跡がある
-- Blender UI Prompt の `Plan -> Confirm -> Execute` smoke 証跡がある
 - 導入手順書、利用方法、機能説明、トラブルシュートが公開されている
 
 ## 7. No-Go 条件
@@ -101,12 +101,10 @@ Non-blocker は Release 後 follow-up Issue として管理する。
 - installer または plan mode が起動できない
 - Codex 設定変更の安全性を説明できない
 - Release asset に不要な再配布物や検証 artifact が混入している
-- Release notes と docs の既知制約が不一致
+- Release notes と docs の既知制約が一致しない
 - 利用者向け docs が未整備
 - live validation 未実施かつ代替判断材料が Issue に残っていない
 
 ## 8. 推奨判断
 
-v1.0.0 では、公式 Blender MCP 導入と Codex / Blender 接続導線を正式機能とする。
-
-v2 precision は optional experimental として同梱し、Release notes と利用者向け docs で明示する。これにより、正式 Release の安定性を守りながら、高品質モデリング支援の拡張導線を残す。
+v1.0.0 では、公式 Blender MCP 導入と Codex / Blender 接続導線を正式機能とする。v2 precision は optional experimental として同梱し、Release notes と利用者向け docs で明示する。

@@ -10,7 +10,7 @@
 
 ## 2. Fix
 
-`v1.0.3` adds a cleanup step that removes the supplemental Blender prompt UI registration from previous development builds while keeping the official Blender MCP add-on enabled.
+`v1.0.3` adds a cleanup step that removes obsolete `blender_mcp` registration from previous development builds while keeping the official Blender MCP add-on enabled.
 
 ## 3. Validation commands
 

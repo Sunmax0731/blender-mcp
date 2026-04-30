@@ -47,10 +47,6 @@ v2 precision profile の release 前に、導入、sidecar MCP server、validati
 - `backup_required=true` の operator は実行前に target / active object を duplicate し、backup object 名を result に残す
 - Blender Python がない環境では structured failure を返す
 
-### 1.6 Blender UI prompt flow
-
-v1 系では Blender UI prompt flow は利用者向け導線から外している。v2 で再開する場合は、公式 `MCP` add-on と混同しない名称、接続状態、preview / confirm / execute の安全設計を再定義してから検証する。
-
 ## 2. Validation Commands
 
 ```powershell

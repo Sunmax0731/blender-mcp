@@ -18,11 +18,10 @@
 - 利用手順と必要設定の明文化
 - 実行経路の検証
 
-## Phase 3: Blender UI 補助導線の整理
+## Phase 3: 導入環境の整理
 
-- v1 系では Blender UI 補助 Prompt 導線を利用者向け導線から外す
 - 旧 `blender_mcp` add-on 登録の cleanup を installer に組み込む
-- 再開する場合の判断材料を Issue で管理する
+- 利用者向け導線を Codex App と公式 MCP に一本化する
 
 ## Phase 4: 更新と検証の自動化
 
@@ -40,7 +39,7 @@
 
 ## 直近優先
 
-1. v1 系の公式 MCP 導線と旧補助 Prompt UI cleanup の安定化
+1. 公式 MCP 導線と旧開発版 add-on 登録 cleanup の安定化
 2. 高品質モデル制作向け Skill / Agent 指示の整備
 3. 公式 Blender MCP Example の利用者向け掲載
 
@@ -55,4 +54,3 @@ v2 の詳細な完成ロードマップは [v2 精密モデリング完成ロー
 3. sidecar MCP server の scaffold と profile / tool-pack 制御を実装する
 4. model spec、validation report、visual QA を実装する
 5. add-on registry と approved operator 実行を実装する
-6. Blender UI prompt flow は必要性を再判断してから installer 配布に統合する

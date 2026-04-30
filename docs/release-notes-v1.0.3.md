@@ -4,15 +4,15 @@
 
 ## 修正内容
 
-- installer に `remove-prompt-ui` step を追加しました。
-- 過去の開発版で Blender Preferences に残った旧 `blender_mcp` add-on 登録を削除します。
-- 公式 `MCP` add-on、`bl_ext.user_default.mcp`、公式 extension directory は削除しません。
-- v1 利用者向け docs を、`Codex App -> 公式 Blender MCP server -> 公式 Blender add-on -> Blender` の導線に揃えました。
-- Blender の N メニューに独自 Prompt UI を表示しない方針を明記しました。
+- installer に `remove-prompt-ui` step を追加しました
+- 過去の開発版で Blender Preferences に残った旧 `blender_mcp` add-on 登録を削除します
+- 公式 `MCP` add-on、`bl_ext.user_default.mcp`、公式 extension directory は削除しません
+- v1 利用者向け docs を `Codex App -> 公式 Blender MCP server -> 公式 Blender add-on -> Blender` の導線に揃えました
 
 ## 期待される状態
 
 installer 実行後、Codex App の MCP server 一覧には通常 `blender-official` が表示されます。
+
 Blender 側では Preferences の公式 `MCP` add-on を確認し、自然言語での制作指示は Codex App から行います。
 
 ## 検証

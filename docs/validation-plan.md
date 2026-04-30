@@ -45,9 +45,9 @@
 - Codex App から Blender ワークスペース切替や状態取得が実行できる
 - 1 クリック導入アプリのログから失敗箇所を追跡できる
 
-### 2.5 Blender UI cleanup 確認
+### 2.5 Blender 側 cleanup 確認
 
-- v1 系では Blender N メニューに独自 Prompt UI が表示されない
+- 利用者向け導線が Codex App と公式 MCP に一本化されている
 - 公式 `MCP` add-on は有効なまま残る
 - cleanup step は旧 `blender_mcp` 登録がない環境でも成功する
 - cleanup step のログから削除対象と公式 add-on 状態を確認できる
@@ -62,7 +62,7 @@
 - 公式 MCP server 専用仮想環境の作成結果
 - Codex 設定更新結果
 - Codex App からの接続結果
-- 旧補助 Prompt UI cleanup 結果
+- 旧開発版 add-on 登録 cleanup 結果
 - Issue コメント
 
 ## 4. 完了条件

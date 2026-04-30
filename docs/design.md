@@ -21,7 +21,6 @@ Codex App
 
 ### 2.2 Blender 側の設定確認
 
-v1 系では、Blender 側に独自 Prompt panel は置かない。
 Blender 内で利用者が確認する画面は公式 `MCP` add-on の Preferences とし、自然言語の制作指示は Codex App から行う。
 
 ## 3. コンポーネント責務
@@ -42,16 +41,14 @@ Blender 内で利用者が確認する画面は公式 `MCP` add-on の Preferenc
 
 - 公式配布物の取得と導入自動化
 - Codex App からの利用前提整理
-- 旧補助 UI 登録の cleanup
+- 旧開発版の不要な add-on 登録の cleanup
 - 検証、更新、移行手順の自動化
 - Blender MCP 作業品質を上げる配布用 Skill の管理
 
-### 3.4 Blender UI 補助レイヤーの扱い
+### 3.4 Blender 側の扱い
 
-- v1 系では利用者向け機能に含めない
-- 過去の開発版で残った `blender_mcp` add-on の Preferences 登録は installer で cleanup する
-- 将来再開する場合は、公式 `MCP` add-on と混同しない名称、接続状態、責務境界を再設計する
-- 公式 `mcp` add-on の通信設定や tool 実装は独自 UI に持たせない
+- 過去の開発版で残った `blender_mcp` add-on の不要な Preferences 登録は installer で cleanup する
+- 公式 `mcp` add-on の通信設定や tool 実装は公式 add-on に集約する
 
 ### 3.5 1クリック導入アプリ層
 
@@ -95,7 +92,7 @@ Blender 内で利用者が確認する画面は公式 `MCP` add-on の Preferenc
 3. 公式 MCP server を導入する
 4. Codex 設定をバックアップして更新する
 5. Blender 側 add-on 状態を公式寄りに切り替える
-6. 旧補助 Prompt UI の登録が残っていれば削除する
+6. 旧開発版の不要な add-on 登録が残っていれば削除する
 7. ログ保存と完了表示を行う
 
 ### 4.3 スクリプト統合方針
@@ -131,41 +128,30 @@ Blender 内で利用者が確認する画面は公式 `MCP` add-on の Preferenc
 
 - 独自 add-on / 独自 HTTP server を非推奨扱いにする
 - Codex App から公式 MCP を使う実行経路を確認する
-- Blender UI 補助経路は、利用者に必要性が確認できるまで v1 利用者向け導線から外す
+- 利用者向け導線は Codex App から公式 MCP を使う経路に一本化する
 
 ### 5.3 長期
 
 - 公式更新追従の自動化
 - 開発用の内部構成を利用者向け導線から分離する
 
-## 6. Blender UI 補助導線の将来設計
-
-v1 系では独自 Prompt UI を提供しない。再開する場合は、次の条件を満たす設計を Issue で確定してから実装する。
-
-- 公式 `MCP` add-on と名称、表示位置、接続状態が混同されない
-- Codex App 経路と Blender UI 経路の責務が明確である
-- `preview -> confirm -> execute` を明示できる
-- 失敗時に公式 MCP の失敗なのか補助 UI の失敗なのか判別できる
-- 利用者向け docs と installer 表示が実装状態と一致している
-
-## 7. リスク
+## 6. リスク
 
 - 公式更新で導入手順や内部構造が変わる
 - Blender / add-on / MCP client の組み合わせ差で挙動差が出る
 - 既存独自構成との混在期間に誤接続が起こる
 - GUI 層と既存スクリプトの責務分離が曖昧だと保守が難しくなる
-- Blender UI 補助導線を premature に出すと、公式 MCP の失敗と誤認される
 
-## 8. 対応方針
+## 7. 対応方針
 
 - 公式版と独自版を明確に区別する
 - 導入スクリプトは公式配布物のバージョンを明示する
 - docs と Issue に、どの構成を対象にしているか必ず記録する
 - GUI は薄く保ち、導入ロジックは既存スクリプト群へ寄せる
-- Blender UI 補助導線は v1 利用者向け導線から外し、再開時は責務を再定義する
+- Codex App 経路を正とする
 - 配布用 Skill は、品質チェックと作業手順を提供し、公式 MCP の tool 実装は持たない
 
-## 9. v2 精密モデリング設計
+## 8. v2 精密モデリング設計
 
 ### 9.1 推奨アーキテクチャ
 

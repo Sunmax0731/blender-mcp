@@ -59,21 +59,19 @@ uv run blender-mcp-installer --headless --output-dir <log-dir>
 
 precision profile は optional experimental 機能です。
 
-通常の Blender MCP 導入だけを使う場合は、precision profile を導入しなくても構いません。高品質モデリング支援用の template、Skill、subagent template を試したい場合だけ有効にしてください。
+通常の Blender MCP 導入だけを使う場合、precision profile を導入しなくても構いません。高品質モデリング支援用の template、Skill、subagent template を試したい場合だけ有効にしてください。
 
 v1 系では precision profile は template / Skill / subagent 配布に留め、`blender_precision` MCP server は自動登録しません。
 
-## 6. Blender の N メニューに `Blender MCP` パネルが残っている
+## 6. 旧開発版の登録を cleanup したい
 
-v1 系では、独自の補助 Prompt UI は利用者向け導線から外しています。
-
-過去の開発版で `blender_mcp` add-on の登録が残っている場合は、次を実行してください。
+過去の開発版で `blender_mcp` add-on の不要な Preferences 登録が残っている場合は、次を実行してください。
 
 ```powershell
 .\scripts\remove_blender_prompt_ui.ps1
 ```
 
-この script は公式 `MCP` add-on を残し、旧 `blender_mcp` の Preferences 登録だけを削除します。実行後は Blender を再起動してください。
+この script は公式 `MCP` add-on を残し、旧 `blender_mcp` の不要な Preferences 登録だけを削除します。実行後は Blender を再起動してください。
 
 ## 7. 再導入したい
 

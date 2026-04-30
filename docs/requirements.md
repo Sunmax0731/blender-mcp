@@ -2,7 +2,7 @@
 
 ## 1. 背景
 
-本プロジェクトは、Blender 公式の `blender_mcp` を前提に、Codex App と Codex CLI から Blender を扱えるようにすることを目的とする。
+本プロジェクトは、Blender 公式の `blender_mcp` を前提に、Codex App から Blender を扱えるようにすることを目的とする。
 
 従来の独自 add-on / 独自 MCP server 構成は、更新追従と実運用の安定性に課題がある。今後は公式配布物と公式責務分離を優先し、このリポジトリは導入・統合・自動化・検証を担う。
 
@@ -10,7 +10,7 @@
 
 - 公式 Blender MCP を Windows 環境へ導入できるようにする
 - Codex App から公式 MCP server を経由して Blender を操作できるようにする
-- v1 系では Blender UI の独自 Prompt 導線を利用者向け導線から外し、公式 MCP 導線に一本化する
+- Blender への自然言語指示は Codex App から行い、公式 MCP 導線に一本化する
 - 公式更新に追従しやすい運用基盤を整える
 - Release 成果物として、1 クリックで導入を進められる Windows 向けアプリを提供する
 
@@ -21,7 +21,7 @@
 - 公式 `blender_mcp` add-on / extension の導入支援
 - 公式 `blender_mcp` server の利用前提整理
 - Codex App からの公式 MCP 利用手順
-- 既存環境に残った旧補助 Prompt UI 登録の cleanup
+- 既存開発版に残った不要な add-on 登録の cleanup
 - 導入・更新・検証スクリプト
 - 1 クリック導入アプリ
 - 日本語ドキュメントと Issue 運用
@@ -30,7 +30,7 @@
 
 - 公式 `blender_mcp` 自体の fork 前提改造
 - 公式 add-on を全面的に置き換える独自 add-on 開発
-- Blender N メニューに表示する独自 Prompt UI の v1 利用者向け提供
+- Blender 側から Codex を直接呼び出す独自操作導線
 - 公開ネットワーク前提の常設 server 構成
 - 無制限の任意 Python 実行許可
 - macOS / Linux 向け配布物の同時対応
@@ -73,38 +73,32 @@
 - 公式 `mcp-1.0.0.zip` をローカルへ導入できる
 - Blender 5.1 系で公式 add-on を有効化できる
 - Codex App から公式 MCP を使う前提が docs で明確化されている
-- 旧補助 Prompt UI が利用者向け導線に残らない
+- 利用者向け導線が Codex App と公式 MCP に一本化されている
 - 公式構成への移行計画が Issue / docs に残っている
 - 1 クリック導入アプリの要件、対象、非対象、配布方針が明確化されている
 
 ### 5.2 MVP 以降
 
 - Codex App からの実運用コマンド群の拡張
-- Blender UI 補助操作は v2 以降の再検討対象として扱う
 - 公式更新時の差分検知と更新自動化
 - 1 クリック導入アプリの GUI 実装と `exe` 配布
 - 導入後の live 接続確認自動化
 
-## 6. Blender UI 補助導線の扱い
+## 6. Blender 側の扱い
 
-v1 系では、Blender UI から prompt を入力する独自補助導線は利用者向け機能に含めない。
+Blender 側では公式 `MCP` add-on の Preferences を確認対象とする。
 
 ### 6.1 対象
 
 - 公式 `MCP` add-on の Preferences による host / port / autostart 確認
-- 旧 `blender_mcp` add-on の Preferences 登録 cleanup
+- 旧開発版 add-on の不要な Preferences 登録 cleanup
 - Codex App から公式 MCP を使う利用手順の明確化
 
 ### 6.2 非対象
 
-- Blender Sidebar に独自 Prompt panel を表示すること
-- Codex CLI を Blender UI から直接呼び出すこと
+- Blender から Codex CLI を直接呼び出すこと
 - 確認なしの任意 Python 実行
 - ユーザー確認を省略したシーン破壊操作
-
-### 6.3 将来検討
-
-Blender UI 補助導線を再開する場合は、公式 add-on と利用者導線を混同させない名称、表示位置、接続状態、preview / confirm / execute の安全設計を Issue で再定義してから実装する。
 
 ## 7. 受け入れ条件
 
@@ -113,7 +107,7 @@ Blender UI 補助導線を再開する場合は、公式 add-on と利用者導�
 - 既存独自構成との差分と縮退方針が明確である
 - GitHub Issue 上で判断経緯が追跡できる
 - 1 クリック導入アプリの成果物定義と適用範囲が追跡できる
-- Blender UI 補助導線を v1 利用者向け対象外にする判断が追跡できる
+- 利用者向け導線を Codex App と公式 MCP に一本化する判断が追跡できる
 
 ## 8. v2 精密モデリング要件
 

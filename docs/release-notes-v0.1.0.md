@@ -67,7 +67,6 @@ Release 前に次を確認しました。
 - checksum / packaging manifest
 - Blender 5.1 での公式 `MCP` add-on 導入 / 有効化
 - Codex App からの公式 Blender MCP live 接続
-- Blender UI Prompt の `Plan -> Confirm -> Execute`
 
 ## GitHub Release に添付するもの
 
@@ -86,8 +85,8 @@ Release 前に次を確認しました。
 ## 既知制約
 
 - Blender 本体と Codex App 本体の自動インストールは行いません
-- macOS / Linux 向け配布は含みません
-- 公式 Blender MCP 本体はこの Release で fork や再配布を行いません
+- macOS / Linux 向け配布物は含みません
+- 公式 Blender MCP 本体の fork や再配布は行いません
 - live 接続確認は Blender 起動状態に依存します
 - v2 precision の一部 tool は初期実装であり、structured `not_implemented` を返します
 - visual QA の実 screenshot 保存は Blender Python 内で実行する必要があります
