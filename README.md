@@ -48,6 +48,14 @@ Windows 向けの `blender-mcp-installer.exe` を提供します。主な処理�
 - Hyper3D Rodin
 - Stability API SPAR3D
 
+公式トップページ:
+
+- [Meshy](https://www.meshy.ai/ja/)
+- [Tripo AI](https://www.tripo3d.ai/ja)
+- [Hyper3D Rodin](https://hyper3d.ai/?lang=ja)
+- [Stability AI Platform](https://platform.stability.ai/)
+- [Poly Haven](https://polyhaven.com/)
+
 含まれるもの:
 
 - Add-on Preferences での `enabled / mode / endpoint / api_key` 管理
