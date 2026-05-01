@@ -47,11 +47,16 @@ def list_blender_addons(
     installed = []
     for module in addon_utils.modules():
         name = getattr(module, "__name__", "")
-        enabled = addon_utils.check(name)[1]
+        enabled = False
+        if hasattr(addon_utils, "check"):
+            try:
+                enabled = bool(addon_utils.check(name)[1])
+            except Exception:
+                enabled = False
         installed.append(
             {
                 "module": name,
-                "enabled": bool(enabled),
+                "enabled": enabled,
                 "approved": name in approved_modules,
             }
         )

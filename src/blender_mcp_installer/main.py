@@ -13,6 +13,7 @@ if __package__ in (None, ""):
     package_root = Path(__file__).resolve().parents[1]
     if str(package_root) not in sys.path:
         sys.path.insert(0, str(package_root))
+    from blender_mcp_installer.plugins import load_third_party_plugins  # type: ignore[no-redef]
     from blender_mcp_installer.runner import (  # type: ignore[no-redef]
         InstallerRunner,
         InstallerStep,
@@ -22,6 +23,7 @@ if __package__ in (None, ""):
     )
     from blender_mcp_installer.runtime import prepare_runtime_root  # type: ignore[no-redef]
 else:
+    from .plugins import load_third_party_plugins
     from .runner import InstallerRunner, InstallerStep, default_log_dir, default_steps, repo_root
     from .runtime import prepare_runtime_root
 
@@ -37,12 +39,17 @@ class InstallerApp:
         self.root_window = root_window
         self.repo_root = repo_root()
         self.runner = InstallerRunner(self.repo_root)
+        self.third_party_plugins = load_third_party_plugins(self.repo_root)
         self.steps = default_steps(self.repo_root)
         self.events: queue.Queue[QueueEvent] = queue.Queue()
         self.output_dir: Path | None = None
 
         self.confirm_var = tk.BooleanVar(value=False)
         self.precision_profile_var = tk.BooleanVar(value=False)
+        self.third_party_plugins_var = tk.BooleanVar(value=bool(self.third_party_plugins))
+        self.third_party_plugin_vars = {
+            plugin.key: tk.BooleanVar(value=plugin.install_by_default) for plugin in self.third_party_plugins
+        }
         self.status_var = tk.StringVar(value="Ready.")
         self.log_path_var = tk.StringVar(value="Log not created")
         self.install_succeeded = False
@@ -65,6 +72,8 @@ class InstallerApp:
             "3. Register blender-official in Codex config\n"
             "4. Enable the official mcp add-on in Blender\n"
             "5. Remove the supplemental Blender prompt UI\n"
+            "6. Install supported third-party Blender plugins for external service integration\n"
+            "7. Install the supplemental Blender add-on for external service UI\n"
             "Optional: Install precision profile templates, Skill, and subagents"
         )
         tk.Label(container, text=intro, justify=tk.LEFT, anchor="w").pack(fill=tk.X)
@@ -75,7 +84,9 @@ class InstallerApp:
             f"- {self.repo_root / '.official-mcp-venv'}\n"
             f"- {Path.home() / '.codex' / 'config.toml'} and its backup\n"
             "- Blender user preferences\n"
-            "- Supplemental Blender prompt UI registration, if present"
+            "- Supplemental Blender prompt UI registration, if present\n"
+            "- Third-party plugin ZIP cache and installed add-ons/extensions\n"
+            "- Supplemental Blender add-on files"
         )
         tk.Label(container, text=preview, justify=tk.LEFT, anchor="w", pady=8).pack(fill=tk.X)
 
@@ -93,6 +104,24 @@ class InstallerApp:
             variable=self.precision_profile_var,
         )
         precision_check.pack(anchor="w", pady=(0, 12))
+
+        if self.third_party_plugins:
+            plugin_check = tk.Checkbutton(
+                container,
+                text="Also install supported third-party Blender plugins.",
+                variable=self.third_party_plugins_var,
+            )
+            plugin_check.pack(anchor="w")
+
+            plugin_frame = tk.Frame(container, padx=18, pady=6)
+            plugin_frame.pack(fill=tk.X, pady=(0, 12))
+            for plugin in self.third_party_plugins:
+                check = tk.Checkbutton(
+                    plugin_frame,
+                    text=plugin.name,
+                    variable=self.third_party_plugin_vars[plugin.key],
+                )
+                check.pack(anchor="w")
 
         controls = tk.Frame(container)
         controls.pack(fill=tk.X, pady=(0, 12))
@@ -130,6 +159,8 @@ class InstallerApp:
         self.steps = default_steps(
             self.repo_root,
             include_precision_profile=self.precision_profile_var.get(),
+            include_third_party_plugins=self.third_party_plugins_var.get(),
+            third_party_plugin_keys=self._selected_third_party_plugin_keys(),
         )
         self.log_path_var.set(f"Log path: {self.output_dir}")
         self.status_var.set("Starting install...")
@@ -198,6 +229,13 @@ class InstallerApp:
         self.log_text.see(tk.END)
         self.log_text.configure(state=tk.DISABLED)
 
+    def _selected_third_party_plugin_keys(self) -> list[str]:
+        return [
+            plugin.key
+            for plugin in self.third_party_plugins
+            if self.third_party_plugin_vars[plugin.key].get()
+        ]
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Blender MCP one-click installer")
@@ -226,6 +264,18 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Install optional precision profile templates, Skill, and subagent files.",
     )
+    parser.add_argument(
+        "--skip-third-party-plugins",
+        action="store_true",
+        help="Skip supported third-party Blender plugin installation.",
+    )
+    parser.add_argument(
+        "--skip-plugin",
+        action="append",
+        default=[],
+        metavar="KEY",
+        help="Skip one selected third-party plugin key such as meshy, tripo, or rodin.",
+    )
     return parser.parse_args()
 
 
@@ -233,12 +283,21 @@ def run_headless(
     output_dir: Path | None = None,
     include_launch_blender: bool = True,
     include_precision_profile: bool = False,
+    include_third_party_plugins: bool = True,
+    skip_plugin_keys: list[str] | None = None,
 ) -> int:
     root = repo_root()
+    plugin_keys = [
+        plugin.key
+        for plugin in load_third_party_plugins(root)
+        if plugin.key not in set(skip_plugin_keys or [])
+    ]
     steps = default_steps(
         root,
         include_launch_blender=include_launch_blender,
         include_precision_profile=include_precision_profile,
+        include_third_party_plugins=include_third_party_plugins,
+        third_party_plugin_keys=plugin_keys,
     )
     runner = InstallerRunner(root)
     resolved_output_dir = output_dir or default_log_dir(root)
@@ -269,6 +328,12 @@ def main() -> None:
             repo_root(),
             include_launch_blender=not args.no_launch_blender,
             include_precision_profile=args.include_precision_profile,
+            include_third_party_plugins=not args.skip_third_party_plugins,
+            third_party_plugin_keys=[
+                plugin.key
+                for plugin in load_third_party_plugins(repo_root())
+                if plugin.key not in set(args.skip_plugin)
+            ],
         ):
             print(f"{step.name}: {step.description}")
         return
@@ -279,6 +344,8 @@ def main() -> None:
                 args.output_dir,
                 include_launch_blender=not args.no_launch_blender,
                 include_precision_profile=args.include_precision_profile,
+                include_third_party_plugins=not args.skip_third_party_plugins,
+                skip_plugin_keys=args.skip_plugin,
             )
         )
 

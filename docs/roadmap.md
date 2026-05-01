@@ -1,125 +1,71 @@
-﻿# ロードマップ
+# ロードマップ
 
 ## Phase 0: 公式構成への切替
 
 - 公式 Blender MCP の調査
-- docs を公式前提へ更新
+- docs の公式前提化
 - 移行方針 Issue の整備
 
 ## Phase 1: 公式 add-on 導入基盤
 
-- 公式 `mcp-1.0.0.zip` の取得
-- Blender add-on 配置先への同期
+- 公式 add-on の取得
+- Blender への導入
 - Windows 用導入スクリプト整備
 
 ## Phase 2: Codex App 利用経路
 
-- Codex App から公式 MCP を使う前提整理
-- 利用手順と必要設定の明文化
-- 実行経路の検証
+- `blender-official` の登録
+- 利用手順の明文化
+- Codex App からの接続確認
 
-## Phase 3: 導入環境の整理
+## Phase 3: 既存構成の cleanup
 
-- 旧 `blender_mcp` add-on 登録の cleanup を installer に組み込む
-- 利用者向け導線を Codex App と公式 MCP に一本化する
+- 旧補助 UI 登録の cleanup
+- 利用者向け導線の一本化
 
 ## Phase 4: 更新と検証の自動化
 
-- 公式版更新検知
-- 再導入・再検証自動化
-- スクリーンショットとログの証跡化
+- 再導入と再検証の整備
+- ログと証跡の整理
 
 ## Phase 5: 1クリック導入アプリ
 
-- 要件確定
-- 仕様と設計の整理
-- GUI 実装と `exe` 化
-- 導入後の live 接続確認
-- Release 資産化
+- GUI 実装
+- `exe` 化
+- 第三者 plugin 自動導入
+- 補助 add-on 自動導入
+- release asset 化
 
-## 直近優先
+## Phase 6: 外部 3D サービス連携
 
-1. 公式 MCP 導線と旧開発版 add-on 登録 cleanup の安定化
-2. precision profile 導入直後の正常系と `blender_unavailable` 切り分けの docs 整備
-3. 高品質モデル制作向け Skill / Agent 指示の整備
-4. 公式 Blender MCP Example の利用者向け掲載
+- External Services 共通設定
+- provider 層
+- plugin bridge helper
+- 3D View パネル
+- experimental release
 
-## v2: 精密モデリング完成ロードマップ
+## 2026年5月1日時点の現在地
 
-v2 の詳細な完成ロードマップは [v2 精密モデリング完成ロードマップ](v2-precision-roadmap.md) に分離する。既存 Phase 0-5 は公式 Blender MCP 導入と MVP 配布の流れとして維持し、v2 はその上に高品質モデリング、検証、add-on integration、Skill / subagent 配布を追加する。
+- 公式 Blender MCP 導入基盤: 完了
+- 第三者 plugin 自動導入: 完了
+- 補助 add-on 自動導入: 完了
+- External Services 共通 UI: 完了
+- Meshy / Tripo / Rodin の plugin bridge 手動確認: 完了
+- SPAR3D の provider 骨格: 完了
+- API キー前提の実サービス確認: 未完了
 
-直近の v2 優先順:
+## `v1.2.0` の位置づけ
 
-1. v2 資料を canonical docs と Issue 群へ統合する
-2. template / schema / config を正式配置する
-3. sidecar MCP server の scaffold と profile / tool-pack 制御を実装する
-4. model spec、validation report、visual QA を実装する
-5. add-on registry と approved operator 実行を実装する
+`v1.2.0` は、次を含む experimental release とする。
 
-## 新規トラック: 全自動キャラクターモデル生成
+- 外部 3D サービス連携の補助 UI
+- 第三者 plugin 自動導入
+- 補助 add-on 自動導入
+- `plugin_bridge` 状態確認
 
-5 要件完全自動を目指す新規トラックは、工程ごとに次の milestone で進める。
+## 次の優先課題
 
-1. M1: 全自動キャラクターモデル生成 要件定義
-2. M2: 全自動キャラクターモデル生成 仕様検討
-3. M3: 全自動キャラクターモデル生成 設計
-4. M4: 全自動キャラクターモデル生成 実装
-5. M5: 全自動キャラクターモデル生成 テスト
-6. M6: 全自動キャラクターモデル生成 リリース
-
-M1 では、形状、材質、ボーン、シェイプキー、ウェイト、prompt 駆動オーケストレーションの 6 Issue に分解して要件定義を開始する。
-
-## 現在地
-
-2026-04-30 時点の進捗は次のとおり。
-
-- M1 要件定義: 完了
-- M2 仕様検討: 完了
-- M3 設計: 完了
-- M4 実装: 完了
-- M5 テスト: 完了
-- M6 リリース: 未着手
-
-M4 で実装済みの主な範囲:
-
-- `character_spec` / `pipeline_spec` の正規化
-- 類型別 template / library
-- dry-run workflow と validator 骨格
-- live scene build と strict validation
-- live rig / shape key / weight bridge
-- `BaseAvatar.vrm -> BaseAvatar.blend` 変換
-- `.blend` から `base_asset_manifest.json` / `adaptation_plan.json` 生成
-- image input から `image_reference_manifest.json` 生成
-- hair preset library と live hair object 生成
-- retryable failed の stage retry と traceability
-
-## 現在の M5 テスト Issue
-
-M5 では次の Issue 群で総合テストを進める。
-
-1. [#158](https://github.com/Sunmax0731/blender-mcp/issues/158) M5: 全自動キャラクターモデル生成の総合テストを進める 完了
-2. [#159](https://github.com/Sunmax0731/blender-mcp/issues/159) テスト: dry-run 入力経路の regression matrix を固定する 完了
-3. [#160](https://github.com/Sunmax0731/blender-mcp/issues/160) テスト: live Blender build と strict validation を固定する 完了
-4. [#161](https://github.com/Sunmax0731/blender-mcp/issues/161) テスト: hair preset と retry traceability の回帰を固定する 完了
-
-手動テスト `#163 -> #162 -> #164 -> #165` も完了している。次は M6 リリース工程へ移る。
-
-## テスト工程の入口条件
-
-次を満たしたら M5 テストへ進む。
-
-- base asset あり / なしの両経路で pipeline を分岐できる
-- image input を `character_spec` と artifact に反映できる
-- hair preset を live build に反映できる
-- retryable failed に対して stage retry と traceability を残せる
-
-現時点では入口条件を満たしており、以降は M5 の regression 固定を進める。
-
-## 次工程
-
-M5 は自動テスト、手動テストともに完了した。次は M6 の親 Issue を起点に、次を進める。
-
-- release scope の確定
-- release note / manifest 更新
-- 配布物と実行手順の最終確認
-- 既知制約と follow-up backlog の整理
+1. API キー入手後の Meshy / Tripo / Rodin / SPAR3D 実サービス検証
+2. SPAR3D の API 契約固定
+3. Poly Haven の UI 再開条件整理
+4. release asset 生成の更なる自動化

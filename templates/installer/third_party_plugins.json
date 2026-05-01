@@ -1,0 +1,42 @@
+{
+  "plugins": [
+    {
+      "key": "meshy",
+      "name": "Meshy",
+      "install_method": "extension",
+      "display_name": "Meshy official plugin",
+      "payload_relpath": "third_party_plugins/meshy-blender-plugin-v0.6.0.zip",
+      "fallback_url": "https://github.com/user-attachments/files/27265018/meshy-blender-plugin-v0.6.0.zip",
+      "module_name_hints": [
+        "bl_ext.user_default.meshy",
+        "meshy"
+      ],
+      "install_by_default": true,
+      "repository_id": "user_default"
+    },
+    {
+      "key": "tripo",
+      "name": "Tripo 3D",
+      "install_method": "addon_zip",
+      "display_name": "Tripo 3D",
+      "payload_relpath": "third_party_plugins/tripo-blender.zip",
+      "fallback_url": "https://github.com/user-attachments/files/27265035/tripo-blender.zip",
+      "module_name_hints": [
+        "tripo-3d-for-blender"
+      ],
+      "install_by_default": true
+    },
+    {
+      "key": "rodin",
+      "name": "RodinBridge",
+      "install_method": "addon_zip",
+      "display_name": "RodinBridge",
+      "payload_relpath": "third_party_plugins/blender_rodin_bridge_v0.1.9.zip",
+      "fallback_url": "https://github.com/user-attachments/files/27265078/blender_rodin_bridge_v0.1.9.zip",
+      "module_name_hints": [
+        "a_Rodin"
+      ],
+      "install_by_default": true
+    }
+  ]
+}

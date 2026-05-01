@@ -39,7 +39,7 @@ def prepare_runtime_root() -> Path:
     runtime_root = support_root()
     runtime_root.mkdir(parents=True, exist_ok=True)
 
-    for directory_name in ("scripts", "templates", "src"):
+    for directory_name in ("scripts", "templates", "src", "blender_addon"):
         bundled_directory = bundle_root / directory_name
         runtime_directory = runtime_root / directory_name
         if bundled_directory.exists():

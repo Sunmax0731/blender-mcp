@@ -1,4 +1,12 @@
-﻿import bpy
+import bpy
+
+
+GENERATION_SERVICE_ITEMS = (
+    ("meshy", "Meshy", "Meshy を使って 3D 生成します。"),
+    ("tripo", "Tripo AI", "Tripo AI を使って 3D 生成します。"),
+    ("rodin", "Hyper3D Rodin", "Hyper3D Rodin を使って 3D 生成します。"),
+    ("spar3d", "Stability API SPAR3D", "Stability API SPAR3D を使って 3D 生成します。"),
+)
 
 
 UI_STATE_ITEMS = (
@@ -72,4 +80,71 @@ class BLENDERMCP_PG_state(bpy.types.PropertyGroup):
     addon_version: bpy.props.StringProperty(
         name="Add-on Version",
         default="0.1.1",
+    )
+    external_service_overview_text: bpy.props.StringProperty(
+        name="External Service Overview",
+        default="サービス設定はまだ読み込まれていません。",
+    )
+    external_service_last_error: bpy.props.StringProperty(
+        name="External Service Error",
+        default="",
+    )
+    generation_service_key: bpy.props.EnumProperty(
+        name="Generation Service",
+        items=GENERATION_SERVICE_ITEMS,
+        default="meshy",
+    )
+    generation_prompt_text: bpy.props.StringProperty(
+        name="Generation Prompt",
+        default="",
+    )
+    generation_payload_json: bpy.props.StringProperty(
+        name="Generation Payload JSON",
+        default="",
+    )
+    generation_last_task_id: bpy.props.StringProperty(
+        name="Generation Last Task ID",
+        default="",
+    )
+    generation_last_subscription_key: bpy.props.StringProperty(
+        name="Generation Last Subscription Key",
+        default="",
+    )
+    generation_last_status: bpy.props.StringProperty(
+        name="Generation Last Status",
+        default="未実行",
+    )
+    generation_last_result_url: bpy.props.StringProperty(
+        name="Generation Last Result URL",
+        default="",
+    )
+    generation_last_response_text: bpy.props.StringProperty(
+        name="Generation Last Response",
+        default="生成系サービスの実行結果はまだありません。",
+    )
+    generation_import_collection_name: bpy.props.StringProperty(
+        name="Generation Import Collection",
+        default="Generated_External_Assets",
+    )
+    polyhaven_query_text: bpy.props.StringProperty(
+        name="Poly Haven Query",
+        default="",
+    )
+    polyhaven_category_text: bpy.props.StringProperty(
+        name="Poly Haven Category",
+        default="",
+    )
+    polyhaven_asset_type: bpy.props.EnumProperty(
+        name="Poly Haven Asset Type",
+        items=(
+            ("all", "All", "すべての asset を対象にします。"),
+            ("hdris", "HDRIs", "HDRI のみを対象にします。"),
+            ("textures", "Textures", "Texture のみを対象にします。"),
+            ("models", "Models", "Model のみを対象にします。"),
+        ),
+        default="all",
+    )
+    polyhaven_results_text: bpy.props.StringProperty(
+        name="Poly Haven Results",
+        default="検索結果はまだありません。",
     )

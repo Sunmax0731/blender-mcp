@@ -6,6 +6,7 @@ from pathlib import Path
 import subprocess
 from typing import Callable, Iterable
 
+from .plugins import default_plugin_keys
 from .runtime import prepare_runtime_root
 
 
@@ -39,6 +40,8 @@ def default_steps(
     root: Path | None = None,
     include_launch_blender: bool = True,
     include_precision_profile: bool = False,
+    include_third_party_plugins: bool = True,
+    third_party_plugin_keys: Iterable[str] | None = None,
 ) -> list[InstallerStep]:
     base = root or repo_root()
     scripts_dir = base / "scripts"
@@ -69,6 +72,26 @@ def default_steps(
             description="Remove the supplemental Blender prompt UI.",
         ),
     ]
+    if include_third_party_plugins:
+        plugin_keys = list(third_party_plugin_keys or default_plugin_keys(base))
+        extra_args: tuple[str, ...] = ()
+        if plugin_keys:
+            extra_args = ("-PluginKeys", ",".join(plugin_keys))
+        steps.append(
+            InstallerStep(
+                name="third-party-plugins",
+                script_path=scripts_dir / "install_third_party_blender_plugins.ps1",
+                description="Install supported third-party Blender plugins for external service integration.",
+                extra_args=extra_args,
+            )
+        )
+    steps.append(
+        InstallerStep(
+            name="supplemental-addon",
+            script_path=scripts_dir / "install_supplemental_blender_addon.ps1",
+            description="Install the supplemental Blender add-on for external service UI and plugin bridge controls.",
+        )
+    )
     if include_precision_profile:
         steps.append(
             InstallerStep(

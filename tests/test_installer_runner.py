@@ -4,6 +4,7 @@ import subprocess
 import sys
 
 from blender_mcp_installer.main import parse_args
+from blender_mcp_installer.plugins import load_third_party_plugins
 from blender_mcp_installer.runtime import source_repo_root, support_root
 from blender_mcp_installer.runner import default_log_dir, default_steps, powershell_command
 
@@ -17,6 +18,8 @@ def test_default_steps_reference_existing_scripts() -> None:
         "codex-config",
         "enable-addon",
         "remove-prompt-ui",
+        "third-party-plugins",
+        "supplemental-addon",
         "launch-blender",
     ]
     assert all(step.script_path.suffix == ".ps1" for step in steps)
@@ -54,6 +57,26 @@ def test_parse_args_supports_headless_mode(monkeypatch) -> None:
     )
 
 
+def test_parse_args_supports_skipping_third_party_plugins(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "blender-mcp-installer",
+            "--headless",
+            "--skip-third-party-plugins",
+            "--skip-plugin",
+            "meshy",
+            "--skip-plugin",
+            "rodin",
+        ],
+    )
+
+    args = parse_args()
+
+    assert args.skip_third_party_plugins is True
+    assert args.skip_plugin == ["meshy", "rodin"]
+
+
 def test_default_steps_can_skip_launch_blender() -> None:
     steps = default_steps(Path("D:/Claude/MCP"), include_launch_blender=False)
 
@@ -63,6 +86,8 @@ def test_default_steps_can_skip_launch_blender() -> None:
         "codex-config",
         "enable-addon",
         "remove-prompt-ui",
+        "third-party-plugins",
+        "supplemental-addon",
     ]
 
 
@@ -79,9 +104,36 @@ def test_default_steps_can_include_precision_profile() -> None:
         "codex-config",
         "enable-addon",
         "remove-prompt-ui",
+        "third-party-plugins",
+        "supplemental-addon",
         "precision-profile",
     ]
     assert steps[-1].extra_args == ("-MergeCodexConfig",)
+
+
+def test_default_steps_can_skip_third_party_plugins() -> None:
+    steps = default_steps(
+        Path("D:/Claude/MCP"),
+        include_launch_blender=False,
+        include_third_party_plugins=False,
+    )
+
+    assert [step.name for step in steps] == [
+        "official-addon",
+        "official-server",
+        "codex-config",
+        "enable-addon",
+        "remove-prompt-ui",
+        "supplemental-addon",
+    ]
+
+
+def test_third_party_plugin_manifest_loads_expected_plugins() -> None:
+    plugins = load_third_party_plugins(Path("D:/Claude/MCP"))
+
+    assert [plugin.key for plugin in plugins] == ["meshy", "tripo", "rodin"]
+    assert plugins[0].install_method == "extension"
+    assert plugins[1].install_method == "addon_zip"
 
 
 def test_precision_profile_script_can_plan_config_merge(tmp_path: Path) -> None:
@@ -213,6 +265,22 @@ def test_plan_mode_can_include_precision_profile() -> None:
     assert "precision-profile" in result.stdout
 
 
+def test_plan_mode_can_skip_third_party_plugins() -> None:
+    repo_root = Path(__file__).resolve().parents[1]
+    main_py = repo_root / "src" / "blender_mcp_installer" / "main.py"
+
+    result = subprocess.run(
+        [sys.executable, str(main_py), "--plan", "--skip-third-party-plugins", "--no-launch-blender"],
+        cwd=repo_root,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0
+    assert "third-party-plugins" not in result.stdout
+
+
 def test_source_repo_root_points_to_workspace_repo() -> None:
     assert source_repo_root() == Path("D:/Claude/MCP")
 
@@ -233,12 +301,22 @@ def test_prepare_runtime_root_copies_templates_for_frozen_runtime(
     support_parent = tmp_path / "local-appdata"
     (bundle_root / "scripts").mkdir(parents=True)
     (bundle_root / "templates" / "precision").mkdir(parents=True)
+    (bundle_root / "templates" / "installer").mkdir(parents=True)
+    (bundle_root / "blender_addon" / "blender_mcp").mkdir(parents=True)
     (bundle_root / "scripts" / "install_precision_profile.ps1").write_text(
         "script",
         encoding="utf-8",
     )
     (bundle_root / "templates" / "precision" / "codex_config.toml").write_text(
         "[mcp_servers.blender_precision]\n",
+        encoding="utf-8",
+    )
+    (bundle_root / "templates" / "installer" / "third_party_plugins.json").write_text(
+        '{"plugins":[]}\n',
+        encoding="utf-8",
+    )
+    (bundle_root / "blender_addon" / "blender_mcp" / "__init__.py").write_text(
+        "bl_info = {}\n",
         encoding="utf-8",
     )
 
@@ -251,6 +329,8 @@ def test_prepare_runtime_root_copies_templates_for_frozen_runtime(
     assert runtime_root == support_parent / "BlenderMcpInstaller"
     assert (runtime_root / "scripts" / "install_precision_profile.ps1").exists()
     assert (runtime_root / "templates" / "precision" / "codex_config.toml").exists()
+    assert (runtime_root / "templates" / "installer" / "third_party_plugins.json").exists()
+    assert (runtime_root / "blender_addon" / "blender_mcp" / "__init__.py").exists()
 
 
 def test_prepare_runtime_root_copies_precision_package_for_frozen_runtime(
